@@ -15,17 +15,23 @@ Merchant Dashboard — KPI cards, opportunity feed, opportunity detail pages, da
 Auth + merchant isolation — JWT auth, scoped data access
 
 
-AI REVENUE & GROWTH ORCHESTRATOR - 14 DAY BUILD PLAN
-======================================================
+AI REVENUE & GROWTH ORCHESTRATOR - 14 DAY BUILD PLAN (JavaScript)
+====================================================================
 
 DAY 1 - PROJECT SETUP + DATABASE
 ----------------------------------
-[ ] Create GitHub repo, add .gitignore
-[ ] Set up monorepo structure (/backend, /frontend)
-[ ] Scaffold frontend: npm create vite@latest frontend -- --template react-ts
-[ ] Scaffold backend: npm init -y, install express typescript ts-node-dev prisma @prisma/client dotenv cors
-[ ] Configure tsconfig.json in backend
-[ ] Build basic Express server with /health route, confirm it runs
+[✓] Create GitHub repo, add .gitignore
+[✓] Set up monorepo structure (/backend, /frontend)
+[✓] Scaffold frontend: npm create vite@latest frontend -- --template react
+[✓] Scaffold backend: mkdir backend && cd backend && npm init -y
+[✓] Install backend deps: npm install express prisma @prisma/client dotenv cors
+[✓] Install dev dep: npm install -D nodemon
+[✓] Add "type": "module" in backend package.json (use ES modules, cleaner
+    import/export syntax) OR stick with require() if more comfortable -
+    either works fine in plain JS
+[✓] Add "dev" script in package.json: "nodemon src/index.js"
+[✓] Build basic Express server (src/index.js) with /health route, confirm
+    it runs with npm run dev
 [ ] Set up Postgres (Neon or Supabase free tier)
 [ ] npx prisma init, connect .env to DB, confirm connection works
 [ ] Write .env.example with placeholder keys (Razorpay, Claude API, DB URL)
@@ -37,34 +43,37 @@ DAY 2 - SCHEMA + SYNTHETIC DATA (PART 1)
 [ ] Run npx prisma migrate dev --name init
 [ ] Verify tables in npx prisma studio
 [ ] Install @faker-js/faker
-[ ] Start seed.ts: generate 30-50 products, mark subset as "replenishable"
+[ ] Start seed.js: generate 30-50 products, mark subset as "replenishable"
     with avgCycleDays field
 [ ] Generate 300-500 customers (mix of VIP, discount-sensitive, full-price flags)
 
 DAY 3 - SYNTHETIC DATA (PART 2) + INTERVAL TRACKING
 ------------------------------------------------------
-[ ] Finish seed.ts: generate 2,000-3,000 orders + order items
+[ ] Finish seed.js: generate 2,000-3,000 orders + order items
 [ ] Deliberately space a subset (40-60) of customers' orders on clean
     ~30-day cycles for replenishable products, with several sitting at
     day 28-31 TODAY (so opportunities show up live in demo)
-[ ] Run seed script, sanity-check patterns in Prisma Studio
-[ ] Build backend function: calculate avg purchase interval per
-    customer+product, days since last purchase, expected next purchase date
-[ ] Expose as API route, manually test against known seeded customers
+[ ] Run seed script (node prisma/seed.js), sanity-check patterns in
+    Prisma Studio
+[ ] Build backend function (src/services/intervalService.js): calculate
+    avg purchase interval per customer+product, days since last purchase,
+    expected next purchase date
+[ ] Expose as API route (src/routes/customers.js), manually test against
+    known seeded customers using Postman/Thunder Client/curl
 
 DAY 4 - REPLENISHMENT OPPORTUNITY ENGINE
 --------------------------------------------
-[ ] Build query/logic to scan all customers, flag anyone in the
-    "approaching window" (day 28-31 style)
+[ ] Build query/logic (src/services/opportunityEngine.js) to scan all
+    customers, flag anyone in the "approaching window" (day 28-31 style)
 [ ] Rank flagged customers into opportunity groups (by product)
 [ ] Calculate potential revenue, confidence, priority per opportunity
-[ ] Expose as API route (GET /opportunities)
+[ ] Expose as API route (GET /api/opportunities)
 [ ] Test route returns sensible ranked list against seed data
 
 DAY 5 - DISCOUNT-NECESSITY CLASSIFIER
 ------------------------------------------
-[ ] Build logic: check customer's history - did they ever need a discount
-    to rebuy before?
+[ ] Build logic (src/services/discountClassifier.js): check customer's
+    history - did they ever need a discount to rebuy before?
 [ ] Classify each customer: no-discount-needed / discount-sensitive /
     high-price-sensitivity
 [ ] Output recommended discount tier per customer (0% / 5% / 10%)
@@ -72,26 +81,27 @@ DAY 5 - DISCOUNT-NECESSITY CLASSIFIER
 
 DAY 6 - CAMPAIGN SIMULATOR
 -------------------------------
-[ ] Build simulate_campaign() function: given an opportunity + audience,
-    calculate expected conversion, revenue, cost, net revenue for
-    0%, 5%, 10% tiers
-[ ] Expose as API route (POST /simulate-campaign)
+[ ] Build simulateCampaign() function (src/services/campaignSimulator.js):
+    given an opportunity + audience, calculate expected conversion,
+    revenue, cost, net revenue for 0%, 5%, 10% tiers
+[ ] Expose as API route (POST /api/simulate-campaign)
 [ ] Test with multiple opportunity groups, confirm numbers look reasonable
     and net revenue calculations are correct
 
 DAY 7 - POLICY ENGINE
 ---------------------------
-[ ] Define policy config (external, not hardcoded): max discount %,
+[ ] Define policy config (external JSON/DB, not hardcoded): max discount %,
     max audience size, max budget, opt-out exclusion list
-[ ] Build policy validation function: takes a campaign proposal,
-    returns approve/reject + reason
+[ ] Build policy validation function (src/services/policyEngine.js):
+    takes a campaign proposal, returns approve/reject + reason
 [ ] Write Policy table + seed default policy values
-[ ] Expose as API route (POST /policy-check)
+[ ] Expose as API route (POST /api/policy-check)
 [ ] Test with a deliberately over-limit proposal to confirm rejection works
 
 DAY 8 - AI CAMPAIGN ORCHESTRATOR (CORE AGENT)
 ---------------------------------------------------
-[ ] Set up Claude API with tool-use in backend
+[ ] npm install @anthropic-ai/sdk
+[ ] Set up Claude API with tool-use in backend (src/services/orchestrator.js)
 [ ] Define tools: get_opportunity(), simulate_campaign(),
     calculate_expected_revenue(), create_campaign_draft()
 [ ] Write orchestrator prompt: given an opportunity, reason through
@@ -110,12 +120,13 @@ DAY 9 - FAILURE CASE + APPROVAL FLOW
 
 DAY 10 - RAZORPAY EXECUTION + AUDIT TRAIL
 ------------------------------------------------
+[ ] npm install razorpay
 [ ] Set up Razorpay test-mode SDK, test API keys in .env
 [ ] On approval, create real test-mode Razorpay orders/payment records
 [ ] Build AuditLog table + logging calls at every step (opportunity
     detected -> segment built -> simulated -> policy checked ->
     approved -> executed)
-[ ] Expose audit trail as API route (GET /audit-trail/:campaignId)
+[ ] Expose audit trail as API route (GET /api/audit-trail/:campaignId)
 
 DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
 --------------------------------------------------------
@@ -129,10 +140,13 @@ DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
 
 DAY 12 - FRONTEND: DASHBOARD + OPPORTUNITY FEED
 ------------------------------------------------------
-[ ] Set up Tailwind, dark fintech theme (charcoal bg, accent colors)
+[ ] Set up Tailwind in Vite React project (npm install -D tailwindcss
+    postcss autoprefixer, npx tailwindcss init -p)
+[ ] Dark fintech theme (charcoal bg, accent colors)
+[ ] npm install @tanstack/react-query axios recharts
 [ ] Build main Dashboard page: KPI cards (revenue generated,
     opportunity value, campaign ROI, net revenue)
-[ ] Build Opportunity Feed page: ranked cards from /opportunities
+[ ] Build Opportunity Feed page: ranked cards from /api/opportunities
 [ ] Wire up React Query for data fetching
 
 DAY 13 - FRONTEND: DETAIL PAGES + AUDIT + AUTH
@@ -141,7 +155,8 @@ DAY 13 - FRONTEND: DETAIL PAGES + AUDIT + AUTH
     approve-reject buttons)
 [ ] Build Campaign Results page (predicted vs actual, ROI)
 [ ] Build Audit Trail viewer (scrollable timeline)
-[ ] Add JWT auth (login route, protected routes, merchant scoping)
+[ ] Add JWT auth: npm install jsonwebtoken bcryptjs (backend),
+    login route, protected routes, merchant scoping
 [ ] Polish charts with Recharts
 
 DAY 14 - DEMO PREP + BUFFER
