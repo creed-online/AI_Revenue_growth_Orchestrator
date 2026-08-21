@@ -13,3 +13,146 @@ Audit Trail — timestamped log of every step from detection to execution, viewa
 Results Engine — predicted vs. actual outcome after campaign "runs"
 Merchant Dashboard — KPI cards, opportunity feed, opportunity detail pages, dark fintech UI
 Auth + merchant isolation — JWT auth, scoped data access
+
+
+AI REVENUE & GROWTH ORCHESTRATOR - 14 DAY BUILD PLAN
+======================================================
+
+DAY 1 - PROJECT SETUP + DATABASE
+----------------------------------
+[ ] Create GitHub repo, add .gitignore
+[ ] Set up monorepo structure (/backend, /frontend)
+[ ] Scaffold frontend: npm create vite@latest frontend -- --template react-ts
+[ ] Scaffold backend: npm init -y, install express typescript ts-node-dev prisma @prisma/client dotenv cors
+[ ] Configure tsconfig.json in backend
+[ ] Build basic Express server with /health route, confirm it runs
+[ ] Set up Postgres (Neon or Supabase free tier)
+[ ] npx prisma init, connect .env to DB, confirm connection works
+[ ] Write .env.example with placeholder keys (Razorpay, Claude API, DB URL)
+
+DAY 2 - SCHEMA + SYNTHETIC DATA (PART 1)
+------------------------------------------
+[ ] Write schema.prisma: Customer, Product, Order, OrderItem, Campaign,
+    CampaignVariant, Policy, ApprovalRequest, AuditLog, CampaignResult
+[ ] Run npx prisma migrate dev --name init
+[ ] Verify tables in npx prisma studio
+[ ] Install @faker-js/faker
+[ ] Start seed.ts: generate 30-50 products, mark subset as "replenishable"
+    with avgCycleDays field
+[ ] Generate 300-500 customers (mix of VIP, discount-sensitive, full-price flags)
+
+DAY 3 - SYNTHETIC DATA (PART 2) + INTERVAL TRACKING
+------------------------------------------------------
+[ ] Finish seed.ts: generate 2,000-3,000 orders + order items
+[ ] Deliberately space a subset (40-60) of customers' orders on clean
+    ~30-day cycles for replenishable products, with several sitting at
+    day 28-31 TODAY (so opportunities show up live in demo)
+[ ] Run seed script, sanity-check patterns in Prisma Studio
+[ ] Build backend function: calculate avg purchase interval per
+    customer+product, days since last purchase, expected next purchase date
+[ ] Expose as API route, manually test against known seeded customers
+
+DAY 4 - REPLENISHMENT OPPORTUNITY ENGINE
+--------------------------------------------
+[ ] Build query/logic to scan all customers, flag anyone in the
+    "approaching window" (day 28-31 style)
+[ ] Rank flagged customers into opportunity groups (by product)
+[ ] Calculate potential revenue, confidence, priority per opportunity
+[ ] Expose as API route (GET /opportunities)
+[ ] Test route returns sensible ranked list against seed data
+
+DAY 5 - DISCOUNT-NECESSITY CLASSIFIER
+------------------------------------------
+[ ] Build logic: check customer's history - did they ever need a discount
+    to rebuy before?
+[ ] Classify each customer: no-discount-needed / discount-sensitive /
+    high-price-sensitivity
+[ ] Output recommended discount tier per customer (0% / 5% / 10%)
+[ ] Expose as API route, test against a few known seeded customer profiles
+
+DAY 6 - CAMPAIGN SIMULATOR
+-------------------------------
+[ ] Build simulate_campaign() function: given an opportunity + audience,
+    calculate expected conversion, revenue, cost, net revenue for
+    0%, 5%, 10% tiers
+[ ] Expose as API route (POST /simulate-campaign)
+[ ] Test with multiple opportunity groups, confirm numbers look reasonable
+    and net revenue calculations are correct
+
+DAY 7 - POLICY ENGINE
+---------------------------
+[ ] Define policy config (external, not hardcoded): max discount %,
+    max audience size, max budget, opt-out exclusion list
+[ ] Build policy validation function: takes a campaign proposal,
+    returns approve/reject + reason
+[ ] Write Policy table + seed default policy values
+[ ] Expose as API route (POST /policy-check)
+[ ] Test with a deliberately over-limit proposal to confirm rejection works
+
+DAY 8 - AI CAMPAIGN ORCHESTRATOR (CORE AGENT)
+---------------------------------------------------
+[ ] Set up Claude API with tool-use in backend
+[ ] Define tools: get_opportunity(), simulate_campaign(),
+    calculate_expected_revenue(), create_campaign_draft()
+[ ] Write orchestrator prompt: given an opportunity, reason through
+    audience/offer/timing, call simulate_campaign, propose a strategy
+[ ] Wire orchestrator output into policy engine check automatically
+[ ] Test end-to-end: opportunity -> AI proposal -> policy check
+
+DAY 9 - FAILURE CASE + APPROVAL FLOW
+-------------------------------------------
+[ ] Deliberately engineer one scenario where AI's first proposal
+    breaches policy (e.g. nudge prompt/data toward 20% discount)
+[ ] Confirm rejection triggers AI revision to compliant version
+    (loop back through orchestrator with rejection reason)
+[ ] Build ApprovalRequest table + API routes (create, approve, reject)
+[ ] Build basic approval endpoint that gates execution until approved
+
+DAY 10 - RAZORPAY EXECUTION + AUDIT TRAIL
+------------------------------------------------
+[ ] Set up Razorpay test-mode SDK, test API keys in .env
+[ ] On approval, create real test-mode Razorpay orders/payment records
+[ ] Build AuditLog table + logging calls at every step (opportunity
+    detected -> segment built -> simulated -> policy checked ->
+    approved -> executed)
+[ ] Expose audit trail as API route (GET /audit-trail/:campaignId)
+
+DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
+--------------------------------------------------------
+[ ] Build simulated notification dispatch: generate personalized
+    message copy via Claude (title, body, CTA) - discount/audience
+    values locked from policy engine, not LLM-decided
+[ ] Store simulated sends per customer in DB
+[ ] Build Results Engine: generate simulated actual outcomes
+    (conversion %, revenue, cost, net revenue) post-execution
+[ ] Store in CampaignResult table, expose predicted-vs-actual API route
+
+DAY 12 - FRONTEND: DASHBOARD + OPPORTUNITY FEED
+------------------------------------------------------
+[ ] Set up Tailwind, dark fintech theme (charcoal bg, accent colors)
+[ ] Build main Dashboard page: KPI cards (revenue generated,
+    opportunity value, campaign ROI, net revenue)
+[ ] Build Opportunity Feed page: ranked cards from /opportunities
+[ ] Wire up React Query for data fetching
+
+DAY 13 - FRONTEND: DETAIL PAGES + AUDIT + AUTH
+------------------------------------------------------
+[ ] Build Opportunity Detail page (why/how/recommended action/simulation/
+    approve-reject buttons)
+[ ] Build Campaign Results page (predicted vs actual, ROI)
+[ ] Build Audit Trail viewer (scrollable timeline)
+[ ] Add JWT auth (login route, protected routes, merchant scoping)
+[ ] Polish charts with Recharts
+
+DAY 14 - DEMO PREP + BUFFER
+----------------------------------
+[ ] Full end-to-end run-through: opportunity -> AI proposal -> policy
+    reject -> revise -> approve -> execute -> results -> audit trail
+[ ] Fix any breaking bugs found during run-through
+[ ] Write demo script matching the scene order (dashboard open ->
+    ask AI -> why -> create campaign -> policy check -> approve ->
+    execute -> results -> audit trail)
+[ ] Record a backup demo video in case live demo breaks
+[ ] Final README + pitch deck slide with roadmap items (cross-sell,
+    upsell, replenishment-for-other-products, A/B testing) as "next"
+[ ] Rehearse pitch out loud at least twice
