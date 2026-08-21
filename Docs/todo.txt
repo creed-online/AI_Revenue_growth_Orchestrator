@@ -1,0 +1,15 @@
+AI Revenue & Growth Orchestrator — Final Build Todo
+Synthetic dataset generator — customers, products, orders with deliberate replenishment cycles baked in
+Customer purchase interval tracking — per-customer, per-product average repurchase interval, days since last purchase, days until expected next purchase
+Replenishment Opportunity Engine — detects customers approaching their repurchase window, outputs ranked opportunity cards
+Discount-necessity classifier — decides per customer whether a discount is needed to convert, and what tier, based on their history
+Campaign Simulator — simulates multiple offer tiers (0%/5%/10%) and projects conversion, revenue, cost, net revenue for each
+AI Campaign Orchestrator — Claude API + tool-use; reasons over opportunity + simulation data, drafts a campaign proposal
+Policy Engine — deterministic guardrails (max discount, max audience, max budget, opt-out exclusion); rejects out-of-policy proposals — include the deliberate reject-then-revise failure case here
+Merchant approval flow — review and approve/reject campaign proposals before execution
+Razorpay test-mode execution — approved campaigns create real test-mode orders/payments
+Simulated notification send — mock email/SMS/WhatsApp dispatch with personalized message content (LLM writes copy, policy engine locks the numbers)
+Audit Trail — timestamped log of every step from detection to execution, viewable in UI
+Results Engine — predicted vs. actual outcome after campaign "runs"
+Merchant Dashboard — KPI cards, opportunity feed, opportunity detail pages, dark fintech UI
+Auth + merchant isolation — JWT auth, scoped data access
