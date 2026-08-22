@@ -32,9 +32,9 @@ DAY 1 - PROJECT SETUP + DATABASE
 [✓] Add "dev" script in package.json: "nodemon src/index.js"
 [✓] Build basic Express server (src/index.js) with /health route, confirm
     it runs with npm run dev
-[ ] Set up Postgres (Neon or Supabase free tier)
-[ ] npx prisma init, connect .env to DB, confirm connection works
-[ ] Write .env.example with placeholder keys (Razorpay, Claude API, DB URL)
+[✓] Set up Postgres (Neon or Supabase free tier)
+[✓] npx prisma init, connect .env to DB, confirm connection works
+[✓] Write .env.example with placeholder keys (Razorpay, Claude API, DB URL)
 
 DAY 2 - SCHEMA + SYNTHETIC DATA (PART 1)
 ------------------------------------------

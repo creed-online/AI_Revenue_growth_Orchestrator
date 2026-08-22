@@ -1,0 +1,20 @@
+{
+  "name": "ai-revenue-growth-orchestrator",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx script.ts",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.12"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "dotenv": "^17.4.2",
+    "pg": "^8.23.0",
+    "prisma": "^7.9.1"
+  }
+}
