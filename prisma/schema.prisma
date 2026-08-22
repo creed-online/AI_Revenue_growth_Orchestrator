@@ -7,18 +7,192 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model Merchant {
+  id           Int        @id @default(autoincrement())
+  businessName String
+  email        String     @unique
+  industry     String?
+  currency     String     @default("INR")
+  createdAt    DateTime   @default(now())
+
+  customers    Customer[]
+  products     Product[]
+  campaigns    Campaign[]
+  policies     Policy[]
+  auditLogs    AuditLog[]
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Customer {
+  id               Int       @id @default(autoincrement())
+  merchantId       Int
+  merchant         Merchant  @relation(fields: [merchantId], references: [id])
+
+  name             String
+  email            String?
+  totalOrders      Int       @default(0)
+  totalSpend       Float     @default(0)
+  avgOrderValue    Float     @default(0)
+  lastPurchaseDate DateTime?
+  firstPurchaseDate DateTime?
+
+  isVip            Boolean   @default(false)
+  isDiscountSensitive Boolean @default(false)
+  isDormant        Boolean   @default(false)
+
+  reactivationScore   Float  @default(0)
+  crossSellScore      Float  @default(0)
+  upsellScore         Float  @default(0)
+  replenishmentScore  Float  @default(0)
+
+  createdAt        DateTime  @default(now())
+
+  orders           Order[]
+}
+
+model Product {
+  id             Int       @id @default(autoincrement())
+  merchantId     Int
+  merchant       Merchant  @relation(fields: [merchantId], references: [id])
+
+  name           String
+  price          Float
+  category       String?
+
+  isReplenishable Boolean  @default(false)
+  avgCycleDays    Int?
+
+  createdAt      DateTime  @default(now())
+
+  orderItems     OrderItem[]
+}
+
+model Order {
+  id           Int          @id @default(autoincrement())
+  customerId   Int
+  customer     Customer     @relation(fields: [customerId], references: [id])
+
+  totalAmount  Float
+  status       String       @default("completed") // completed, cancelled, refunded
+  createdAt    DateTime     @default(now())
+
+  items        OrderItem[]
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  order      Order    @relation(fields: [orderId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+
+  quantity   Int      @default(1)
+  price      Float
+}
+
+model Campaign {
+  id               Int       @id @default(autoincrement())
+  merchantId       Int
+  merchant         Merchant  @relation(fields: [merchantId], references: [id])
+
+  name             String
+  type             String    // reactivation, cross_sell, upsell, replenishment
+  status           String    @default("draft") // draft, pending_approval, approved, rejected, running, completed, cancelled
+
+  audienceSize     Int       @default(0)
+  offerType        String?   // percentage, flat
+  offerValue       Float?
+
+  expectedRevenue  Float?
+  expectedCost     Float?
+  expectedRoi      Float?
+
+  actualRevenue    Float?
+  actualCost       Float?
+  actualRoi        Float?
+
+  createdAt        DateTime  @default(now())
+  approvedAt       DateTime?
+  executedAt       DateTime?
+  completedAt      DateTime?
+
+  variants         CampaignVariant[]
+  approvalRequests ApprovalRequest[]
+  results          CampaignResult[]
+}
+
+model CampaignVariant {
+  id               Int       @id @default(autoincrement())
+  campaignId       Int
+  campaign         Campaign  @relation(fields: [campaignId], references: [id])
+
+  label            String    // e.g. "5% discount", "10% discount"
+  discountValue    Float
+  expectedConversion Float
+  expectedRevenue  Float
+  expectedCost     Float
+  expectedNetRevenue Float
+
+  createdAt        DateTime  @default(now())
+}
+
+model Policy {
+  id                       Int      @id @default(autoincrement())
+  merchantId               Int
+  merchant                 Merchant @relation(fields: [merchantId], references: [id])
+
+  maxDiscount              Float    @default(15)
+  maxCampaignAudience      Int      @default(5000)
+  maxCampaignBudget        Float    @default(20000)
+  maxCampaignsPerCustomerPerMonth Int @default(2)
+  requireApproval          Boolean  @default(true)
+
+  createdAt                DateTime @default(now())
+}
+
+model ApprovalRequest {
+  id           Int       @id @default(autoincrement())
+  campaignId   Int
+  campaign     Campaign  @relation(fields: [campaignId], references: [id])
+
+  status       String    @default("pending") // pending, approved, rejected
+  requestedAt  DateTime  @default(now())
+  resolvedAt   DateTime?
+  reason       String?
+}
+
+model AuditLog {
+  id             Int       @id @default(autoincrement())
+  merchantId     Int
+  merchant       Merchant  @relation(fields: [merchantId], references: [id])
+
+  actor          String    // "ai" | "merchant" | "system"
+  action         String
+  entityType     String?
+  entityId       Int?
+
+  inputSummary   String?
+  reason         String?
+  confidence     Float?
+  policyResult   String?
+  executionResult String?
+
+  timestamp      DateTime  @default(now())
+}
+
+model CampaignResult {
+  id             Int       @id @default(autoincrement())
+  campaignId     Int
+  campaign       Campaign  @relation(fields: [campaignId], references: [id])
+
+  audienceSize   Int
+  reach          Int
+  conversions    Int
+  conversionRate Float
+  revenue        Float
+  campaignCost   Float
+  discountCost   Float
+  netRevenue     Float
+  roi            Float
+
+  createdAt      DateTime  @default(now())
 }

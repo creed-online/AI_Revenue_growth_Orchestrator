@@ -38,7 +38,7 @@ DAY 1 - PROJECT SETUP + DATABASE
 
 DAY 2 - SCHEMA + SYNTHETIC DATA (PART 1)
 ------------------------------------------
-[ ] Write schema.prisma: Customer, Product, Order, OrderItem, Campaign,
+[✓] Write schema.prisma: Customer, Product, Order, OrderItem, Campaign,
     CampaignVariant, Policy, ApprovalRequest, AuditLog, CampaignResult
 [ ] Run npx prisma migrate dev --name init
 [ ] Verify tables in npx prisma studio
