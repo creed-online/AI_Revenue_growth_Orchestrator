@@ -1,0 +1,46 @@
+import express from "express";
+import {
+  calculateReplenishmentInfo,
+  findDueReplenishmentOpportunities,
+} from "../services/replenishment-intervalService.js";
+
+const router = express.Router();
+
+/**
+ * GET /api/customers/:id/replenishment
+ * Returns per-product purchase interval data for one customer.
+ */
+router.get("/:id/replenishment", async (req, res) => {
+  try {
+    const customerId = parseInt(req.params.id, 10);
+
+    if (Number.isNaN(customerId)) {
+      return res.status(400).json({ error: "Invalid customer id" });
+    }
+
+    const result = await calculateReplenishmentInfo(customerId);
+    res.json({ customerId, products: result });
+  } catch (error) {
+    console.error("Error calculating replenishment info:", error);
+    res.status(500).json({ error: "Failed to calculate replenishment info" });
+  }
+});
+
+/**
+ * GET /api/customers/replenishment/due?merchantId=1
+ * Returns every customer+product combination currently due for
+ * replenishment, across the whole merchant. Useful for testing the
+ * "opportunities show up live in demo" scenario from Day 3.
+ */
+router.get("/replenishment/due", async (req, res) => {
+  try {
+    const merchantId = parseInt(req.query.merchantId, 10) || 1;
+    const due = await findDueReplenishmentOpportunities(merchantId);
+    res.json({ merchantId, count: due.length, due });
+  } catch (error) {
+    console.error("Error finding due replenishment opportunities:", error);
+    res.status(500).json({ error: "Failed to find due opportunities" });
+  }
+});
+
+export default router;
