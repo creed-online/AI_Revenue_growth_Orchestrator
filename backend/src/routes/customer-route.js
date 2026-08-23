@@ -2,6 +2,7 @@ import express from "express";
 import {
   calculateReplenishmentInfo,
   findDueReplenishmentOpportunities,
+  findDueCustomersForProduct,
 } from "../services/replenishment-intervalService.js";
 
 const router = express.Router();
@@ -18,7 +19,9 @@ router.get("/:id/replenishment", async (req, res) => {
       return res.status(400).json({ error: "Invalid customer id" });
     }
 
-    const result = await calculateReplenishmentInfo(customerId);
+    const merchantId = parseInt(req.query.merchantId, 10) || 1;
+    const result = await calculateReplenishmentInfo(customerId, merchantId);
+    
     res.json({ customerId, products: result });
   } catch (error) {
     console.error("Error calculating replenishment info:", error);
@@ -40,6 +43,28 @@ router.get("/replenishment/due", async (req, res) => {
   } catch (error) {
     console.error("Error finding due replenishment opportunities:", error);
     res.status(500).json({ error: "Failed to find due opportunities" });
+  }
+});
+
+/**
+ * GET /api/customers/replenishment/due-for-product/:productId?merchantId=1
+ * Returns every customer currently due to repurchase ONE specific product.
+ * Useful for "who should we target for a campaign on this product" queries.
+ */
+router.get("/replenishment/due-for-product/:productId", async (req, res) => {
+  try {
+    const productId = parseInt(req.params.productId, 10);
+    const merchantId = parseInt(req.query.merchantId, 10) || 1;
+
+    if (Number.isNaN(productId)) {
+      return res.status(400).json({ error: "Invalid product id" });
+    }
+
+    const due = await findDueCustomersForProduct(merchantId, productId);
+    res.json({ merchantId, productId, count: due.length, due });
+  } catch (error) {
+    console.error("Error finding due customers for product:", error);
+    res.status(500).json({ error: "Failed to find due customers for product" });
   }
 });
 
