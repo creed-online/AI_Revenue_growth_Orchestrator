@@ -49,16 +49,16 @@ DAY 2 - SCHEMA + SYNTHETIC DATA (PART 1)
 
 DAY 3 - SYNTHETIC DATA (PART 2) + INTERVAL TRACKING
 ------------------------------------------------------
-[ ] Finish seed.js: generate 2,000-3,000 orders + order items
-[ ] Deliberately space a subset (40-60) of customers' orders on clean
+[✓] Finish seed.js: generate 2,000-3,000 orders + order items
+[✓] Deliberately space a subset (40-60) of customers' orders on clean
     ~30-day cycles for replenishable products, with several sitting at
     day 28-31 TODAY (so opportunities show up live in demo)
-[ ] Run seed script (node prisma/seed.js), sanity-check patterns in
+[✓] Run seed script (node prisma/seed.js), sanity-check patterns in
     Prisma Studio
-[ ] Build backend function (src/services/intervalService.js): calculate
+[] Build backend function (src/services/replenishment-intervalService.js): calculate
     avg purchase interval per customer+product, days since last purchase,
     expected next purchase date
-[ ] Expose as API route (src/routes/customers.js), manually test against
+[ ] Expose as API route (src/routes/customer-route.js), manually test against
     known seeded customers using Postman/Thunder Client/curl
 
 DAY 4 - REPLENISHMENT OPPORTUNITY ENGINE
