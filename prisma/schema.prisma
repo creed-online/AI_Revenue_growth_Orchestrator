@@ -27,6 +27,8 @@ model Customer {
   merchantId       Int
   merchant         Merchant  @relation(fields: [merchantId], references: [id])
 
+  @@index([merchantId])
+
   name             String
   email            String?
   totalOrders      Int       @default(0)
@@ -71,6 +73,8 @@ model Order {
   customerId   Int
   customer     Customer     @relation(fields: [customerId], references: [id])
 
+  @@index([customerId, createdAt])
+
   totalAmount  Float
   status       String       @default("completed") // completed, cancelled, refunded
   createdAt    DateTime     @default(now())
@@ -84,6 +88,9 @@ model OrderItem {
   order      Order    @relation(fields: [orderId], references: [id])
   productId  Int
   product    Product  @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 
   quantity   Int      @default(1)
   price      Float

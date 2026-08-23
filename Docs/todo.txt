@@ -55,10 +55,10 @@ DAY 3 - SYNTHETIC DATA (PART 2) + INTERVAL TRACKING
     day 28-31 TODAY (so opportunities show up live in demo)
 [✓] Run seed script (node prisma/seed.js), sanity-check patterns in
     Prisma Studio
-[] Build backend function (src/services/replenishment-intervalService.js): calculate
+[✓] Build backend function (src/services/replenishment-intervalService.js): calculate
     avg purchase interval per customer+product, days since last purchase,
     expected next purchase date
-[ ] Expose as API route (src/routes/customer-route.js), manually test against
+[✓] Expose as API route (src/routes/customer-route.js), manually test against
     known seeded customers using Postman/Thunder Client/curl
 
 DAY 4 - REPLENISHMENT OPPORTUNITY ENGINE
