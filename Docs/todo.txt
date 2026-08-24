@@ -90,13 +90,13 @@ DAY 6 - CAMPAIGN SIMULATOR
 
 DAY 7 - POLICY ENGINE
 ---------------------------
-[ ] Define policy config (external JSON/DB, not hardcoded): max discount %
+[✓] Define policy config (external JSON/DB, not hardcoded): max discount %
     max audience size, max budget, opt-out exclusion list
-[ ] Build policy validation function (src/services/policyEngine.js):
+[✓] Build policy validation function (src/services/policyEngine.js):
     takes a campaign proposal, returns approve/reject + reason
-[ ] Write Policy table + seed default policy values
-[ ] Expose as API route (POST /api/policy-check)
-[ ] Test with a deliberately over-limit proposal to confirm rejection works
+[✓] Write Policy table + seed default policy values
+[✓] Expose as API route (POST /api/policy-check)
+[✓] Test with a deliberately over-limit proposal to confirm rejection works
 
 DAY 8 - AI CAMPAIGN ORCHESTRATOR (CORE AGENT)
 ---------------------------------------------------
