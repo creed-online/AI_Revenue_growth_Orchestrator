@@ -4,6 +4,7 @@ import {
   findDueReplenishmentOpportunities,
   findDueCustomersForProduct,
 } from "../services/replenishment-intervalService.js";
+import { getDiscountClassification } from "../services/discountClassifier.js";
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.get("/:id/replenishment", async (req, res) => {
 
     const merchantId = parseInt(req.query.merchantId, 10) || 1;
     const result = await calculateReplenishmentInfo(customerId, merchantId);
-    
+
     res.json({ customerId, products: result });
   } catch (error) {
     console.error("Error calculating replenishment info:", error);
@@ -65,6 +66,23 @@ router.get("/replenishment/due-for-product/:productId", async (req, res) => {
   } catch (error) {
     console.error("Error finding due customers for product:", error);
     res.status(500).json({ error: "Failed to find due customers for product" });
+  }
+});
+
+router.get("/:id/discount-classification", async (req, res) => {
+  try {
+    const customerId = parseInt(req.params.id, 10);
+    const merchantId = parseInt(req.query.merchantId, 10) || 1;
+
+    if (Number.isNaN(customerId)) {
+      return res.status(400).json({ error: "Invalid customer id" });
+    }
+
+    const result = await getDiscountClassification(customerId, merchantId);
+    return res.json(result);
+  } catch (error) {
+    console.error("Error classifying customer discount need:", error);
+    return res.status(500).json({ error: "Failed to classify discount need" });
   }
 });
 
