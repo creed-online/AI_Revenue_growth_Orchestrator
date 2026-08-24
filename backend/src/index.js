@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 import express from "express";
 import { prisma } from "./lib/prisma.js";
+import campaignRoute from "./routes/campaign-route.js";
 import customerRoute from "./routes/customer-route.js";
 import opportunitiesRoute from "./routes/opportunities-route.js";
 
@@ -10,6 +11,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use("/api", campaignRoute);
 app.use("/api/customers", customerRoute);
 app.use("/api/opportunities", opportunitiesRoute);
 
