@@ -100,21 +100,27 @@ DAY 7 - POLICY ENGINE
 
 DAY 8 - AI CAMPAIGN ORCHESTRATOR (CORE AGENT)
 ---------------------------------------------------
-[ ] npm install @anthropic-ai/sdk
-[ ] Set up Claude API with tool-use in backend (src/services/orchestrator.js)
+[ ] npm install @anthropic-ai/sdk groq-sdk (or openai SDK, since Groq is OpenAI-compatible)
+[ ] Create a small model-client config file (src/config/aiClient.js) that
+    abstracts provider + model behind one switch (GROQ vs ANTHROPIC via env var)
+[ ] Set up orchestrator in backend (src/services/orchestrator.js), built
+    against Groq (Llama 3.3 / Qwen — verified reliable tool-calling) for
+    free iteration
 [ ] Define tools: get_opportunity(), simulate_campaign(),
     calculate_expected_revenue(), create_campaign_draft()
 [ ] Write orchestrator prompt: given an opportunity, reason through
     audience/offer/timing, call simulate_campaign, propose a strategy
 [ ] Wire orchestrator output into policy engine check automatically
-[ ] Test end-to-end: opportunity -> AI proposal -> policy check
+[ ] Test end-to-end on Groq: opportunity -> AI proposal -> policy check
+[ ] Once flow is stable on Groq, do ONE clean switch-test on real Claude
+    API to confirm the swap works (light touch — save credit)
 
 DAY 9 - FAILURE CASE + APPROVAL FLOW
 -------------------------------------------
 [ ] Deliberately engineer one scenario where AI's first proposal
     breaches policy (e.g. nudge prompt/data toward 20% discount)
 [ ] Confirm rejection triggers AI revision to compliant version
-    (loop back through orchestrator with rejection reason)
+    (loop back through orchestrator with rejection reason) — test on Groq
 [ ] Build ApprovalRequest table + API routes (create, approve, reject)
 [ ] Build basic approval endpoint that gates execution until approved
 
@@ -131,8 +137,8 @@ DAY 10 - RAZORPAY EXECUTION + AUDIT TRAIL
 DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
 --------------------------------------------------------
 [ ] Build simulated notification dispatch: generate personalized
-    message copy via Claude (title, body, CTA) - discount/audience
-    values locked from policy engine, not LLM-decided
+    message copy via AI client (title, body, CTA) — test copy generation
+    on Groq, discount/audience values locked from policy engine
 [ ] Store simulated sends per customer in DB
 [ ] Build Results Engine: generate simulated actual outcomes
     (conversion %, revenue, cost, net revenue) post-execution
@@ -140,8 +146,7 @@ DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
 
 DAY 12 - FRONTEND: DASHBOARD + OPPORTUNITY FEED
 ------------------------------------------------------
-[ ] Set up Tailwind in Vite React project (npm install -D tailwindcss
-    postcss autoprefixer, npx tailwindcss init -p)
+[ ] Set up Tailwind in Vite React project
 [ ] Dark fintech theme (charcoal bg, accent colors)
 [ ] npm install @tanstack/react-query axios recharts
 [ ] Build main Dashboard page: KPI cards (revenue generated,
@@ -161,8 +166,10 @@ DAY 13 - FRONTEND: DETAIL PAGES + AUDIT + AUTH
 
 DAY 14 - DEMO PREP + BUFFER
 ----------------------------------
-[ ] Full end-to-end run-through: opportunity -> AI proposal -> policy
-    reject -> revise -> approve -> execute -> results -> audit trail
+[ ] SWITCH FULLY TO CLAUDE API for the live demo (this is where the $4
+    credit gets spent — not before)
+[ ] Full end-to-end run-through on Claude: opportunity -> AI proposal ->
+    policy reject -> revise -> approve -> execute -> results -> audit trail
 [ ] Fix any breaking bugs found during run-through
 [ ] Write demo script matching the scene order (dashboard open ->
     ask AI -> why -> create campaign -> policy check -> approve ->
