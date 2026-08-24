@@ -100,8 +100,8 @@ DAY 7 - POLICY ENGINE
 
 DAY 8 - AI CAMPAIGN ORCHESTRATOR (CORE AGENT)
 ---------------------------------------------------
-[ ] npm install @anthropic-ai/sdk groq-sdk (or openai SDK, since Groq is OpenAI-compatible)
-[ ] Create a small model-client config file (src/config/aiClient.js) that
+[✓] npm install @anthropic-ai/sdk groq-sdk (or openai SDK, since Groq is OpenAI-compatible)
+[✓] Create a small model-client config file (src/config/aiClient.js) that
     abstracts provider + model behind one switch (GROQ vs ANTHROPIC via env var)
 [ ] Set up orchestrator in backend (src/services/orchestrator.js), built
     against Groq (Llama 3.3 / Qwen — verified reliable tool-calling) for
