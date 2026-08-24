@@ -8,6 +8,7 @@ function computeIntervalsFromPurchases(purchases) {
       byProduct.set(p.productId, {
         productId: p.productId,
         productName: p.productName,
+        productPrice: Number(p.productPrice ?? 0),
         isReplenishable: p.isReplenishable,
         catalogAvgCycleDays: p.catalogAvgCycleDays,
         dates: [],
@@ -20,7 +21,14 @@ function computeIntervalsFromPurchases(purchases) {
   const now = new Date();
 
   for (const entry of byProduct.values()) {
-    const { productId, productName, isReplenishable, catalogAvgCycleDays, dates } = entry;
+    const {
+      productId,
+      productName,
+      productPrice,
+      isReplenishable,
+      catalogAvgCycleDays,
+      dates,
+    } = entry;
 
     if (dates.length < 2) continue;
 
@@ -42,11 +50,13 @@ function computeIntervalsFromPurchases(purchases) {
 
     const daysUntilExpected =
       (expectedNextPurchaseDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-    const isDueForReplenishment = isReplenishable && daysUntilExpected <= 3;
+    const isDueForReplenishment = Boolean(isReplenishable && daysUntilExpected <= 3);
+    const estimatedRevenue = Number((productPrice * Math.max(1, dates.length)).toFixed(2));
 
     results.push({
       productId,
       productName,
+      productPrice,
       isReplenishable,
       catalogAvgCycleDays,
       purchaseCount: dates.length,
@@ -55,6 +65,8 @@ function computeIntervalsFromPurchases(purchases) {
       daysSinceLastPurchase: Math.round(daysSinceLastPurchase * 10) / 10,
       expectedNextPurchaseDate,
       isDueForReplenishment,
+      estimatedRevenue,
+      potentialRevenue: estimatedRevenue,
     });
   }
 
@@ -77,6 +89,8 @@ async function fetchPurchasesGroupedByCustomer(merchantId, customerId = null) {
     },
     select: {
       productId: true,
+      price: true,
+      quantity: true,
       order: {
         select: {
           customerId: true,
@@ -86,6 +100,7 @@ async function fetchPurchasesGroupedByCustomer(merchantId, customerId = null) {
       product: {
         select: {
           name: true,
+          price: true,
           isReplenishable: true,
           avgCycleDays: true,
         },
@@ -102,6 +117,7 @@ async function fetchPurchasesGroupedByCustomer(merchantId, customerId = null) {
     byCustomer.get(cId).push({
       productId: item.productId,
       productName: item.product.name,
+      productPrice: Number(item.product.price ?? item.price ?? 0),
       isReplenishable: item.product.isReplenishable,
       catalogAvgCycleDays: item.product.avgCycleDays,
       createdAt: item.order.createdAt,

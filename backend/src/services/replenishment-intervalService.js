@@ -10,6 +10,7 @@ function summarizePurchaseHistory(orderItems) {
       byProduct.set(productId, {
         productId,
         productName: product.name,
+        productPrice: Number(product.price ?? 0),
         isReplenishable: product.isReplenishable,
         catalogAvgCycleDays: product.avgCycleDays,
         dates: [],
@@ -22,7 +23,14 @@ function summarizePurchaseHistory(orderItems) {
   const results = [];
 
   for (const entry of byProduct.values()) {
-    const { productId, productName, isReplenishable, catalogAvgCycleDays, dates } = entry;
+    const {
+      productId,
+      productName,
+      productPrice,
+      isReplenishable,
+      catalogAvgCycleDays,
+      dates,
+    } = entry;
 
     if (dates.length < 2) {
       continue;
@@ -48,10 +56,12 @@ function summarizePurchaseHistory(orderItems) {
     const daysUntilExpected =
       (expectedNextPurchaseDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
     const isDueForReplenishment = isReplenishable && daysUntilExpected <= 3;
+    const estimatedRevenue = Number((productPrice * Math.max(1, sortedDates.length)).toFixed(2));
 
     results.push({
       productId,
       productName,
+      productPrice,
       isReplenishable,
       catalogAvgCycleDays,
       purchaseCount: sortedDates.length,
@@ -60,6 +70,8 @@ function summarizePurchaseHistory(orderItems) {
       daysSinceLastPurchase: Math.round(daysSinceLastPurchase * 10) / 10,
       expectedNextPurchaseDate,
       isDueForReplenishment,
+      estimatedRevenue,
+      potentialRevenue: estimatedRevenue,
     });
   }
 
@@ -102,6 +114,7 @@ export async function calculateReplenishmentInfo(customerId) {
       product: {
         select: {
           name: true,
+          price: true,
           isReplenishable: true,
           avgCycleDays: true,
         },
@@ -146,6 +159,7 @@ export async function findDueReplenishmentOpportunities(merchantId) {
       product: {
         select: {
           name: true,
+          price: true,
           isReplenishable: true,
           avgCycleDays: true,
         },
@@ -217,6 +231,7 @@ export async function findDueCustomersForProduct(merchantId, productId) {
       product: {
         select: {
           name: true,
+          price: true,
           isReplenishable: true,
           avgCycleDays: true,
         },
