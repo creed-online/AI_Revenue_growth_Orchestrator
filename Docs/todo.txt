@@ -63,12 +63,12 @@ DAY 3 - SYNTHETIC DATA (PART 2) + INTERVAL TRACKING
 
 DAY 4 - REPLENISHMENT OPPORTUNITY ENGINE
 --------------------------------------------
-[ ] Build query/logic (src/services/opportunityEngine.js) to scan all
+[✓] Build query/logic (src/services/opportunityEngine.js) to scan all
     customers, flag anyone in the "approaching window" (day 28-31 style)
-[ ] Rank flagged customers into opportunity groups (by product)
-[ ] Calculate potential revenue, confidence, priority per opportunity
-[ ] Expose as API route (GET /api/opportunities)
-[ ] Test route returns sensible ranked list against seed data
+[✓] Rank flagged customers into opportunity groups (by product)
+[✓] Calculate potential revenue, confidence, priority per opportunity
+[✓] Expose as API route (GET /api/opportunities)
+[✓] Test route returns sensible ranked list against seed data
 
 DAY 5 - DISCOUNT-NECESSITY CLASSIFIER
 ------------------------------------------

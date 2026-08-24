@@ -3,12 +3,15 @@ dotenv.config({ path: "../.env" });
 import express from "express";
 import { prisma } from "./lib/prisma.js";
 import customerRoute from "./routes/customer-route.js";
+import opportunitiesRoute from "./routes/opportunities-route.js";
+
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use("/api/customers", customerRoute);
+app.use("/api/opportunities", opportunitiesRoute);
 
 /**
  * Verifies the database connection is actually reachable before the
