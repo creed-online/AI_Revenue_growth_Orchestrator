@@ -152,6 +152,8 @@ model Policy {
   maxCampaignBudget        Float    @default(20000)
   maxCampaignsPerCustomerPerMonth Int @default(2)
   requireApproval          Boolean  @default(true)
+  optOutCustomerIds        Json?
+  optOutProductIds         Json?
 
   createdAt                DateTime @default(now())
 }

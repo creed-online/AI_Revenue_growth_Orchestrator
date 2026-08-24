@@ -15,6 +15,29 @@ async function main() {
   });
   console.log(`✔ Created merchant: ${merchant.businessName} (id: ${merchant.id})`);
 
+  let merchantPolicy = await prisma.policy.findFirst({
+    where: { merchantId: merchant.id },
+  });
+
+  if (!merchantPolicy) {
+    merchantPolicy = await prisma.policy.create({
+      data: {
+        merchantId: merchant.id,
+        maxDiscount: 10,
+        maxCampaignAudience: 500,
+        maxCampaignBudget: 25000,
+        maxCampaignsPerCustomerPerMonth: 2,
+        requireApproval: true,
+        optOutCustomerIds: [],
+        optOutProductIds: [],
+      },
+    });
+  }
+
+  console.log(
+    `✔ Seeded policy for merchant ${merchant.id}: maxDiscount=${merchantPolicy.maxDiscount}, maxAudience=${merchantPolicy.maxCampaignAudience}, maxBudget=${merchantPolicy.maxCampaignBudget}`
+  );
+
   // ---------------------------------------------------------
   // 2. PRODUCTS (30-50, ~40% replenishable)
   // ---------------------------------------------------------
