@@ -149,3 +149,35 @@ export async function getDiscountClassification(customerId, merchantId = 1) {
     stats,
   };
 }
+
+export async function getAllCustomerDiscountClassifications(merchantId = 1) {
+  const customers = await prisma.customer.findMany({
+    where: { merchantId },
+    include: {
+      orders: {
+        where: { status: "completed" },
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+
+  const results = await Promise.all(
+    customers.map(async (customer) => {
+      const stats = buildCustomerPurchaseStats(customer);
+      const classification = classifyCustomer(stats);
+
+      return {
+        customerId: customer.id,
+        customerName: customer.name,
+        merchantId,
+        classification: classification.classification,
+        recommendedDiscountTier: classification.recommendedDiscountTier,
+        score: classification.score,
+        reasons: classification.reasons,
+        stats,
+      };
+    })
+  );
+
+  return results.sort((a, b) => b.score - a.score);
+}

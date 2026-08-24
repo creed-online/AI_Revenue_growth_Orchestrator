@@ -4,7 +4,10 @@ import {
   findDueReplenishmentOpportunities,
   findDueCustomersForProduct,
 } from "../services/replenishment-intervalService.js";
-import { getDiscountClassification } from "../services/discountClassifier.js";
+import {
+  getDiscountClassification,
+  getAllCustomerDiscountClassifications,
+} from "../services/discountClassifier.js";
 
 const router = express.Router();
 
@@ -83,6 +86,22 @@ router.get("/:id/discount-classification", async (req, res) => {
   } catch (error) {
     console.error("Error classifying customer discount need:", error);
     return res.status(500).json({ error: "Failed to classify discount need" });
+  }
+});
+
+router.get("/discount-classification", async (req, res) => {
+  try {
+    const merchantId = parseInt(req.query.merchantId, 10) || 1;
+    const results = await getAllCustomerDiscountClassifications(merchantId);
+
+    return res.json({
+      merchantId,
+      count: results.length,
+      customers: results,
+    });
+  } catch (error) {
+    console.error("Error classifying all customer discount needs:", error);
+    return res.status(500).json({ error: "Failed to classify merchant customer discount needs" });
   }
 });
 
