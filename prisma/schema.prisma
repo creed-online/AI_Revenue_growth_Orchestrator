@@ -11,6 +11,7 @@ model Merchant {
   id           Int        @id @default(autoincrement())
   businessName String
   email        String     @unique
+  passwordHash String?
   industry     String?
   currency     String     @default("INR")
   createdAt    DateTime   @default(now())
