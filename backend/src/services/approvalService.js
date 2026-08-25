@@ -108,7 +108,10 @@ export async function getApprovalRequest(id) {
  * Merchant approves a pending request.
  */
 export async function approveRequest(id, decidedBy = "merchant") {
-  const existing = await prisma.approvalRequest.findUnique({ where: { id: Number(id) } });
+  const existing = await prisma.approvalRequest.findUnique({
+    where: { id: Number(id) },
+    include: { campaign: true },
+  });
   if (!existing) return { error: "not_found" };
   if (existing.status !== "pending") {
     return { error: "already_decided", status: existing.status };
@@ -123,6 +126,17 @@ export async function approveRequest(id, decidedBy = "merchant") {
       where: { id: existing.campaignId },
       data: { status: "approved", approvedAt: new Date() },
     }),
+    prisma.auditLog.create({
+      data: {
+        merchantId: existing.campaign.merchantId,
+        actor: decidedBy || "merchant",
+        action: "campaign_approved",
+        entityType: "Campaign",
+        entityId: existing.campaignId,
+        inputSummary: `approvalRequestId=${existing.id}`,
+        reason: "Merchant approved campaign draft",
+      },
+    }),
   ]);
 
   return approvalRequest;
@@ -132,7 +146,10 @@ export async function approveRequest(id, decidedBy = "merchant") {
  * Merchant rejects a pending request.
  */
 export async function rejectRequest(id, decidedBy = "merchant", reason) {
-  const existing = await prisma.approvalRequest.findUnique({ where: { id: Number(id) } });
+  const existing = await prisma.approvalRequest.findUnique({
+    where: { id: Number(id) },
+    include: { campaign: true },
+  });
   if (!existing) return { error: "not_found" };
   if (existing.status !== "pending") {
     return { error: "already_decided", status: existing.status };
@@ -146,6 +163,17 @@ export async function rejectRequest(id, decidedBy = "merchant", reason) {
     prisma.campaign.update({
       where: { id: existing.campaignId },
       data: { status: "rejected" },
+    }),
+    prisma.auditLog.create({
+      data: {
+        merchantId: existing.campaign.merchantId,
+        actor: decidedBy || "merchant",
+        action: "campaign_rejected",
+        entityType: "Campaign",
+        entityId: existing.campaignId,
+        inputSummary: `approvalRequestId=${existing.id}`,
+        reason: reason || "Merchant rejected campaign draft",
+      },
     }),
   ]);
 
