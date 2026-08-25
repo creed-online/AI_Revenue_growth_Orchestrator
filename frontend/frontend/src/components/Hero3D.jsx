@@ -1,25 +1,30 @@
-import React, { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float } from '@react-three/drei';
-import * as THREE from 'three';
+import { useMemo, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float } from "@react-three/drei";
+import { motion } from "framer-motion";
+import * as THREE from "three";
+import { ArrowRight, Bot } from "lucide-react";
 
-function ParticleField({ count = 350 }) {
+function ParticleField({ count = 420 }) {
   const pointsRef = useRef();
 
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const cols = new Float32Array(count * 3);
-    const emerald = new THREE.Color('#10b981');
-    const cyan = new THREE.Color('#06b6d4');
-    const purple = new THREE.Color('#a855f7');
+    const mint = new THREE.Color("#2dd4a8");
+    const sky = new THREE.Color("#38bdf8");
+    const soft = new THREE.Color("#94a3b8");
 
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 12;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 8;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      const radius = 1.2 + Math.random() * 5.5;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta) * 0.7;
+      pos[i * 3 + 2] = radius * Math.cos(phi);
 
-      const rand = Math.random();
-      const col = rand > 0.6 ? emerald : rand > 0.3 ? cyan : purple;
+      const pick = Math.random();
+      const col = pick > 0.55 ? mint : pick > 0.25 ? sky : soft;
       cols[i * 3] = col.r;
       cols[i * 3 + 1] = col.g;
       cols[i * 3 + 2] = col.b;
@@ -28,96 +33,142 @@ function ParticleField({ count = 350 }) {
   }, [count]);
 
   useFrame((state, delta) => {
-    if (pointsRef.current) {
-      pointsRef.current.rotation.x += delta * 0.05;
-      pointsRef.current.rotation.y += delta * 0.08;
-      
-      // subtle mouse response
-      const mouseX = (state.pointer.x * Math.PI) / 10;
-      const mouseY = (state.pointer.y * Math.PI) / 10;
-      pointsRef.current.rotation.x += (mouseY - pointsRef.current.rotation.x) * 0.02;
-      pointsRef.current.rotation.y += (mouseX - pointsRef.current.rotation.y) * 0.02;
-    }
+    if (!pointsRef.current) return;
+    pointsRef.current.rotation.y += delta * 0.07;
+    pointsRef.current.rotation.x += delta * 0.025;
+
+    const targetX = state.pointer.y * 0.35;
+    const targetY = state.pointer.x * 0.45;
+    pointsRef.current.rotation.x += (targetX - pointsRef.current.rotation.x) * 0.04;
+    pointsRef.current.rotation.y += (targetY - pointsRef.current.rotation.y) * 0.04;
   });
 
   return (
     <points ref={pointsRef}>
       <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          args={[colors, 3]}
-        />
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.07}
+        size={0.055}
         vertexColors
         transparent
-        opacity={0.8}
+        opacity={0.85}
+        sizeAttenuation
+        depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
     </points>
   );
 }
 
-function WireframeGrid() {
-  const meshRef = useRef();
+function OpportunityFunnel() {
+  const group = useRef();
 
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.z += delta * 0.1;
-    }
+  useFrame((state) => {
+    if (!group.current) return;
+    group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.35) * 0.25;
+    group.current.rotation.x = 0.35 + Math.sin(state.clock.elapsedTime * 0.2) * 0.08;
   });
 
+  const rings = [
+    { y: 1.4, r: 2.1, color: "#2dd4a8", opacity: 0.55 },
+    { y: 0.55, r: 1.55, color: "#38bdf8", opacity: 0.45 },
+    { y: -0.25, r: 1.05, color: "#5eead4", opacity: 0.4 },
+    { y: -0.95, r: 0.55, color: "#0d9f7a", opacity: 0.55 },
+  ];
+
   return (
-    <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-      <mesh ref={meshRef} rotation={[Math.PI / 3, 0, 0]}>
-        <icosahedronGeometry args={[2.5, 1]} />
-        <meshBasicMaterial
-          wireframe
-          color="#06b6d4"
-          transparent
-          opacity={0.18}
-        />
-      </mesh>
+    <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
+      <group ref={group} position={[1.8, 0.1, 0]}>
+        {rings.map((ring) => (
+          <mesh key={ring.y} position={[0, ring.y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[ring.r, 0.025, 12, 64]} />
+            <meshBasicMaterial color={ring.color} transparent opacity={ring.opacity} />
+          </mesh>
+        ))}
+        <mesh position={[0, 0.2, 0]}>
+          <coneGeometry args={[1.9, 2.8, 4, 1, true]} />
+          <meshBasicMaterial
+            color="#2dd4a8"
+            wireframe
+            transparent
+            opacity={0.18}
+          />
+        </mesh>
+      </group>
     </Float>
   );
 }
 
-export default function Hero3D() {
+export default function Hero3D({ opportunityCount = 0, pipelineValue = 0 }) {
   return (
-    <div className="relative w-full h-[320px] rounded-2xl overflow-hidden glass-card border border-slate-800/80 my-6">
-      {/* Background Gradient Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+    <section id="overview" className="relative mt-4 overflow-hidden rounded-2xl border border-ink-border">
+      <div className="absolute inset-0 bg-ink-elevated" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,rgba(45,212,168,0.12),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_80%,rgba(56,189,248,0.08),transparent_50%)]" />
 
-      {/* R3F Canvas */}
-      <Canvas
-        camera={{ position: [0, 0, 5], fov: 60 }}
-        className="absolute inset-0 z-0 pointer-events-auto"
-      >
-        <ambientLight intensity={0.5} />
-        <ParticleField />
-        <WireframeGrid />
-      </Canvas>
+      <div className="relative grid min-h-[300px] grid-cols-1 lg:min-h-[340px] lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="relative z-10 flex flex-col justify-center px-5 py-8 sm:px-8 sm:py-10 lg:pr-4">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-mint/25 bg-mint/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-mint">
+              <span className="h-1.5 w-1.5 rounded-full bg-mint live-dot" />
+              Live growth operator
+            </div>
 
-      {/* Hero Banner Content Overlay */}
-      <div className="relative z-10 p-8 flex flex-col justify-center h-full max-w-2xl pointer-events-none">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider w-fit mb-3 backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          Autonomous Revenue Orchestration
+            <h1 className="font-display max-w-xl text-3xl font-extrabold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
+              Your AI operator found{" "}
+              <span className="text-mint-gradient">
+                {opportunityCount || "—"} revenue windows
+              </span>{" "}
+              ready to act on.
+            </h1>
+
+            <p className="mt-3 max-w-lg text-sm leading-relaxed text-ink-muted sm:text-[15px]">
+              Detect replenishment cycles, simulate offers under policy guardrails,
+              and orchestrate campaigns that maximize expected net revenue —
+              with you as the final decision-maker.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <a
+                href="#opportunities"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-4 py-2.5 text-sm font-bold text-ink shadow-[0_10px_30px_-12px_rgba(45,212,168,0.65)] transition hover:brightness-110"
+              >
+                Review opportunities
+                <ArrowRight className="h-4 w-4" />
+              </a>
+              <div className="inline-flex items-center gap-2 rounded-xl border border-ink-border bg-ink/40 px-3.5 py-2.5 text-xs text-ink-soft backdrop-blur-md">
+                <Bot className="h-4 w-4 text-sky" />
+                Pipeline{" "}
+                <strong className="font-semibold text-white">
+                  ₹{Number(pipelineValue || 0).toLocaleString("en-IN")}
+                </strong>
+              </div>
+            </div>
+          </motion.div>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-2">
-          Maximize Merchant Retention & <span className="text-gradient-emerald">Net Profit Lift</span>
-        </h1>
-        <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-          AI-driven replenishment cycle detection, risk-aware offer simulation, and deterministic policy guardrails working in real-time.
-        </p>
+
+        <div className="relative h-[220px] sm:h-[260px] lg:h-auto">
+          <Canvas
+            camera={{ position: [0, 0.4, 6.2], fov: 48 }}
+            dpr={[1, 1.75]}
+            className="absolute inset-0"
+            gl={{ antialias: true, alpha: true }}
+          >
+            <ambientLight intensity={0.55} />
+            <pointLight position={[4, 3, 2]} intensity={0.8} color="#2dd4a8" />
+            <pointLight position={[-3, -1, 2]} intensity={0.45} color="#38bdf8" />
+            <ParticleField />
+            <OpportunityFunnel />
+          </Canvas>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-ink-elevated to-transparent lg:hidden" />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
-

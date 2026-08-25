@@ -1,41 +1,66 @@
-import React from 'react';
-import { Cpu, ShieldCheck, Activity } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Activity, ShieldCheck, Sparkles } from "lucide-react";
+
+const navItems = [
+  { id: "overview", label: "Overview", active: true },
+  { id: "opportunities", label: "Opportunities", active: false },
+  { id: "campaigns", label: "Campaigns", active: false },
+  { id: "audit", label: "Audit", active: false },
+];
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3.5">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Cpu className="w-5 h-5 text-emerald-400" />
-            </div>
+    <motion.header
+      initial={{ y: -16, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      className="sticky top-0 z-50 border-b border-ink-border/80 bg-ink/75 backdrop-blur-xl"
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-sky text-ink shadow-[0_0_24px_-6px_rgba(45,212,168,0.55)]">
+            <Sparkles className="h-5 w-5" strokeWidth={2.25} />
           </div>
-          <div>
-            <h1 className="text-base font-extrabold text-white tracking-tight leading-tight m-0">
-              AI Revenue Growth <span className="text-gradient-emerald">Orchestrator</span>
-            </h1>
-            <span className="text-[11px] text-slate-400 font-medium">
-              Merchant Autonomous Campaign Engine
-            </span>
+          <div className="min-w-0">
+            <p className="font-display text-[15px] font-bold leading-tight tracking-tight text-white sm:text-base">
+              AI Revenue Growth{" "}
+              <span className="text-mint-gradient">Orchestrator</span>
+            </p>
+            <p className="truncate text-[11px] font-medium text-ink-muted">
+              Find the opportunity. Make the decision. Grow the revenue.
+            </p>
           </div>
         </div>
 
-        {/* Status Badges */}
-        <div className="hidden sm:flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            <Activity className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-            <span>Model: <strong className="text-white font-semibold">Groq Llama 3.3</strong></span>
-          </div>
+        <nav className="hidden items-center gap-1 rounded-xl border border-ink-border bg-ink-elevated/80 p-1 md:flex">
+          {navItems.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                item.active
+                  ? "bg-mint/15 text-mint"
+                  : "text-ink-muted hover:bg-white/5 hover:text-ink-soft"
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Policy Guardrail Active</span>
+        <div className="hidden items-center gap-2 lg:flex">
+          <div className="flex items-center gap-2 rounded-lg border border-ink-border bg-ink-elevated px-3 py-1.5 text-[11px] text-ink-soft">
+            <Activity className="h-3.5 w-3.5 text-sky live-dot" />
+            <span>
+              Model <strong className="font-semibold text-white">Groq Llama 3.3</strong>
+            </span>
+          </div>
+          <div className="flex items-center gap-2 rounded-lg border border-mint/25 bg-mint/10 px-3 py-1.5 text-[11px] font-medium text-mint">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Policy guardrails on
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
-
