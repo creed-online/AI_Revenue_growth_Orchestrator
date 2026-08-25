@@ -6,6 +6,7 @@ import campaignRoute from "./routes/campaign-route.js";
 import customerRoute from "./routes/customer-route.js";
 import opportunitiesRoute from "./routes/opportunities-route.js";
 import policyRoute from "./routes/policy-route.js";
+import orchestratorRoute from "./routes/orchestrator-route.js";
 
 
 const app = express();
@@ -14,6 +15,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use("/api", campaignRoute);
 app.use("/api", policyRoute);
+app.use("/api", orchestratorRoute);
 app.use("/api/customers", customerRoute);
 app.use("/api/opportunities", opportunitiesRoute);
 

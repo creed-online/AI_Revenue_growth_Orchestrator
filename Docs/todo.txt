@@ -103,15 +103,15 @@ DAY 8 - AI CAMPAIGN ORCHESTRATOR (CORE AGENT)
 [✓] npm install @anthropic-ai/sdk groq-sdk (or openai SDK, since Groq is OpenAI-compatible)
 [✓] Create a small model-client config file (src/config/aiClient.js) that
     abstracts provider + model behind one switch (GROQ vs ANTHROPIC via env var)
-[ ] Set up orchestrator in backend (src/services/orchestrator.js), built
+[✓] Set up orchestrator in backend (src/services/orchestrator.js), built
     against Groq (Llama 3.3 / Qwen — verified reliable tool-calling) for
     free iteration
-[ ] Define tools: get_opportunity(), simulate_campaign(),
+[✓] Define tools: get_opportunity(), simulate_campaign(),
     calculate_expected_revenue(), create_campaign_draft()
-[ ] Write orchestrator prompt: given an opportunity, reason through
+[✓] Write orchestrator prompt: given an opportunity, reason through
     audience/offer/timing, call simulate_campaign, propose a strategy
-[ ] Wire orchestrator output into policy engine check automatically
-[ ] Test end-to-end on Groq: opportunity -> AI proposal -> policy check
+[✓] Wire orchestrator output into policy engine check automatically
+[✓] Test end-to-end on Groq: opportunity -> AI proposal -> policy check
 [ ] Once flow is stable on Groq, do ONE clean switch-test on real Claude
     API to confirm the swap works (light touch — save credit)
 
