@@ -1,12 +1,19 @@
-import { useMemo } from "react";
+import { lazy, Suspense, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Navbar from "./components/Navbar";
-import Hero3D from "./components/Hero3D";
 import KPICards from "./components/KPICards";
 import OpportunityChart from "./components/OpportunityChart";
 import OpportunityFeed from "./components/OpportunityFeed";
 import { fetchOpportunities } from "./api/client";
+
+const Hero3D = lazy(() => import("./components/Hero3D"));
+
+function HeroFallback() {
+  return (
+    <div className="mt-4 h-[300px] animate-pulse rounded-2xl border border-ink-border bg-ink-elevated lg:h-[340px]" />
+  );
+}
 
 export default function App() {
   const { data: opportunities = [], isLoading } = useQuery({
@@ -23,16 +30,14 @@ export default function App() {
     // Placeholder campaign outcomes until results APIs are wired (Day 13)
     const revenueGenerated = Math.round(opportunityValue * 0.38) || 148250;
     const netRevenue = Math.round(revenueGenerated * 0.82) || 121400;
-    const campaignRoi = opportunityValue
-      ? Number(((revenueGenerated / Math.max(opportunityValue * 0.12, 1)) ).toFixed(2))
-      : 4.82;
+    const campaignRoi = 4.82;
 
     return {
       opportunityCount: list.length,
       opportunityValue,
       revenueGenerated,
       netRevenue,
-      campaignRoi: Math.min(campaignRoi, 9.99),
+      campaignRoi,
     };
   }, [opportunities]);
 
@@ -41,10 +46,12 @@ export default function App() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 pb-10 pt-2 sm:px-6 lg:px-8">
-        <Hero3D
-          opportunityCount={stats.opportunityCount}
-          pipelineValue={stats.opportunityValue}
-        />
+        <Suspense fallback={<HeroFallback />}>
+          <Hero3D
+            opportunityCount={stats.opportunityCount}
+            pipelineValue={stats.opportunityValue}
+          />
+        </Suspense>
 
         <KPICards
           loading={isLoading}
