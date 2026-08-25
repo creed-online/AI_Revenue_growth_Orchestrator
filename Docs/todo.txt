@@ -136,13 +136,13 @@ DAY 10 - RAZORPAY EXECUTION + AUDIT TRAIL
 
 DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
 --------------------------------------------------------
-[ ] Build simulated notification dispatch: generate personalized
+[✓] Build simulated notification dispatch: generate personalized
     message copy via AI client (title, body, CTA) — test copy generation
     on Groq, discount/audience values locked from policy engine
-[ ] Store simulated sends per customer in DB
-[ ] Build Results Engine: generate simulated actual outcomes
+[✓] Store simulated sends per customer in DB
+[✓] Build Results Engine: generate simulated actual outcomes
     (conversion %, revenue, cost, net revenue) post-execution
-[ ] Store in CampaignResult table, expose predicted-vs-actual API route
+[✓] Store in CampaignResult table, expose predicted-vs-actual API route
 
 DAY 12 - FRONTEND: DASHBOARD + OPPORTUNITY FEED
 ------------------------------------------------------
