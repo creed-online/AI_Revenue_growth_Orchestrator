@@ -22,6 +22,7 @@ export async function createCampaignWithApproval({
       type: "replenishment",
       status: isApproved ? "pending_approval" : "rejected",
       audienceSize: proposal.audienceSize ?? 0,
+      customerIds: proposal.customerIds ?? [], // persisted so Day 11 notifications can read the audience back
       offerType: "percentage",
       offerValue: proposal.discountPercent ?? 0,
       expectedRevenue: isApproved
