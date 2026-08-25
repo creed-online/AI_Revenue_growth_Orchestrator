@@ -1,17 +1,45 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { fetchOpportunities, runOrchestrator } from '../api/client';
-import { Sparkles, ShoppingBag, Users, Zap, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  AlertCircle,
+  CheckCircle2,
+  RefreshCw,
+  ShoppingBag,
+  Sparkles,
+  Users,
+  Zap,
+} from "lucide-react";
+import { fetchOpportunities, runOrchestrator } from "../api/client";
+
+const FILTERS = [
+  { id: "ALL", label: "All" },
+  { id: "high", label: "High" },
+  { id: "medium", label: "Medium" },
+  { id: "low", label: "Low" },
+];
+
+const priorityStyles = {
+  high: "border-rose-signal/35 bg-rose-signal/10 text-rose-signal",
+  medium: "border-amber-signal/35 bg-amber-signal/10 text-amber-signal",
+  low: "border-ink-border bg-white/5 text-ink-muted",
+};
+
+function confidenceLabel(value) {
+  const n = Number(value);
+  if (Number.isNaN(n)) return "—";
+  if (n <= 1) return `${Math.round(n * 100)}%`;
+  return `${Math.round(n)}%`;
+}
 
 export default function OpportunityFeed() {
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState('ALL');
+  const [filter, setFilter] = useState("ALL");
   const [activeRunningId, setActiveRunningId] = useState(null);
   const [orchestratorResult, setOrchestratorResult] = useState(null);
 
-  const { data: opportunities, isLoading, isError, refetch } = useQuery({
-    queryKey: ['opportunities', 1],
+  const { data: opportunities = [], isLoading, isError, refetch, isFetching } = useQuery({
+    queryKey: ["opportunities", 1],
     queryFn: () => fetchOpportunities(1),
   });
 
@@ -24,209 +52,264 @@ export default function OpportunityFeed() {
     onSuccess: (data) => {
       setActiveRunningId(null);
       setOrchestratorResult(data);
-      queryClient.invalidateQueries(['approvals']);
+      queryClient.invalidateQueries({ queryKey: ["approvals"] });
     },
     onError: (error) => {
       setActiveRunningId(null);
-      setOrchestratorResult({ error: true, message: error.message });
+      setOrchestratorResult({
+        error: true,
+        message: error?.response?.data?.message || error.message,
+      });
     },
   });
 
-  const filteredOpportunities = React.useMemo(() => {
-    if (!opportunities || !Array.isArray(opportunities)) return [];
-    if (filter === 'ALL') return opportunities;
-    return opportunities.filter((op) => op.priority === filter);
+  const filteredOpportunities = useMemo(() => {
+    if (!Array.isArray(opportunities)) return [];
+    if (filter === "ALL") return opportunities;
+    return opportunities.filter(
+      (op) => String(op.priority || "").toLowerCase() === filter
+    );
   }, [opportunities, filter]);
 
   return (
-    <div className="my-8">
-      {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <section id="opportunities" className="mt-8 mb-4">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Zap className="w-5 h-5 text-amber-400 fill-amber-400/20" />
-            Replenishment Opportunity Feed
+          <h2 className="font-display flex items-center gap-2 text-lg font-bold tracking-tight text-white sm:text-xl">
+            <Zap className="h-5 w-5 text-amber-signal" />
+            Opportunity feed
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-1">
-            Detected purchase interval windows ranked by customer confidence & revenue impact.
+          <p className="mt-1 max-w-xl text-xs text-ink-muted sm:text-sm">
+            Ranked replenishment windows by audience size, confidence, and potential revenue.
+            Orchestrate an AI campaign proposal with one click.
           </p>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800 self-start sm:self-auto">
-          {['ALL', 'HIGH', 'MEDIUM'].map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilter(type)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                filter === type
-                  ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              {type === 'ALL' ? 'All Opportunities' : `${type} Priority`}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-1 rounded-xl border border-ink-border bg-ink-elevated/80 p-1">
+            {FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setFilter(item.id)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                  filter === item.id
+                    ? "bg-mint text-ink"
+                    : "text-ink-muted hover:bg-white/5 hover:text-ink-soft"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
 
           <button
+            type="button"
             onClick={() => refetch()}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-ink-border bg-ink-elevated px-3 py-2 text-xs font-semibold text-ink-soft transition hover:border-mint/30 hover:text-white"
             title="Refresh feed"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+            Refresh
           </button>
         </div>
       </div>
 
-      {/* AI Execution Banner Feedback */}
       <AnimatePresence>
         {orchestratorResult && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className={`p-4 rounded-xl border mb-6 flex items-start gap-3 ${
+            initial={{ opacity: 0, y: -10, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -8, height: 0 }}
+            className={`mb-5 overflow-hidden rounded-xl border p-4 ${
               orchestratorResult.error
-                ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
-                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                ? "border-rose-signal/30 bg-rose-signal/10 text-rose-signal"
+                : "border-mint/30 bg-mint/10 text-mint"
             }`}
           >
-            {orchestratorResult.error ? (
-              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-            ) : (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-            )}
-            <div className="flex-1">
-              <h4 className="text-sm font-bold">
-                {orchestratorResult.error ? 'Orchestration Error' : 'AI Proposal Created Successfully'}
-              </h4>
-              <p className="text-xs mt-1 text-slate-300">
-                {orchestratorResult.aiText || orchestratorResult.message || 'Draft passed policy check and created an Approval Request.'}
-              </p>
+            <div className="flex items-start gap-3">
+              {orchestratorResult.error ? (
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+              ) : (
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+              )}
+              <div className="min-w-0 flex-1">
+                <h4 className="text-sm font-bold text-white">
+                  {orchestratorResult.error
+                    ? "Orchestration failed"
+                    : "AI proposal created"}
+                </h4>
+                <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+                  {orchestratorResult.aiText ||
+                    orchestratorResult.message ||
+                    "Draft passed policy check and created an approval request."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOrchestratorResult(null)}
+                className="text-xs font-semibold text-ink-muted hover:text-white"
+              >
+                Dismiss
+              </button>
             </div>
-            <button
-              onClick={() => setOrchestratorResult(null)}
-              className="text-xs font-semibold hover:underline text-slate-400"
-            >
-              Dismiss
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Loading Skeleton */}
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-44 rounded-xl glass-card animate-pulse p-5 border border-slate-800" />
+            <div key={n} className="skeleton h-56 rounded-2xl" />
           ))}
         </div>
       )}
 
-      {/* Error state */}
       {isError && (
-        <div className="p-8 rounded-xl glass-card border border-rose-500/30 text-center my-4">
-          <AlertCircle className="w-8 h-8 text-rose-400 mx-auto mb-2" />
-          <h3 className="text-base font-bold text-white">Failed to connect to Opportunities API</h3>
-          <p className="text-xs text-slate-400 mt-1">Make sure the backend Express server is running on port 3000.</p>
+        <div className="panel rounded-2xl border border-rose-signal/30 p-8 text-center">
+          <AlertCircle className="mx-auto mb-3 h-8 w-8 text-rose-signal" />
+          <h3 className="font-display text-base font-bold text-white">
+            Couldn’t reach the opportunities API
+          </h3>
+          <p className="mx-auto mt-2 max-w-md text-xs text-ink-muted">
+            Start the Express backend on port 3000, then refresh. Vite proxies{" "}
+            <code className="text-mint">/api</code> automatically in dev.
+          </p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-mint px-4 py-2 text-xs font-bold text-ink"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Try again
+          </button>
         </div>
       )}
 
-      {/* Opportunities List */}
-      {!isLoading && !isError && (
+      {!isLoading && !isError && filteredOpportunities.length === 0 && (
+        <div className="panel rounded-2xl p-10 text-center">
+          <ShoppingBag className="mx-auto mb-3 h-8 w-8 text-ink-muted" />
+          <h3 className="font-display text-base font-bold text-white">
+            No opportunities in this filter
+          </h3>
+          <p className="mt-1 text-xs text-ink-muted">
+            Try “All” or wait for the next replenishment scan.
+          </p>
+        </div>
+      )}
+
+      {!isLoading && !isError && filteredOpportunities.length > 0 && (
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
           initial="hidden"
           animate="visible"
           variants={{
             hidden: { opacity: 0 },
-            visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+            visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
           }}
         >
-          {filteredOpportunities.map((op, idx) => (
-            <motion.div
-              key={idx}
-              variants={{
-                hidden: { opacity: 0, y: 15 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ y: -3 }}
-              className="p-5 rounded-xl glass-card border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                {/* Header info */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      <ShoppingBag className="w-4 h-4" />
+          {filteredOpportunities.map((op, idx) => {
+            const priority = String(op.priority || "low").toLowerCase();
+            // Use original index in full list for orchestrator
+            const originalIndex = opportunities.indexOf(op);
+
+            return (
+              <motion.article
+                key={`${op.productId}-${idx}`}
+                variants={{
+                  hidden: { opacity: 0, y: 18 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { type: "spring", stiffness: 120, damping: 16 },
+                  },
+                }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="panel-interactive group flex flex-col rounded-2xl p-5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="rounded-xl border border-mint/20 bg-mint/10 p-2.5 text-mint">
+                      <ShoppingBag className="h-4 w-4" />
                     </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-sm font-bold text-white transition-colors group-hover:text-mint">
                         {op.productName}
                       </h3>
-                      <span className="text-[11px] text-slate-400">
-                        Product #{op.productId} • {op.category || 'General'}
-                      </span>
+                      <p className="mt-0.5 text-[11px] capitalize text-ink-muted">
+                        {op.opportunityType || "replenishment"} · Product #{op.productId}
+                      </p>
                     </div>
                   </div>
-
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                      op.priority === 'HIGH'
-                        ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                        : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                    className={`shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                      priorityStyles[priority] || priorityStyles.low
                     }`}
                   >
-                    {op.priority || 'NORMAL'}
+                    {priority}
                   </span>
                 </div>
 
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 gap-2 my-4 p-3 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-ink-muted">
+                  {op.recommendedAction ||
+                    `Target ${op.customerCount} customers approaching repurchase.`}
+                </p>
+
+                <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl border border-ink-border/80 bg-ink/40 p-3">
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
-                      Target Audience
+                    <span className="block text-[10px] uppercase tracking-wider text-ink-muted">
+                      Audience
                     </span>
-                    <span className="text-sm font-bold text-slate-200 flex items-center gap-1 mt-0.5">
-                      <Users className="w-3.5 h-3.5 text-cyan-400" />
-                      {op.customerCount} buyers
+                    <span className="mt-0.5 flex items-center gap-1 text-sm font-bold text-ink-soft">
+                      <Users className="h-3.5 w-3.5 text-sky" />
+                      {op.customerCount}
                     </span>
                   </div>
-
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
-                      Est. Opportunity
+                    <span className="block text-[10px] uppercase tracking-wider text-ink-muted">
+                      Confidence
                     </span>
-                    <span className="text-sm font-extrabold text-emerald-400 mt-0.5 block">
-                      ₹{Number(op.potentialRevenue || 0).toLocaleString('en-IN')}
+                    <span className="mt-0.5 block text-sm font-bold text-white">
+                      {confidenceLabel(op.confidence)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-wider text-ink-muted">
+                      Potential
+                    </span>
+                    <span className="mt-0.5 block text-sm font-extrabold text-mint">
+                      ₹{Number(op.potentialRevenue || 0).toLocaleString("en-IN")}
                     </span>
                   </div>
                 </div>
-              </div>
 
-              {/* Action Button */}
-              <button
-                onClick={() => orchestrateMutation.mutate({ index: idx })}
-                disabled={activeRunningId === idx}
-                className="w-full mt-2 py-2.5 px-4 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10 transition-all disabled:opacity-60"
-              >
-                {activeRunningId === idx ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>AI Reasoning Loop...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
-                    <span>Orchestrate Campaign</span>
-                  </>
-                )}
-              </button>
-            </motion.div>
-          ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    orchestrateMutation.mutate({
+                      index: originalIndex >= 0 ? originalIndex : idx,
+                    })
+                  }
+                  disabled={activeRunningId === (originalIndex >= 0 ? originalIndex : idx)}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-4 py-2.5 text-xs font-bold text-ink transition hover:brightness-110 disabled:cursor-wait disabled:opacity-60"
+                >
+                  {activeRunningId === (originalIndex >= 0 ? originalIndex : idx) ? (
+                    <>
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                      AI reasoning…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Orchestrate campaign
+                    </>
+                  )}
+                </button>
+              </motion.article>
+            );
+          })}
         </motion.div>
       )}
-    </div>
+    </section>
   );
 }
-
