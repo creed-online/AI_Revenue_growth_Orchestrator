@@ -11,6 +11,7 @@ async function main() {
       email: "demo@rakshfit.com",
       industry: "Fitness & Wellness",
       currency: "INR",
+      // password set at runtime via ensureDemoMerchantCredentials (default: demo1234)
     },
   });
   console.log(`✔ Created merchant: ${merchant.businessName} (id: ${merchant.id})`);

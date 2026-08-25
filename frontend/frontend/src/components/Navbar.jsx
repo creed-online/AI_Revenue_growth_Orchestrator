@@ -1,14 +1,18 @@
+import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, ShieldCheck, Sparkles } from "lucide-react";
+import { Activity, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const navItems = [
-  { id: "overview", label: "Overview", active: true },
-  { id: "opportunities", label: "Opportunities", active: false },
-  { id: "campaigns", label: "Campaigns", active: false },
-  { id: "audit", label: "Audit", active: false },
+  { to: "/", label: "Overview", end: true },
+  { to: "/opportunities", label: "Opportunities" },
+  { to: "/campaigns", label: "Campaigns" },
 ];
 
 export default function Navbar() {
+  const { merchant, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <motion.header
       initial={{ y: -16, opacity: 0 }}
@@ -17,7 +21,11 @@ export default function Navbar() {
       className="sticky top-0 z-50 border-b border-ink-border/80 bg-ink/75 backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="flex min-w-0 items-center gap-3 text-left"
+        >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-sky text-ink shadow-[0_0_24px_-6px_rgba(45,212,168,0.55)]">
             <Sparkles className="h-5 w-5" strokeWidth={2.25} />
           </div>
@@ -27,39 +35,77 @@ export default function Navbar() {
               <span className="text-mint-gradient">Orchestrator</span>
             </p>
             <p className="truncate text-[11px] font-medium text-ink-muted">
-              Find the opportunity. Make the decision. Grow the revenue.
+              {merchant?.businessName || "Merchant growth operator"}
             </p>
           </div>
-        </div>
+        </button>
 
         <nav className="hidden items-center gap-1 rounded-xl border border-ink-border bg-ink-elevated/80 p-1 md:flex">
           {navItems.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                item.active
-                  ? "bg-mint/15 text-mint"
-                  : "text-ink-muted hover:bg-white/5 hover:text-ink-soft"
-              }`}
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                `rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  isActive
+                    ? "bg-mint/15 text-mint"
+                    : "text-ink-muted hover:bg-white/5 hover:text-ink-soft"
+                }`
+              }
             >
               {item.label}
-            </a>
+            </NavLink>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
-          <div className="flex items-center gap-2 rounded-lg border border-ink-border bg-ink-elevated px-3 py-1.5 text-[11px] text-ink-soft">
-            <Activity className="h-3.5 w-3.5 text-sky live-dot" />
-            <span>
-              Model <strong className="font-semibold text-white">Groq Llama 3.3</strong>
-            </span>
+        <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 lg:flex">
+            <div className="flex items-center gap-2 rounded-lg border border-ink-border bg-ink-elevated px-3 py-1.5 text-[11px] text-ink-soft">
+              <Activity className="h-3.5 w-3.5 text-sky live-dot" />
+              <span>
+                Model <strong className="font-semibold text-white">Groq Llama 3.3</strong>
+              </span>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg border border-mint/25 bg-mint/10 px-3 py-1.5 text-[11px] font-medium text-mint">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Policy on
+            </div>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-mint/25 bg-mint/10 px-3 py-1.5 text-[11px] font-medium text-mint">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Policy guardrails on
-          </div>
+
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-ink-border bg-ink-elevated px-2.5 py-1.5 text-[11px] font-semibold text-ink-muted transition hover:border-rose-signal/40 hover:text-rose-signal"
+              title="Sign out"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Sign out</span>
+            </button>
+          ) : null}
         </div>
+      </div>
+
+      {/* Mobile nav */}
+      <div className="flex gap-1 overflow-x-auto border-t border-ink-border/60 px-4 py-2 md:hidden">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) =>
+              `shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold ${
+                isActive ? "bg-mint/15 text-mint" : "text-ink-muted"
+              }`
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
       </div>
     </motion.header>
   );

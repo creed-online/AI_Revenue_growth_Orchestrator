@@ -1,5 +1,6 @@
 import express from "express";
 import orchestrator from "../services/orchestrator.js";
+import { resolveMerchantId } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const router = express.Router();
  */
 router.post("/orchestrator/run", async (req, res) => {
   try {
-    const merchantId = parseInt(req.body.merchantId, 10) || 1;
+    const merchantId = resolveMerchantId(req, 1);
     const opportunityIndex = parseInt(req.body.opportunityIndex, 10) || 0;
 
     const result = await orchestrator.orchestrateCampaign({ merchantId, opportunityIndex });
