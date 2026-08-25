@@ -7,6 +7,7 @@ import customerRoute from "./routes/customer-route.js";
 import opportunitiesRoute from "./routes/opportunities-route.js";
 import policyRoute from "./routes/policy-route.js";
 import orchestratorRoute from "./routes/orchestrator-route.js";
+import approvalRoutes from "./routes/approval-route.js";
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.use("/api", policyRoute);
 app.use("/api", orchestratorRoute);
 app.use("/api/customers", customerRoute);
 app.use("/api/opportunities", opportunitiesRoute);
+app.use("/api/approvals", approvalRoutes);
 
 /**
  * Verifies the database connection is actually reachable before the

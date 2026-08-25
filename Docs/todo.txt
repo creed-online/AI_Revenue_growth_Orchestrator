@@ -112,17 +112,17 @@ DAY 8 - AI CAMPAIGN ORCHESTRATOR (CORE AGENT)
     audience/offer/timing, call simulate_campaign, propose a strategy
 [✓] Wire orchestrator output into policy engine check automatically
 [✓] Test end-to-end on Groq: opportunity -> AI proposal -> policy check
-[ ] Once flow is stable on Groq, do ONE clean switch-test on real Claude
+[✓] Once flow is stable on Groq, do ONE clean switch-test on real Claude
     API to confirm the swap works (light touch — save credit)
 
 DAY 9 - FAILURE CASE + APPROVAL FLOW
 -------------------------------------------
-[ ] Deliberately engineer one scenario where AI's first proposal
+[✓] Deliberately engineer one scenario where AI's first proposal
     breaches policy (e.g. nudge prompt/data toward 20% discount)
-[ ] Confirm rejection triggers AI revision to compliant version
+[✓] Confirm rejection triggers AI revision to compliant version
     (loop back through orchestrator with rejection reason) — test on Groq
-[ ] Build ApprovalRequest table + API routes (create, approve, reject)
-[ ] Build basic approval endpoint that gates execution until approved
+[✓] Build ApprovalRequest table + API routes (create, approve, reject)
+[✓] Build basic approval endpoint that gates execution until approved
 
 DAY 10 - RAZORPAY EXECUTION + AUDIT TRAIL
 ------------------------------------------------

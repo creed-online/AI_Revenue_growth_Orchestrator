@@ -2,7 +2,7 @@ import { callModel, PROVIDER } from "../config/aiClient.js";
 import { scanReplenishmentOpportunities } from "./opportunityEngine.js";
 import { simulateCampaign } from "./campaignSimulator.js";
 import { validateCampaignPolicy } from "./policyEngine.js";
-import { createApprovalRequest } from "./approvalService.js"; // new — built next
+import { createCampaignWithApproval } from "./approvalService.js"; // ← updated name
 
 /**
  * Orchestrates an AI-driven campaign proposal for a merchant.
@@ -11,8 +11,8 @@ import { createApprovalRequest } from "./approvalService.js"; // new — built n
  *  - loop: ask model to reason and call tools, execute them, feed results back
  *  - if create_campaign_draft is called and policy REJECTS it, feed the
  *    rejection reason back to the model and let it revise (up to MAX_REVISIONS)
- *  - once approved (or revisions exhausted), create an ApprovalRequest row
- *    that a human merchant must approve before execution happens anywhere else
+ *  - once resolved, persist a real Campaign + CampaignVariant rows +
+ *    ApprovalRequest + AuditLog entry (matches actual Prisma schema)
  */
 export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0, forcePolicyBreach = false } = {}) {
   const opportunities = await scanReplenishmentOpportunities(merchantId);
@@ -74,10 +74,11 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
 
   const executed = [];
   let finalDraftResult = null;
+  let simulatedScenarios = null; // ← new: captures tier comparison for CampaignVariant rows
   let lastAiText = "";
   let revisionCount = 0;
-  const MAX_TURNS = 8; // higher than before since a rejection may need an extra round trip
-  const MAX_REVISIONS = 2; // cap how many times we let the model retry after a rejection
+  const MAX_TURNS = 8;
+  const MAX_REVISIONS = 2;
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     const resp = await callModel({ system, messages, tools });
@@ -85,7 +86,6 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
 
     if (!resp.toolCalls || resp.toolCalls.length === 0) break;
 
-    // structured assistant message — aiClient.js translates this per-provider
     messages.push({
       role: "assistant",
       content: resp.toolCalls.map((tc) => ({
@@ -120,6 +120,10 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
           audience: new Array(opportunity.customerCount).fill({ classification: "unknown" }),
           ...args,
         });
+        // ← new: capture full tier comparison for later persistence
+        if (result?.scenarios) {
+          simulatedScenarios = result.scenarios;
+        }
       } else if (tc.name === "create_campaign_draft") {
         const draft = tc.input || {};
         const proposal = {
@@ -138,12 +142,9 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
           finalDraftResult = result;
           stopLoop = true;
         } else {
-          // policy REJECTED — this is the Day 9 failure case.
-          // Don't stop the loop; the rejection reason goes back to the model
-          // as the tool_result, and the system prompt tells it to revise.
           revisionCount++;
           if (revisionCount > MAX_REVISIONS) {
-            finalDraftResult = result; // record the last (still rejected) attempt
+            finalDraftResult = result;
             stopLoop = true;
           }
         }
@@ -173,18 +174,20 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
     revisionCount,
   };
 
-  // ---------- APPROVAL FLOW ----------
-  // Every outcome creates an ApprovalRequest row. A human merchant must
-  // explicitly approve before anything executes — policy approval is
-  // necessary but not sufficient for execution.
+  // ---------- PERSIST: Campaign + CampaignVariant + ApprovalRequest + AuditLog ----------
+  // Matches your real schema — Campaign.status flows through draft -> pending_approval ->
+  // approved/rejected, CampaignVariant stores each simulated tier, ApprovalRequest
+  // gates execution, AuditLog records the AI's action for your Day 10 audit trail.
   if (finalDraftResult) {
-    const approvalRequest = await createApprovalRequest({
+    const { campaign, approvalRequest } = await createCampaignWithApproval({
       merchantId,
       productId: opportunity.productId,
       proposal: finalDraftResult.proposal,
+      simulatedScenarios,
       policyResult: finalDraftResult.policy,
       revisionCount,
     });
+    response.campaign = campaign;
     response.approvalRequest = approvalRequest;
   }
 

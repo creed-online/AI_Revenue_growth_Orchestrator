@@ -74,7 +74,53 @@ export async function callModel({ system, messages, tools }) {
       },
     }));
 
-    const groqMessages = [{ role: "system", content: system }, ...messages];
+    // Convert Anthropic-style message blocks to OpenAI/Groq format
+    const groqMessages = [{ role: "system", content: system }];
+
+    for (const msg of messages) {
+      if (typeof msg.content === "string") {
+        groqMessages.push(msg);
+      } else if (Array.isArray(msg.content)) {
+        if (msg.role === "assistant") {
+          const toolCalls = msg.content
+            .filter((c) => c.type === "tool_use")
+            .map((c) => ({
+              id: c.id,
+              type: "function",
+              function: {
+                name: c.name,
+                arguments: typeof c.input === "string" ? c.input : JSON.stringify(c.input || {}),
+              },
+            }));
+          groqMessages.push({
+            role: "assistant",
+            content: null,
+            ...(toolCalls.length > 0 ? { tool_calls: toolCalls } : {}),
+          });
+        } else if (msg.role === "user") {
+          const toolResults = msg.content.filter((c) => c.type === "tool_result");
+          if (toolResults.length > 0) {
+            for (const tr of toolResults) {
+              groqMessages.push({
+                role: "tool",
+                tool_call_id: tr.tool_use_id,
+                content: typeof tr.content === "string" ? tr.content : JSON.stringify(tr.content),
+              });
+            }
+          } else {
+            groqMessages.push({
+              role: "user",
+              content: msg.content.map((c) => (typeof c === "string" ? c : JSON.stringify(c))).join("\n"),
+            });
+          }
+        }
+      } else {
+        groqMessages.push({
+          role: msg.role,
+          content: JSON.stringify(msg.content),
+        });
+      }
+    }
 
     const resp = await groq.chat.completions.create({
       model: MODELS.groq,

@@ -205,3 +205,4 @@ model CampaignResult {
 
   createdAt      DateTime  @default(now())
 }
+
