@@ -26,6 +26,7 @@ model Customer {
   id               Int       @id @default(autoincrement())
   merchantId       Int
   merchant         Merchant  @relation(fields: [merchantId], references: [id])
+  notifications    NotificationSend[]
 
   @@index([merchantId])
 
@@ -106,6 +107,7 @@ model Campaign {
   status           String    @default("draft") // draft, pending_approval, approved, rejected, running, completed, cancelled
 
   audienceSize     Int       @default(0)
+  customerIds      Json?
   offerType        String?   // percentage, flat
   offerValue       Float?
 
@@ -125,6 +127,7 @@ model Campaign {
   variants         CampaignVariant[]
   approvalRequests ApprovalRequest[]
   results          CampaignResult[]
+  notifications    NotificationSend[]
 }
 
 model CampaignVariant {
@@ -206,3 +209,17 @@ model CampaignResult {
   createdAt      DateTime  @default(now())
 }
 
+model NotificationSend {
+  id           Int      @id @default(autoincrement())
+  campaignId   Int
+  campaign     Campaign @relation(fields: [campaignId], references: [id])
+  customerId   Int
+  customer     Customer @relation(fields: [customerId], references: [id])
+
+  channel      String   // email | sms | whatsapp
+  subject      String?  // null for sms/whatsapp
+  body         String
+  cta          String?
+
+  sentAt       DateTime @default(now())
+}
