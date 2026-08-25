@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 import express from "express";
+import cors from "cors";
 import { prisma } from "./lib/prisma.js";
 import campaignRoute from "./routes/campaign-route.js";
 import customerRoute from "./routes/customer-route.js";
@@ -15,6 +16,7 @@ import razorpayExecutionRoutes from "./routes/razorpay-execution-route.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
 app.use(express.json());
 app.use("/api", campaignRoute);
 app.use("/api", policyRoute);
