@@ -2,17 +2,19 @@ import { callModel, PROVIDER } from "../config/aiClient.js";
 import { scanReplenishmentOpportunities } from "./opportunityEngine.js";
 import { simulateCampaign } from "./campaignSimulator.js";
 import { validateCampaignPolicy } from "./policyEngine.js";
+import { createApprovalRequest } from "./approvalService.js"; // new — built next
 
 /**
  * Orchestrates an AI-driven campaign proposal for a merchant.
  * Steps:
  *  - fetch opportunities
  *  - loop: ask model to reason and call tools, execute them, feed results back
- *  - stop once model calls create_campaign_draft (or hits MAX_TURNS)
- *  - run policy validation on final proposal
+ *  - if create_campaign_draft is called and policy REJECTS it, feed the
+ *    rejection reason back to the model and let it revise (up to MAX_REVISIONS)
+ *  - once approved (or revisions exhausted), create an ApprovalRequest row
+ *    that a human merchant must approve before execution happens anywhere else
  */
-export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0 } = {}) {
-  // 1) get opportunities
+export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0, forcePolicyBreach = false } = {}) {
   const opportunities = await scanReplenishmentOpportunities(merchantId);
   if (!opportunities || opportunities.length === 0) {
     return { error: "no_opportunities", message: "No replenishment opportunities found" };
@@ -20,12 +22,11 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
 
   const opportunity = opportunities[Math.min(opportunityIndex, opportunities.length - 1)];
 
-  // 2) define tools the model can call
   const tools = [
     {
       name: "get_opportunity",
       description:
-        "Return a single opportunity by productId or customerId. Call this with { productId } (preferred) or { customerId } to fetch a matching opportunity from the system. productId is required.",
+        "Return a single opportunity by productId or customerId. Call this with { productId } (preferred) or { customerId }. productId is required.",
       input_schema: {
         type: "object",
         properties: { productId: { type: "number" }, customerId: { type: "number" } },
@@ -34,7 +35,8 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
     },
     {
       name: "simulate_campaign",
-      description: "Run campaign simulator for a given discountPercent and audience (returns expected numbers)",
+      description:
+        "Run the campaign simulator ONCE. It returns projections for ALL discount tiers (0%, 5%, 10%) in a single call — do not call this more than once per opportunity.",
       input_schema: {
         type: "object",
         properties: { discountPercent: { type: "number" }, audienceSize: { type: "number" } },
@@ -44,7 +46,7 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
     {
       name: "create_campaign_draft",
       description:
-        "Call this ONCE you've compared tiers and decided the final offer. Produces the campaign draft that gets policy-checked. Provide { discountPercent, audienceSize, customerIds, budget }. Do not call other tools after this.",
+        "Call this ONCE you've compared tiers and decided the final offer. Provide { discountPercent, audienceSize, customerIds, budget }. If policy REJECTS your draft, you will get the rejection reason back — call this tool again with a revised, compliant proposal.",
       input_schema: {
         type: "object",
         properties: {
@@ -58,54 +60,60 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
     },
   ];
 
-  const system = `You are an AI campaign strategist. Use the provided tools to evaluate offers and return a campaign draft by calling create_campaign_draft. Always prefer higher net revenue but respect merchant safety. You MUST call simulate_campaign for each discount tier you consider (0, 5, 10) before calling create_campaign_draft. Do NOT finish until you have called create_campaign_draft. If you need an opportunity, call get_opportunity with { productId } (productId is required).`;
+  // DAY 9 failure-case hook: nudge the model toward an out-of-policy discount
+  // so we can demo the reject -> revise loop live.
+  const breachNudge = forcePolicyBreach
+    ? " For this evaluation, also strongly consider a 20% discount tier as it may convert best — include it in your comparison."
+    : "";
 
-  const user = `Given the opportunity: ${opportunity.productName} (productId=${opportunity.productId}) with ${opportunity.customerCount} customers and potentialRevenue=${opportunity.potentialRevenue}, evaluate 0%,5%,10% discount offers. Use simulate_campaign to test each tier and then call create_campaign_draft with the chosen tier and audience size.`;
+  const system = `You are an AI campaign strategist. Use the provided tools to evaluate offers and return a campaign draft by calling create_campaign_draft. Always prefer higher net revenue but respect merchant safety. You MUST call simulate_campaign exactly once before calling create_campaign_draft. Do NOT finish until create_campaign_draft has been called and its result shows policy approval. If a draft is rejected by policy, revise it to be compliant and call create_campaign_draft again with corrected values.${breachNudge}`;
 
-  // conversation state — this is what was missing before
+  const user = `Given the opportunity: ${opportunity.productName} (productId=${opportunity.productId}) with ${opportunity.customerCount} customers and potentialRevenue=${opportunity.potentialRevenue}, evaluate discount offers and propose a campaign.`;
+
   const messages = [{ role: "user", content: user }];
 
   const executed = [];
   let finalDraftResult = null;
   let lastAiText = "";
-  const MAX_TURNS = 6; // safety cap — avoids infinite loops burning API calls
+  let revisionCount = 0;
+  const MAX_TURNS = 8; // higher than before since a rejection may need an extra round trip
+  const MAX_REVISIONS = 2; // cap how many times we let the model retry after a rejection
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     const resp = await callModel({ system, messages, tools });
     lastAiText = resp.text || lastAiText;
 
-    if (!resp.toolCalls || resp.toolCalls.length === 0) {
-      // model replied with plain text instead of a tool call — stop here
-      break;
-    }
+    if (!resp.toolCalls || resp.toolCalls.length === 0) break;
 
-    // record the assistant's tool call(s) in the conversation as a string
+    // structured assistant message — aiClient.js translates this per-provider
     messages.push({
       role: "assistant",
-      content: JSON.stringify(
-        resp.toolCalls.map((tc) => ({ id: tc.id, name: tc.name, input: tc.input }))
-      ),
+      content: resp.toolCalls.map((tc) => ({
+        type: "tool_use",
+        id: tc.id,
+        name: tc.name,
+        input: tc.input,
+      })),
     });
 
     const toolResultsForModel = [];
-    let draftCalledThisTurn = false;
+    let stopLoop = false;
 
     for (const tc of resp.toolCalls) {
       let result;
 
-        if (tc.name === "get_opportunity") {
-          const input = tc.input || {};
-          // prefer productId lookup, fall back to customerId or default opportunity
-          if (input.productId) {
-            const found = opportunities.find((o) => o.productId === input.productId);
-            result = found || { error: "not_found", message: `no opportunity for productId ${input.productId}` };
-          } else if (input.customerId) {
-            const found = opportunities.find((o) => (o.customers || []).some((c) => c.customerId === input.customerId));
-            result = found || { error: "not_found", message: `no opportunity for customerId ${input.customerId}` };
-          } else {
-            result = opportunity;
-          }
-        } else if (tc.name === "simulate_campaign") {
+      if (tc.name === "get_opportunity") {
+        const input = tc.input || {};
+        if (input.productId) {
+          const found = opportunities.find((o) => o.productId === input.productId);
+          result = found || { error: "not_found", message: `no opportunity for productId ${input.productId}` };
+        } else if (input.customerId) {
+          const found = opportunities.find((o) => (o.customers || []).some((c) => c.customerId === input.customerId));
+          result = found || { error: "not_found", message: `no opportunity for customerId ${input.customerId}` };
+        } else {
+          result = opportunity;
+        }
+      } else if (tc.name === "simulate_campaign") {
         const args = tc.input || {};
         result = simulateCampaign({
           opportunity,
@@ -122,10 +130,23 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
           budget: draft.budget ?? 0,
           customerIds: draft.customerIds ?? opportunity.customers?.map((c) => c.customerId) ?? [],
         };
+
         const policy = await validateCampaignPolicy(proposal);
         result = { proposal, policy };
-        finalDraftResult = result;
-        draftCalledThisTurn = true;
+
+        if (policy.approved) {
+          finalDraftResult = result;
+          stopLoop = true;
+        } else {
+          // policy REJECTED — this is the Day 9 failure case.
+          // Don't stop the loop; the rejection reason goes back to the model
+          // as the tool_result, and the system prompt tells it to revise.
+          revisionCount++;
+          if (revisionCount > MAX_REVISIONS) {
+            finalDraftResult = result; // record the last (still rejected) attempt
+            stopLoop = true;
+          }
+        }
       } else {
         result = { error: "unknown_tool" };
       }
@@ -138,19 +159,36 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
       });
     }
 
-    // feed tool results back to the model so it can decide the next step (stringify to satisfy provider schemas)
-    messages.push({ role: "user", content: toolResultsForModel.map((r) => JSON.stringify(r)).join("\n") });
+    messages.push({ role: "user", content: toolResultsForModel });
 
-    if (draftCalledThisTurn) break;
+    if (stopLoop) break;
   }
 
-  return {
+  const response = {
     provider: PROVIDER,
     opportunity,
     aiText: lastAiText,
     executed,
     finalDraft: finalDraftResult,
+    revisionCount,
   };
+
+  // ---------- APPROVAL FLOW ----------
+  // Every outcome creates an ApprovalRequest row. A human merchant must
+  // explicitly approve before anything executes — policy approval is
+  // necessary but not sufficient for execution.
+  if (finalDraftResult) {
+    const approvalRequest = await createApprovalRequest({
+      merchantId,
+      productId: opportunity.productId,
+      proposal: finalDraftResult.proposal,
+      policyResult: finalDraftResult.policy,
+      revisionCount,
+    });
+    response.approvalRequest = approvalRequest;
+  }
+
+  return response;
 }
 
 export default { orchestrateCampaign };
