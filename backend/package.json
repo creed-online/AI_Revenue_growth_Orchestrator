@@ -6,6 +6,7 @@
   "scripts": {
     "start": "tsx src/index.js",
     "dev": "tsx watch src/index.js"
+    
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "groq-sdk": "^1.5.0",
-    "prisma": "^7.9.1"
+    "prisma": "^7.9.1",
+    "razorpay": "^2.9.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.14",

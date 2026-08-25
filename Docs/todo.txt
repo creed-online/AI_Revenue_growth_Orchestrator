@@ -126,13 +126,13 @@ DAY 9 - FAILURE CASE + APPROVAL FLOW
 
 DAY 10 - RAZORPAY EXECUTION + AUDIT TRAIL
 ------------------------------------------------
-[ ] npm install razorpay
-[ ] Set up Razorpay test-mode SDK, test API keys in .env
-[ ] On approval, create real test-mode Razorpay orders/payment records
-[ ] Build AuditLog table + logging calls at every step (opportunity
+[✓] npm install razorpay
+[✓] Set up Razorpay test-mode SDK, test API keys in .env
+[✓] On approval, create real test-mode Razorpay orders/payment records
+[✓] Build AuditLog table + logging calls at every step (opportunity
     detected -> segment built -> simulated -> policy checked ->
     approved -> executed)
-[ ] Expose audit trail as API route (GET /api/audit-trail/:campaignId)
+[✓] Expose audit trail as API route (GET /api/audit-trail/:campaignId)
 
 DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
 --------------------------------------------------------
