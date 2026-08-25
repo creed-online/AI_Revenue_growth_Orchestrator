@@ -7,6 +7,7 @@ import {
 } from "../services/campaignService.js";
 import { executeCampaign } from "../services/razorpayService.js";
 import { sendSimulatedNotifications } from "../services/notificationService.js";
+import { resolveMerchantId } from "../middleware/auth.js";
 import { prisma } from "../lib/prisma.js";
 
 const router = express.Router();
@@ -14,7 +15,7 @@ const router = express.Router();
 // GET /api/campaigns?merchantId=1&status=running
 router.get("/", async (req, res) => {
   try {
-    const merchantId = Number(req.query.merchantId || req.user?.merchantId) || 1;
+    const merchantId = resolveMerchantId(req, 1);
     const status = req.query.status || undefined;
     const campaigns = await listCampaigns(merchantId, status);
     res.json({ merchantId, count: campaigns.length, campaigns });

@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import * as THREE from "three";
 import { ArrowRight, Bot } from "lucide-react";
@@ -135,13 +136,13 @@ export default function Hero3D({ opportunityCount = 0, pipelineValue = 0 }) {
             </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <a
-                href="#opportunities"
+              <Link
+                to="/opportunities"
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-4 py-2.5 text-sm font-bold text-ink shadow-[0_10px_30px_-12px_rgba(45,212,168,0.65)] transition hover:brightness-110"
               >
                 Review opportunities
                 <ArrowRight className="h-4 w-4" />
-              </a>
+              </Link>
               <div className="inline-flex items-center gap-2 rounded-xl border border-ink-border bg-ink/40 px-3.5 py-2.5 text-xs text-ink-soft backdrop-blur-md">
                 <Bot className="h-4 w-4 text-sky" />
                 Pipeline{" "}

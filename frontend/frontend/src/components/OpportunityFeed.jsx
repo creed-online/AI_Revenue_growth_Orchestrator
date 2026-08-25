@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
+  ArrowRight,
   CheckCircle2,
   RefreshCw,
   ShoppingBag,
@@ -11,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { fetchOpportunities, runOrchestrator } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 
 const FILTERS = [
   { id: "ALL", label: "All" },
@@ -33,18 +36,19 @@ function confidenceLabel(value) {
 }
 
 export default function OpportunityFeed() {
+  const { merchantId } = useAuth();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState("ALL");
   const [activeRunningId, setActiveRunningId] = useState(null);
   const [orchestratorResult, setOrchestratorResult] = useState(null);
 
   const { data: opportunities = [], isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ["opportunities", 1],
-    queryFn: () => fetchOpportunities(1),
+    queryKey: ["opportunities", merchantId],
+    queryFn: () => fetchOpportunities(merchantId),
   });
 
   const orchestrateMutation = useMutation({
-    mutationFn: ({ index }) => runOrchestrator(1, index),
+    mutationFn: ({ index }) => runOrchestrator(merchantId, index),
     onMutate: ({ index }) => {
       setActiveRunningId(index);
       setOrchestratorResult(null);
@@ -53,6 +57,7 @@ export default function OpportunityFeed() {
       setActiveRunningId(null);
       setOrchestratorResult(data);
       queryClient.invalidateQueries({ queryKey: ["approvals"] });
+      queryClient.invalidateQueries({ queryKey: ["campaigns"] });
     },
     onError: (error) => {
       setActiveRunningId(null);
@@ -283,28 +288,32 @@ export default function OpportunityFeed() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    orchestrateMutation.mutate({
-                      index: originalIndex >= 0 ? originalIndex : idx,
-                    })
-                  }
-                  disabled={activeRunningId === (originalIndex >= 0 ? originalIndex : idx)}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-4 py-2.5 text-xs font-bold text-ink transition hover:brightness-110 disabled:cursor-wait disabled:opacity-60"
-                >
-                  {activeRunningId === (originalIndex >= 0 ? originalIndex : idx) ? (
-                    <>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Link
+                    to={`/opportunities/${op.productId}`}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-ink-border bg-ink/40 px-3 py-2.5 text-xs font-bold text-ink-soft transition hover:border-mint/30 hover:text-white"
+                  >
+                    Review
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      orchestrateMutation.mutate({
+                        index: originalIndex >= 0 ? originalIndex : idx,
+                      })
+                    }
+                    disabled={activeRunningId === (originalIndex >= 0 ? originalIndex : idx)}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-3 py-2.5 text-xs font-bold text-ink transition hover:brightness-110 disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {activeRunningId === (originalIndex >= 0 ? originalIndex : idx) ? (
                       <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                      AI reasoning…
-                    </>
-                  ) : (
-                    <>
+                    ) : (
                       <Sparkles className="h-3.5 w-3.5" />
-                      Orchestrate campaign
-                    </>
-                  )}
-                </button>
+                    )}
+                    Orchestrate
+                  </button>
+                </div>
               </motion.article>
             );
           })}

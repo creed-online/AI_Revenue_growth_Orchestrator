@@ -97,7 +97,14 @@ export default function OpportunityChart({ opportunities = [] }) {
               width={52}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(45,212,168,0.06)" }} />
-            <Bar dataKey="value" radius={[8, 8, 4, 4]} maxBarSize={56}>
+            <Bar
+              dataKey="value"
+              radius={[8, 8, 4, 4]}
+              maxBarSize={56}
+              isAnimationActive
+              animationDuration={900}
+              animationEasing="ease-out"
+            >
               {chartData.map((entry) => (
                 <Cell
                   key={entry.name}
