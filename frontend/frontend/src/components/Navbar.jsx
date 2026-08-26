@@ -80,7 +80,7 @@ export default function Navbar() {
               type="button"
               onClick={() => {
                 logout();
-                navigate("/login");
+                navigate("/register");
               }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-ink-border bg-ink-elevated px-2.5 py-1.5 text-[11px] font-semibold text-ink-muted transition hover:border-rose-signal/40 hover:text-rose-signal"
               title="Sign out"

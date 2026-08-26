@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Lock, Mail, Sparkles } from "lucide-react";
+import { ArrowRight, Lock, Mail, Sparkles, Database } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const { login, isAuthenticated, bootstrapping } = useAuth();
+  const { login, isAuthenticated, bootstrapping, setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState("demo@rakshfit.com");
   const [password, setPassword] = useState("demo1234");
+  const [demoMode, setDemoMode] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +32,26 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      navigate(location.state?.from || "/", { replace: true });
+      
+      if (demoMode) {
+        // Switch to demo merchant (merchantId=1)
+        const token = localStorage.getItem("argo_token");
+        const switchRes = await fetch("/api/auth/switch-merchant", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ targetMerchantId: 1 }),
+        });
+        const switchData = await switchRes.json();
+        if (switchData.token) {
+          localStorage.setItem("argo_token", switchData.token);
+          localStorage.setItem("argo_merchant", JSON.stringify(switchData.merchant));
+          localStorage.setItem("argo_demo_mode", "true");
+          setAuth(switchData.token, switchData.merchant);
+        }
+        navigate("/dashboard");
+      } else {
+        navigate(location.state?.from || "/", { replace: true });
+      }
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -87,6 +107,20 @@ export default function LoginPage() {
               className="w-full rounded-xl border border-ink-border bg-ink/50 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-mint/40"
               autoComplete="current-password"
             />
+          </label>
+
+          <label className="flex items-center gap-3 p-3 rounded-xl border border-ink-border bg-ink-elevated/50 cursor-pointer transition hover:border-mint/30">
+            <input
+              type="checkbox"
+              checked={demoMode}
+              onChange={(e) => setDemoMode(e.target.checked)}
+              className="w-4 h-4 accent-mint rounded border-ink-border"
+            />
+            <div className="flex-1 text-left">
+              <p className="font-medium text-white">Explore Demo Data</p>
+              <p className="text-xs text-ink-muted">Access pre-loaded demo environment (Demo Fitness Store)</p>
+            </div>
+            <Database className="h-5 w-5 text-amber-signal" />
           </label>
 
           {error ? (

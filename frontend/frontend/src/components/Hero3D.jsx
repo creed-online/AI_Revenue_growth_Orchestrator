@@ -190,7 +190,19 @@ function Hero3DCanvas({ opportunityCount = 0, pipelineValue = 0 }) {
             camera={{ position: [0, 0.4, 6.2], fov: 48 }}
             dpr={[1, 1.75]}
             className="absolute inset-0"
-            gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
+            gl={{
+              antialias: true,
+              alpha: true,
+              preserveDrawingBuffer: true,
+              onContextLost: (e) => {
+                e.preventDefault();
+                console.warn('[Three.js] WebGL context lost, will attempt restore');
+              },
+              onContextRestored: (gl) => {
+                console.log('[Three.js] WebGL context restored');
+                gl.setClearColor(0x000000, 0);
+              },
+            }}
             onCreated={(state) => {
               state.gl.setClearColor(0x000000, 0);
             }}
@@ -198,7 +210,7 @@ function Hero3DCanvas({ opportunityCount = 0, pipelineValue = 0 }) {
             <ambientLight intensity={0.55} />
             <pointLight position={[4, 3, 2]} intensity={0.8} color="#2dd4a8" />
             <pointLight position={[-3, -1, 2]} intensity={0.45} color="#38bdf8" />
-            <ParticleField />
+            <ParticleField count={280} />
             <OpportunityFunnel />
           </Canvas>
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-ink-elevated to-transparent lg:hidden" />

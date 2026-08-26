@@ -237,5 +237,8 @@ model NotificationSend {
   body         String
   cta          String?
 
+  emailSent    Boolean  @default(false)
+  emailError   String?
+
   sentAt       DateTime @default(now())
 }

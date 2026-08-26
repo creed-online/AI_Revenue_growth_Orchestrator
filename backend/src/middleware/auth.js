@@ -59,12 +59,12 @@ export function requireMerchantAccess(req, res, next) {
 }
 
 /**
- * Resolve merchantId from JWT first, then demo header, then fallback.
- * Used only for backward compatibility with optional auth flows.
+ * Resolve merchantId from demo header first, then JWT, then fallback.
+ * Demo mode takes precedence so users can explore demo data regardless of their actual merchant.
  */
 export function resolveMerchantId(req, fallback = null) {
-  if (req.user?.merchantId) return Number(req.user.merchantId);
   if (req.headers["x-demo-mode"] === "true") return 1;
+  if (req.user?.merchantId) return Number(req.user.merchantId);
   return fallback;
 }
 

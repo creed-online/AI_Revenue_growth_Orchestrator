@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, setAuth } = useAuth();
   const [form, setForm] = useState({ email: "", password: "", businessName: "", industry: "" });
   const [datasetChoice, setDatasetChoice] = useState(null); // 'demo' | 'import'
   const [error, setError] = useState("");
@@ -29,7 +29,21 @@ export default function RegisterPage() {
       await login(data.merchant.email, form.password);
       
       if (datasetChoice === "demo") {
-        localStorage.setItem("argo_demo_mode", "true");
+        // Switch to demo merchant (merchantId=1)
+        const token = localStorage.getItem("argo_token");
+        const switchRes = await fetch("/api/auth/switch-merchant", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ targetMerchantId: 1 }),
+        });
+        const switchData = await switchRes.json();
+        if (switchData.token) {
+          localStorage.setItem("argo_token", switchData.token);
+          localStorage.setItem("argo_merchant", JSON.stringify(switchData.merchant));
+          localStorage.setItem("argo_demo_mode", "true");
+          // Update auth context with demo merchant
+          setAuth(switchData.token, switchData.merchant);
+        }
         navigate("/dashboard");
       } else {
         navigate("/onboarding");
