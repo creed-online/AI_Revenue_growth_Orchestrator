@@ -3,6 +3,9 @@ import { AuthProvider } from "./context/AuthContext";
 import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import OnboardingPage from "./pages/OnboardingPage";
+import ImportDataPage from "./pages/ImportDataPage";
 import DashboardPage from "./pages/DashboardPage";
 import OpportunitiesPage from "./pages/OpportunitiesPage";
 import OpportunityDetailPage from "./pages/OpportunityDetailPage";
@@ -16,9 +19,18 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          
+          {/* Public dashboard - accessible to unauthenticated users */}
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<DashboardPage />} />
+          </Route>
+          
+          {/* Protected routes - require authentication */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route path="/import-data" element={<ImportDataPage />} />
               <Route path="/opportunities" element={<OpportunitiesPage />} />
               <Route path="/opportunities/:productId" element={<OpportunityDetailPage />} />
               <Route path="/campaigns" element={<CampaignsPage />} />
@@ -26,6 +38,7 @@ export default function App() {
               <Route path="/campaigns/:campaignId/audit" element={<AuditTrailPage />} />
             </Route>
           </Route>
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

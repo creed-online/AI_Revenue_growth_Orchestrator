@@ -30,6 +30,12 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const setAuth = useCallback((newToken, newMerchant) => {
+    storeAuth(newToken, newMerchant);
+    setToken(newToken);
+    setMerchant(newMerchant);
+  }, []);
+
   const logout = useCallback(() => {
     clearAuth();
     setToken(null);
@@ -73,9 +79,10 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(token && merchant),
       bootstrapping,
       login,
+      setAuth,
       logout,
     }),
-    [token, merchant, bootstrapping, login, logout]
+    [token, merchant, bootstrapping, login, logout, setAuth]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

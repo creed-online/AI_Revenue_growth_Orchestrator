@@ -1,19 +1,18 @@
 import express from "express";
 import orchestrator from "../services/orchestrator.js";
-import { resolveMerchantId } from "../middleware/auth.js";
+import { requireMerchantAccess } from "../middleware/auth.js";
 
 const router = express.Router();
 
 /**
  * POST /api/orchestrator/run
- * body: { merchantId?, opportunityIndex? }
+ * body: { opportunityIndex? }
  */
-router.post("/orchestrator/run", async (req, res) => {
+router.post("/orchestrator/run", requireMerchantAccess, async (req, res) => {
   try {
-    const merchantId = resolveMerchantId(req, 1);
     const opportunityIndex = parseInt(req.body.opportunityIndex, 10) || 0;
 
-    const result = await orchestrator.orchestrateCampaign({ merchantId, opportunityIndex });
+    const result = await orchestrator.orchestrateCampaign({ merchantId: req.merchantId, opportunityIndex });
     res.json(result);
   } catch (err) {
     console.error("Orchestrator error:", err);

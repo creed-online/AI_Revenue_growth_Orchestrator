@@ -72,9 +72,75 @@ export function verifyToken(token) {
   return jwt.verify(token, JWT_SECRET);
 }
 
+export async function registerMerchant({ email, password, businessName, industry }) {
+  const normalizedEmail = String(email).trim().toLowerCase();
+
+  const existing = await prisma.merchant.findUnique({ where: { email: normalizedEmail } });
+  if (existing) {
+    return { error: "email_exists", message: "A merchant with this email already exists." };
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const merchant = await prisma.$transaction(async (tx) => {
+    const newMerchant = await tx.merchant.create({
+      data: {
+        businessName,
+        email: normalizedEmail,
+        passwordHash,
+        industry: industry || "General",
+        currency: "INR",
+      },
+    });
+
+    await tx.policy.create({
+      data: {
+        merchantId: newMerchant.id,
+        maxDiscount: 15,
+        maxCampaignAudience: 5000,
+        maxCampaignBudget: 20000,
+        maxCampaignsPerCustomerPerMonth: 2,
+        requireApproval: true,
+        optOutCustomerIds: [],
+        optOutProductIds: [],
+      },
+    });
+
+    await tx.user.create({
+      data: {
+        email: normalizedEmail,
+        passwordHash,
+        name: businessName,
+        merchantId: newMerchant.id,
+        role: "merchant_admin",
+      },
+    });
+
+    return newMerchant;
+  });
+
+  const token = jwt.sign(
+    { merchantId: merchant.id, email: merchant.email, businessName: merchant.businessName },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+
+  return {
+    token,
+    merchant: {
+      id: merchant.id,
+      email: merchant.email,
+      businessName: merchant.businessName,
+      industry: merchant.industry,
+      currency: merchant.currency,
+    },
+  };
+}
+
 export default {
   ensureDemoMerchantCredentials,
   loginMerchant,
+  registerMerchant,
   verifyToken,
   JWT_SECRET,
 };

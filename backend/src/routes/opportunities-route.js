@@ -1,13 +1,13 @@
 import express from "express";
 import { scanReplenishmentOpportunities } from "../services/opportunityEngine.js";
-import { resolveMerchantId } from "../middleware/auth.js";
+import { requireMerchantAccess, resolveMerchantId } from "../middleware/auth.js";
 
 const router = express.Router();
 
 /**
- * GET /api/opportunities?merchantId=1
- * Returns a ranked list of replenishment opportunities for the merchant —
- * one entry per product, grouped from all currently-due customers.
+ * GET /api/opportunities
+ * Returns a ranked list of replenishment opportunities for the merchant.
+ * Works in demo mode (x-demo-mode: true) without authentication.
  */
 router.get("/", async (req, res) => {
   try {

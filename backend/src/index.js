@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { prisma } from "./lib/prisma.js";
 import campaignRoute from "./routes/campaign-route.js";
 import customerRoute from "./routes/customer-route.js";
@@ -11,14 +13,23 @@ import orchestratorRoute from "./routes/orchestrator-route.js";
 import approvalRoutes from "./routes/approval-route.js";
 import campaignsRoute from "./routes/campaigns-route.js";
 import authRoute from "./routes/auth-route.js";
+import importRoute from "./routes/import-route.js";
 import { optionalAuth } from "./middleware/auth.js";
 import { ensureDemoMerchantCredentials } from "./services/authService.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
+app.use(helmet());
+app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"] }));
 app.use(express.json());
+
+// Rate limiting
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use("/api/auth/login", rateLimit({ windowMs: 15 * 60 * 1000, max: 10 }));
+app.use("/api/auth/register", rateLimit({ windowMs: 60 * 60 * 1000, max: 5 }));
+app.use("/api/import", rateLimit({ windowMs: 60 * 60 * 1000, max: 20 }));
+
 app.use(optionalAuth);
 
 app.use("/api/auth", authRoute);
@@ -29,6 +40,7 @@ app.use("/api/customers", customerRoute);
 app.use("/api/opportunities", opportunitiesRoute);
 app.use("/api/approvals", approvalRoutes);
 app.use("/api/campaigns", campaignsRoute);
+app.use("/api/import", importRoute);
 
 async function verifyDatabaseConnection() {
   try {

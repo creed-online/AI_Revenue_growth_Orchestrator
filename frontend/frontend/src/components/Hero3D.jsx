@@ -1,10 +1,10 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import * as THREE from "three";
-import { ArrowRight, Bot } from "lucide-react";
+import { ArrowRight, Bot, AlertTriangle } from "lucide-react";
 
 function ParticleField({ count = 420 }) {
   const pointsRef = useRef();
@@ -102,12 +102,43 @@ function OpportunityFunnel() {
   );
 }
 
-export default function Hero3D({ opportunityCount = 0, pipelineValue = 0 }) {
+function Hero3DCanvas({ opportunityCount = 0, pipelineValue = 0 }) {
+  const [hasWebGLError, setHasWebGLError] = useState(false);
+
+  useEffect(() => {
+    // Test WebGL support
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    if (!gl) {
+      setHasWebGLError(true);
+    }
+  }, []);
+
+  if (hasWebGLError) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="panel rounded-2xl border border-amber-signal/30 bg-amber-signal/10 p-8 text-center"
+      >
+        <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-signal" />
+        <h3 className="font-display text-lg font-bold text-white mb-2">
+          3D Visualization Unavailable
+        </h3>
+        <p className="text-sm text-ink-muted mb-4 max-w-md mx-auto">
+          Your browser doesn't support WebGL or it's disabled. The dashboard
+          works fully without the 3D visualization.
+        </p>
+      </motion.div>
+    );
+  }
+
   return (
     <section id="overview" className="relative mt-4 overflow-hidden rounded-2xl border border-ink-border">
       <div className="absolute inset-0 bg-ink-elevated" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,rgba(45,212,168,0.12),transparent_55%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_80%,rgba(56,189,248,0.08),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%_at_50%_100%,rgba(13,159,122,0.08),transparent_55%)]" />
 
       <div className="relative grid min-h-[300px] grid-cols-1 lg:min-h-[340px] lg:grid-cols-[1.05fr_0.95fr]">
         <div className="relative z-10 flex flex-col justify-center px-5 py-8 sm:px-8 sm:py-10 lg:pr-4">
@@ -159,7 +190,10 @@ export default function Hero3D({ opportunityCount = 0, pipelineValue = 0 }) {
             camera={{ position: [0, 0.4, 6.2], fov: 48 }}
             dpr={[1, 1.75]}
             className="absolute inset-0"
-            gl={{ antialias: true, alpha: true }}
+            gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
+            onCreated={(state) => {
+              state.gl.setClearColor(0x000000, 0);
+            }}
           >
             <ambientLight intensity={0.55} />
             <pointLight position={[4, 3, 2]} intensity={0.8} color="#2dd4a8" />
@@ -172,4 +206,8 @@ export default function Hero3D({ opportunityCount = 0, pipelineValue = 0 }) {
       </div>
     </section>
   );
+}
+
+export default function Hero3D({ opportunityCount = 0, pipelineValue = 0 }) {
+  return <Hero3DCanvas opportunityCount={opportunityCount} pipelineValue={pipelineValue} />;
 }

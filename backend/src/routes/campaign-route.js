@@ -1,5 +1,6 @@
 import express from "express";
 import { simulateCampaign } from "../services/campaignSimulator.js";
+import { requireMerchantAccess } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
  * POST /api/simulate-campaign
  * Evaluates expected business impact for 0%, 5%, and 10% campaign offers.
  */
-router.post("/simulate-campaign", (req, res) => {
+router.post("/simulate-campaign", requireMerchantAccess, async (req, res) => {
   try {
     const { opportunity, audience } = req.body || {};
 

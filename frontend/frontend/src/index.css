@@ -1,10 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-display: "Syne", ui-sans-serif, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, sans-serif;
 
-  --color-ink: #070b12;
+  --color-ink: #0a1018;
   --color-ink-elevated: #0c121c;
   --color-ink-panel: #101826;
   --color-ink-border: #1c2a3d;
@@ -20,7 +21,6 @@
 
 @layer base {
   :root {
-    --bg-dark: #070b12;
     --bg-elevated: #0c121c;
     --bg-panel: rgba(16, 24, 38, 0.72);
     --border-subtle: rgba(28, 42, 61, 0.9);
@@ -41,7 +41,7 @@
     margin: 0;
     min-height: 100vh;
     overflow-x: hidden;
-    background-color: var(--bg-dark);
+    background-color: var(--color-ink);
     color: #e8eef7;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -83,7 +83,7 @@
     radial-gradient(ellipse 80% 50% at 10% -10%, rgba(45, 212, 168, 0.14), transparent 55%),
     radial-gradient(ellipse 60% 40% at 90% 0%, rgba(56, 189, 248, 0.1), transparent 50%),
     radial-gradient(ellipse 50% 35% at 50% 100%, rgba(13, 159, 122, 0.08), transparent 55%),
-    linear-gradient(180deg, #070b12 0%, #0a1018 45%, #070b12 100%);
+    linear-gradient(180deg, var(--color-ink) 0%, #0c121c 45%, var(--color-ink) 100%);
 }
 
 .app-shell::before {

@@ -11,9 +11,22 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY);
+  let merchant = null;
+  try {
+    merchant = JSON.parse(localStorage.getItem(MERCHANT_KEY) || "null");
+  } catch {
+    merchant = null;
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // If user explicitly chose demo mode, send header
+  if (localStorage.getItem("argo_demo_mode") === "true") {
+    config.headers["x-demo-mode"] = "true";
+  }
+
   return config;
 });
 

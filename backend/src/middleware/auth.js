@@ -47,13 +47,25 @@ export function requireAuth(req, res, next) {
 }
 
 /**
- * Resolve merchantId from JWT first, then query/body, default 1.
+ * Strict merchant access — requires valid JWT and sets req.merchantId.
+ * Never falls back to query/body merchantId.
  */
-export function resolveMerchantId(req, fallback = 1) {
+export function requireMerchantAccess(req, res, next) {
+  if (!req.user?.merchantId) {
+    return res.status(401).json({ error: "unauthorized", message: "Login required." });
+  }
+  req.merchantId = Number(req.user.merchantId);
+  next();
+}
+
+/**
+ * Resolve merchantId from JWT first, then demo header, then fallback.
+ * Used only for backward compatibility with optional auth flows.
+ */
+export function resolveMerchantId(req, fallback = null) {
   if (req.user?.merchantId) return Number(req.user.merchantId);
-  if (req.query?.merchantId) return Number(req.query.merchantId) || fallback;
-  if (req.body?.merchantId) return Number(req.body.merchantId) || fallback;
+  if (req.headers["x-demo-mode"] === "true") return 1;
   return fallback;
 }
 
-export default { optionalAuth, requireAuth, resolveMerchantId };
+export default { optionalAuth, requireAuth, requireMerchantAccess, resolveMerchantId };

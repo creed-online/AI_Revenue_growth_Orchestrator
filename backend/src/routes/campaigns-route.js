@@ -7,12 +7,12 @@ import {
 } from "../services/campaignService.js";
 import { executeCampaign } from "../services/razorpayService.js";
 import { sendSimulatedNotifications } from "../services/notificationService.js";
-import { resolveMerchantId } from "../middleware/auth.js";
+import { requireMerchantAccess, resolveMerchantId } from "../middleware/auth.js";
 import { prisma } from "../lib/prisma.js";
 
 const router = express.Router();
 
-// GET /api/campaigns?merchantId=1&status=running
+// GET /api/campaigns?status=running
 router.get("/", async (req, res) => {
   try {
     const merchantId = resolveMerchantId(req, 1);
@@ -28,9 +28,10 @@ router.get("/", async (req, res) => {
 // GET /api/campaigns/:id
 router.get("/:id", async (req, res) => {
   try {
+    const merchantId = resolveMerchantId(req, 1);
     const campaign = await getCampaignById(req.params.id);
     if (!campaign) return res.status(404).json({ error: "not_found" });
-    if (req.user?.merchantId && campaign.merchantId !== req.user.merchantId) {
+    if (campaign.merchantId !== merchantId) {
       return res.status(403).json({ error: "forbidden" });
     }
     res.json(campaign);
@@ -43,6 +44,7 @@ router.get("/:id", async (req, res) => {
 // GET /api/campaigns/:id/results
 router.get("/:id/results", async (req, res) => {
   try {
+    const merchantId = resolveMerchantId(req, 1);
     const payload = await getCampaignResults(req.params.id);
     if (payload.error) return res.status(404).json(payload);
     res.json(payload);
@@ -53,7 +55,7 @@ router.get("/:id/results", async (req, res) => {
 });
 
 // POST /api/campaigns/:id/measure — simulate actual outcomes
-router.post("/:id/measure", async (req, res) => {
+router.post("/:id/measure", requireMerchantAccess, async (req, res) => {
   try {
     const payload = await measureCampaignResults(req.params.id);
     if (payload.error) return res.status(400).json(payload);
@@ -65,14 +67,14 @@ router.post("/:id/measure", async (req, res) => {
 });
 
 // POST /api/campaigns/:id/execute
-router.post("/:id/execute", async (req, res) => {
+router.post("/:id/execute", requireMerchantAccess, async (req, res) => {
   const result = await executeCampaign(req.params.id);
   if (result.error) return res.status(400).json(result);
   res.json(result);
 });
 
 // POST /api/campaigns/:id/notify
-router.post("/:id/notify", async (req, res) => {
+router.post("/:id/notify", requireMerchantAccess, async (req, res) => {
   const channel = req.body?.channel || "email";
   const result = await sendSimulatedNotifications({
     campaignId: req.params.id,
@@ -84,12 +86,18 @@ router.post("/:id/notify", async (req, res) => {
 
 // GET /api/campaigns/:id/audit-trail
 router.get("/:id/audit-trail", async (req, res) => {
-  const campaignId = Number(req.params.id);
-  const logs = await prisma.auditLog.findMany({
-    where: { entityType: "Campaign", entityId: campaignId },
-    orderBy: { timestamp: "asc" },
-  });
-  res.json(logs);
+  try {
+    const merchantId = resolveMerchantId(req, 1);
+    const campaignId = Number(req.params.id);
+    const logs = await prisma.auditLog.findMany({
+      where: { entityType: "Campaign", entityId: campaignId, merchantId },
+      orderBy: { timestamp: "asc" },
+    });
+    res.json(logs);
+  } catch (error) {
+    console.error("Error fetching audit trail:", error);
+    res.status(500).json({ error: "Failed to fetch audit trail" });
+  }
 });
 
 export default router;

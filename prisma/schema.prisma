@@ -21,6 +21,21 @@ model Merchant {
   campaigns    Campaign[]
   policies     Policy[]
   auditLogs    AuditLog[]
+  users        User[]
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  role         String    @default("merchant_admin")
+  merchantId   Int
+  merchant     Merchant  @relation(fields: [merchantId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([merchantId])
 }
 
 model Customer {

@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import { Activity, LogOut, ShieldCheck, Sparkles, UserPlus, LogIn } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import MerchantSwitcher from "./MerchantSwitcher";
 
 const navItems = [
   { to: "/", label: "Overview", end: true },
@@ -60,6 +61,7 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <MerchantSwitcher />
           <div className="hidden items-center gap-2 lg:flex">
             <div className="flex items-center gap-2 rounded-lg border border-ink-border bg-ink-elevated px-3 py-1.5 text-[11px] text-ink-soft">
               <Activity className="h-3.5 w-3.5 text-sky live-dot" />
@@ -86,7 +88,26 @@ export default function Navbar() {
               <LogOut className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Sign out</span>
             </button>
-          ) : null}
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-ink-border bg-ink-elevated px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:border-mint/40 hover:text-mint"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Log in</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-mint to-mint-deep px-3 py-1.5 text-[11px] font-semibold text-ink transition hover:brightness-110"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sign up</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
