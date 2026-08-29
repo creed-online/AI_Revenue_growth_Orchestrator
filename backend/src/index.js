@@ -15,13 +15,15 @@ import campaignsRoute from "./routes/campaigns-route.js";
 import authRoute from "./routes/auth-route.js";
 import importRoute from "./routes/import-route.js";
 import schemaRoute from "./routes/schema-route.js";
+import trackingRoute from "./routes/tracking-route.js";
 import { optionalAuth } from "./middleware/auth.js";
 import { ensureDemoMerchantCredentials } from "./services/authService.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(helmet());
+app.set("trust proxy", 1);
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"] }));
 app.use(express.json());
 
@@ -43,17 +45,23 @@ app.use("/api/approvals", approvalRoutes);
 app.use("/api/campaigns", campaignsRoute);
 app.use("/api/import", importRoute);
 app.use("/api/schema", schemaRoute);
+app.use("/api/track", trackingRoute);
 
-async function verifyDatabaseConnection() {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    console.log("✔ Database connection established");
-    return true;
-  } catch (error) {
-    console.error("✘ Failed to connect to the database.");
-    console.error("  Reason:", error.message);
-    console.error("  Check that DATABASE_URL in .env is correct and reachable.");
-    return false;
+async function verifyDatabaseConnection(retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      console.log("✔ Database connection established");
+      return true;
+    } catch (error) {
+      console.warn(`[DB] Connection attempt ${attempt}/${retries} failed (${error.message}). Retrying in 1s...`);
+      if (attempt === retries) {
+        console.error("✘ Failed to connect to the database after retries.");
+        console.error("  Reason:", error.message);
+        return false;
+      }
+      await new Promise((r) => setTimeout(r, 1000));
+    }
   }
 }
 

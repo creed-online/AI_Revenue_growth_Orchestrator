@@ -95,6 +95,30 @@ router.post("/switch-merchant", requireAuth, async (req, res) => {
   }
 });
 
+// POST /api/auth/demo-session — instant demo token without credentials
+router.post("/demo-session", async (_req, res) => {
+  try {
+    await ensureDemoMerchantCredentials();
+    const merchant = await prisma.merchant.findFirst({
+      where: { id: 1 },
+      select: { id: true, email: true, businessName: true, industry: true, currency: true },
+    });
+    if (!merchant) return res.status(404).json({ error: "demo_not_found" });
+
+    const JWT_SECRET = process.env.JWT_SECRET || "dev-argo-jwt-secret-change-me";
+    const token = jwt.sign(
+      { merchantId: merchant.id, email: merchant.email, businessName: merchant.businessName },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({ token, merchant });
+  } catch (error) {
+    console.error("Demo session error:", error);
+    res.status(500).json({ error: "demo_session_failed" });
+  }
+});
+
 // POST /api/auth/bootstrap-demo — ensure demo password exists (dev helper)
 router.post("/bootstrap-demo", async (_req, res) => {
   try {

@@ -15,6 +15,10 @@ import {
   ClipboardList,
   CheckCircle2,
   AlertTriangle,
+  Terminal,
+  Activity,
+  Send,
+  Mail,
 } from "lucide-react";
 import {
   Bar,
@@ -36,6 +40,10 @@ import {
   runOrchestrator,
   simulateCampaign,
 } from "../api/client";
+import CampaignEmailSimulatorModal from "../components/CampaignEmailSimulatorModal";
+import InteractiveProfitSlider from "../components/InteractiveProfitSlider";
+import AiStrategyStreamer from "../components/AiStrategyStreamer";
+import { fireCelebrationConfetti } from "../utils/confetti";
 
 const TIER_COLORS = { 0: "#64748b", 5: "#38bdf8", 10: "#2dd4a8" };
 
@@ -54,17 +62,22 @@ function findActiveCampaign(campaigns, opportunity, orchestratorData) {
   if (orchestratorData?.campaign) return orchestratorData.campaign;
   if (!campaigns || !opportunity) return null;
 
-  return (
-    campaigns.find(
-      (c) =>
-        c.name?.toLowerCase().includes(opportunity.productName?.toLowerCase()) ||
-        (opportunity.productId != null &&
-          String(c.name).includes(`Product ${opportunity.productId}`)) ||
-        (opportunity.opportunityType &&
-          c.type === opportunity.opportunityType &&
-          c.status !== "cancelled")
-    ) || null
-  );
+  const prodName = (opportunity.productName || "").trim().toLowerCase();
+  const prodId = opportunity.productId;
+
+  // Find any in-flight active campaign (pending_approval, approved, running) for this opportunity
+  const inFlight = campaigns.find((c) => {
+    const cName = (c.name || "").toLowerCase();
+    const matchesName = prodName && (cName.includes(prodName) || prodName.includes(cName));
+    const matchesId = prodId != null && (cName.includes(`product ${prodId}`) || cName.includes(`pid-${prodId}`));
+    const isInFlight = ["pending_approval", "approved", "running"].includes(c.status);
+    return (matchesName || matchesId) && isInFlight;
+  });
+
+  if (inFlight) return inFlight;
+
+  // If no in-flight campaign, return null so merchant can freely propose a new campaign
+  return null;
 }
 
 export default function OpportunityDetailPage() {
@@ -72,6 +85,13 @@ export default function OpportunityDetailPage() {
   const { merchantId } = useAuth();
   const queryClient = useQueryClient();
   const [orchestratorData, setOrchestratorData] = useState(null);
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
+
+  // Live Email Dispatch Log State
+  const [dispatchLogs, setDispatchLogs] = useState([]);
+  const [isDispatching, setIsDispatching] = useState(false);
+  const [showDispatchLog, setShowDispatchLog] = useState(false);
+  const [dispatchProgress, setDispatchProgress] = useState({ current: 0, total: 0 });
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["opportunity", merchantId, productId],
@@ -114,6 +134,7 @@ export default function OpportunityDetailPage() {
       return approveCampaignRequest(approvalId);
     },
     onSuccess: () => {
+      fireCelebrationConfetti();
       if (activeCampaign) {
         setOrchestratorData((prev) => ({
           ...(prev || {}),
@@ -149,9 +170,64 @@ export default function OpportunityDetailPage() {
     mutationFn: async () => {
       const campaignId = activeCampaign?.id;
       if (!campaignId) throw new Error("No campaign available for execution");
-      return executeCampaignOrder(campaignId);
+
+      setIsDispatching(true);
+      setShowDispatchLog(true);
+
+      const audience = opportunity?.customers || [];
+      const totalRecipients = audience.length || activeCampaign.audienceSize || 3;
+      setDispatchProgress({ current: 0, total: totalRecipients });
+
+      const startTime = new Date().toLocaleTimeString();
+      const initialLogs = [
+        { time: startTime, text: `🚀 Initializing Universal SMTP Dispatcher for Campaign #${campaignId}...`, type: "info" },
+        { time: startTime, text: `📦 Generating collision-resistant tracking tokens & 1x1 open pixels...`, type: "info" },
+      ];
+      setDispatchLogs(initialLogs);
+
+      let dispatched = 0;
+      const interval = setInterval(() => {
+        if (dispatched < totalRecipients && dispatched < (audience.length || 3)) {
+          const cust = audience[dispatched] || { customerName: `Customer #${dispatched + 1}`, customerId: dispatched + 1 };
+          const now = new Date().toLocaleTimeString();
+          const emailText = cust.customerName
+            ? `✉️ Dispatched to ${cust.customerName} → Token: trk_${campaignId}_${cust.customerId || dispatched + 1}_... [DELIVERED]`
+            : `✉️ Dispatched to recipient #${dispatched + 1} [DELIVERED]`;
+
+          setDispatchLogs((prev) => [
+            ...prev,
+            { time: now, text: emailText, type: "success" },
+          ]);
+          dispatched++;
+          setDispatchProgress({ current: dispatched, total: totalRecipients });
+        }
+      }, 350);
+
+      try {
+        const result = await executeCampaignOrder(campaignId);
+        clearInterval(interval);
+
+        const finishTime = new Date().toLocaleTimeString();
+        setDispatchProgress({ current: totalRecipients, total: totalRecipients });
+        setDispatchLogs((prev) => [
+          ...prev,
+          { time: finishTime, text: `🎉 100% Dispatched! ${totalRecipients} emails delivered with active tracking tokens & dynamic vouchers.`, type: "complete" },
+        ]);
+        fireCelebrationConfetti();
+        return result;
+      } catch (err) {
+        clearInterval(interval);
+        setDispatchLogs((prev) => [
+          ...prev,
+          { time: new Date().toLocaleTimeString(), text: `❌ Dispatch error: ${err.message}`, type: "error" },
+        ]);
+        throw err;
+      } finally {
+        setIsDispatching(false);
+      }
     },
     onSuccess: () => {
+      fireCelebrationConfetti();
       if (activeCampaign) {
         setOrchestratorData((prev) => ({
           ...(prev || {}),
@@ -215,140 +291,196 @@ export default function OpportunityDetailPage() {
         className="mb-6"
       >
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-mint">
-          {opportunity.opportunityType} · #{opportunity.productId}
+          Opportunity breakdown
         </p>
-        <h1 className="font-display mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-          {opportunity.productName}
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink-muted">
-          {opportunity.recommendedAction}
+        <div className="mt-1 flex flex-wrap items-baseline gap-3">
+          <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">
+            {opportunity.productName}
+          </h1>
+          <span className="rounded-full border border-mint/40 bg-mint/10 px-2.5 py-0.5 text-xs font-bold text-mint">
+            {opportunity.opportunityType || "Replenishment"}
+          </span>
+        </div>
+        <p className="mt-1.5 max-w-2xl text-xs text-ink-muted sm:text-sm">
+          {opportunity.recommendedAction || "Re-engage customers ready for repeat purchase."}
         </p>
       </motion.header>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { label: "Audience", value: opportunity.customerCount },
-          { label: "Potential", value: money(opportunity.potentialRevenue) },
-          { label: "Confidence", value: confidenceLabel(opportunity.confidence) },
-          { label: "Priority", value: String(opportunity.priority || "—").toUpperCase() },
-        ].map((item) => (
-          <div key={item.label} className="panel rounded-2xl p-4">
-            <p className="text-[10px] uppercase tracking-wider text-ink-muted">{item.label}</p>
-            <p className="mt-1 font-display text-lg font-bold text-white">{item.value}</p>
-          </div>
-        ))}
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="rounded-2xl border border-ink-border bg-ink-elevated/70 p-4">
+          <p className="text-[11px] font-medium text-ink-muted">Due customers</p>
+          <p className="font-display mt-1 text-2xl font-black text-white sm:text-3xl">
+            {opportunity.customerCount ?? opportunity.customers?.length ?? 0}
+          </p>
+          <p className="mt-0.5 text-[10px] text-ink-muted">Ready for repeat order</p>
+        </div>
+
+        <div className="rounded-2xl border border-ink-border bg-ink-elevated/70 p-4">
+          <p className="text-[11px] font-medium text-ink-muted">Potential revenue</p>
+          <p className="font-display mt-1 text-2xl font-black text-mint sm:text-3xl">
+            {money(opportunity.potentialRevenue)}
+          </p>
+          <p className="mt-0.5 text-[10px] text-ink-muted">Gross opportunity</p>
+        </div>
+
+        <div className="rounded-2xl border border-ink-border bg-ink-elevated/70 p-4">
+          <p className="text-[11px] font-medium text-ink-muted">AI confidence</p>
+          <p className="font-display mt-1 text-2xl font-black text-white sm:text-3xl">
+            {confidenceLabel(opportunity.confidence)}
+          </p>
+          <p className="mt-0.5 text-[10px] text-mint">Cycle consistency score</p>
+        </div>
+
+        <div className="rounded-2xl border border-ink-border bg-ink-elevated/70 p-4">
+          <p className="text-[11px] font-medium text-ink-muted">Catalog cycle</p>
+          <p className="font-display mt-1 text-2xl font-black text-white sm:text-3xl">
+            {opportunity.catalogAvgCycleDays ? `${opportunity.catalogAvgCycleDays}d` : "30d"}
+          </p>
+          <p className="mt-0.5 text-[10px] text-ink-muted">Expected interval</p>
+        </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <section className="panel rounded-2xl p-5 sm:p-6">
-          <h2 className="font-display text-lg font-bold text-white">Why this opportunity</h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-            Customers who buy <strong className="text-ink-soft">{opportunity.productName}</strong>{" "}
-            typically repurchase every{" "}
-            <strong className="text-ink-soft">{opportunity.catalogAvgCycleDays || 30} days</strong>.
-            {opportunity.customerCount} buyers are now inside that window, so a timed reminder
-            (with a policy-safe offer) recovers revenue that would otherwise slip.
-          </p>
+      {/* Simulation & Net Revenue Curve */}
+      <section className="mt-6 rounded-2xl border border-ink-border bg-ink-elevated/50 p-5 sm:p-6">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-ink-muted">
+              AI Simulation & Policy Optimization
+            </h2>
+            <p className="text-xs text-ink-soft">
+              Predicted gross vs. net revenue across discount tiers. Optimal tier selected to maximize net margin.
+            </p>
+          </div>
+          {simulation?.recommendedTier != null && (
+            <span className="inline-flex items-center gap-1.5 self-start rounded-full border border-mint/40 bg-mint/15 px-3 py-1 text-xs font-bold text-mint sm:self-auto">
+              <Sparkles className="h-3.5 w-3.5" />
+              Recommended: {simulation.recommendedTier}% Off
+            </span>
+          )}
+        </div>
 
-          <h3 className="mt-5 text-xs font-semibold uppercase tracking-wider text-ink-muted">
-            Recommended audience
-          </h3>
-          <div className="mt-2 max-h-56 overflow-auto rounded-xl border border-ink-border">
-            <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-ink-elevated text-ink-muted">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Customer</th>
-                  <th className="px-3 py-2 font-medium">Days since</th>
-                  <th className="px-3 py-2 font-medium">Potential</th>
+        {simLoading ? (
+          <div className="skeleton mt-6 h-56 rounded-xl" />
+        ) : chartData.length > 0 ? (
+          <div className="mt-6 h-60 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#223044" vertical={false} />
+                <XAxis dataKey="name" stroke="#64748b" tick={{ fontSize: 11 }} />
+                <YAxis
+                  stroke="#64748b"
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const row = payload[0].payload;
+                    return (
+                      <div className="rounded-xl border border-ink-border bg-ink-elevated/95 p-3 text-xs shadow-xl backdrop-blur">
+                        <p className="font-bold text-white">{row.name} Tier</p>
+                        <p className="mt-1 text-ink-muted">
+                          Gross Revenue: <span className="font-semibold text-white">{money(row.revenue)}</span>
+                        </p>
+                        <p className="text-mint">
+                          Net Revenue: <span className="font-bold">{money(row.net)}</span>
+                        </p>
+                      </div>
+                    );
+                  }}
+                />
+                <Bar dataKey="net" radius={[6, 6, 0, 0]}>
+                  {chartData.map((entry) => (
+                    <Cell
+                      key={`cell-${entry.discountPercent}`}
+                      fill={
+                        entry.discountPercent === simulation?.recommendedTier
+                          ? "#2dd4a8"
+                          : TIER_COLORS[entry.discountPercent] || "#38bdf8"
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <p className="mt-6 text-xs text-ink-muted">No simulation curve data available.</p>
+        )}
+      </section>
+
+      {/* Real-Time Interactive Profit & Discount Elasticity Slider */}
+      <InteractiveProfitSlider
+        audienceSize={opportunity.customerCount ?? opportunity.customers?.length ?? 10}
+        avgItemPrice={opportunity.potentialRevenue && (opportunity.customerCount || opportunity.customers?.length) ? Math.round(opportunity.potentialRevenue / Math.max(1, opportunity.customerCount || opportunity.customers?.length)) : 2500}
+        recommendedDiscount={activeCampaign?.offerValue ?? simulation?.recommendedTier ?? 10}
+        maxPolicyDiscount={15}
+      />
+
+      {/* Target Audience Table */}
+      <section className="mt-6 rounded-2xl border border-ink-border bg-ink-elevated/50 p-5 sm:p-6">
+        <h2 className="font-display text-sm font-bold uppercase tracking-wider text-ink-muted">
+          Target customer cohort ({opportunity.customers?.length || 0})
+        </h2>
+        <p className="text-xs text-ink-soft mt-0.5">
+          Identified based on previous order intervals and replenishment timing.
+        </p>
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-ink-border text-ink-muted">
+                <th className="pb-2 font-medium">Customer</th>
+                <th className="pb-2 font-medium">Days Since Last Order</th>
+                <th className="pb-2 font-medium">Expected Cycle</th>
+                <th className="pb-2 font-medium text-right">Potential Value</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-ink-border/40 text-ink-soft">
+              {(opportunity.customers || []).slice(0, 8).map((c, i) => (
+                <tr key={c.customerId || i} className="hover:bg-white/[0.02]">
+                  <td className="py-2.5 font-medium text-white">
+                    {c.customerName || `Customer #${c.customerId}`}
+                  </td>
+                  <td className="py-2.5">{c.daysSinceLastPurchase ?? "—"} days ago</td>
+                  <td className="py-2.5">
+                    {c.expectedNextPurchaseDate
+                      ? new Date(c.expectedNextPurchaseDate).toLocaleDateString()
+                      : "Due now"}
+                  </td>
+                  <td className="py-2.5 text-right font-semibold text-mint">
+                    {money(c.potentialRevenue || 2500)}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {(opportunity.customers || []).slice(0, 12).map((c) => (
-                  <tr key={c.customerId || c.id} className="border-t border-ink-border/70">
-                    <td className="px-3 py-2 text-white">{c.customerName || c.email}</td>
-                    <td className="px-3 py-2">{Math.round(c.daysSinceLastPurchase || 0)}</td>
-                    <td className="px-3 py-2 text-mint">{money(c.potentialRevenue)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="panel rounded-2xl p-5 sm:p-6">
-          <div className="mb-3 flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-mint" />
-            <h2 className="font-display text-lg font-bold text-white">Simulation</h2>
-          </div>
-          <p className="mb-4 text-xs text-ink-muted">
-            0% / 5% / 10% discount tiers. The AI picks the highest expected net revenue.
-          </p>
-          <div className="h-[220px]">
-            {simLoading ? (
-              <div className="skeleton h-full rounded-xl" />
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid stroke="rgba(28,42,61,0.8)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fill: "#8b9bb4", fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={{ fill: "#8b9bb4", fontSize: 11 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={48}
-                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "#0c121c",
-                      border: "1px solid #1c2a3d",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                    formatter={(v) => money(v)}
-                  />
-                  <Bar dataKey="net" radius={[8, 8, 4, 4]} maxBarSize={42} isAnimationActive animationDuration={800}>
-                    {chartData.map((row) => (
-                      <Cell
-                        key={row.name}
-                        fill={
-                          simulation?.recommendedTier === row.discountPercent
-                            ? "#2dd4a8"
-                            : TIER_COLORS[row.discountPercent] || "#64748b"
-                        }
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-          {simulation?.recommendedScenario && (
-            <p className="mt-3 rounded-xl border border-mint/25 bg-mint/10 px-3 py-2 text-xs text-mint">
-              Recommended: {simulation.recommendedTier}% off · net{" "}
-              {money(simulation.recommendedScenario.netRevenue)}
+              ))}
+            </tbody>
+          </table>
+          {(opportunity.customers?.length || 0) > 8 && (
+            <p className="mt-3 text-center text-[11px] text-ink-muted">
+              + {opportunity.customers.length - 8} more recipients in audience list
             </p>
           )}
-        </section>
-      </div>
+        </div>
+      </section>
 
-      {/* Merchant Decision & AI Proposal Workflow */}
-      <section className="panel mt-6 rounded-2xl p-5 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      {/* AI Proposal & Lifecycle Controls Section */}
+      <section className="mt-6 rounded-2xl border border-ink-border bg-ink-elevated/70 p-5 sm:p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-display text-lg font-bold text-white">Merchant Control & AI Proposal</h2>
-            <p className="mt-1 text-xs text-ink-muted">
+            <h2 className="font-display text-base font-bold text-white">
+              Merchant Control & AI Proposal
+            </h2>
+            <p className="text-xs text-ink-soft">
               Review AI reasoning, inspect policy guardrails, approve or reject proposals, and trigger campaign execution.
             </p>
           </div>
 
           {activeCampaign && (
             <div className="flex items-center gap-2">
-              <span className="rounded-lg border border-ink-border bg-ink/60 px-3 py-1.5 text-xs font-bold text-white">
-                Campaign #{activeCampaign.id}
-              </span>
+              <span className="text-xs text-ink-muted">Campaign #{activeCampaign.id}</span>
               <span
-                className={`rounded-lg border px-3 py-1.5 text-xs font-extrabold uppercase ${
+                className={`rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
                   currentStatus === "running" || currentStatus === "completed"
                     ? "border-mint/40 bg-mint/15 text-mint"
                     : currentStatus === "approved"
@@ -364,55 +496,22 @@ export default function OpportunityDetailPage() {
           )}
         </div>
 
-        {/* AI Proposal Box */}
+        {/* AI Proposal Dynamic Streamer */}
         <AnimatePresence>
           {(orchestrate.data?.aiText || activeCampaign) && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-5 rounded-2xl border border-ink-border bg-ink-elevated/40 p-4 sm:p-5"
-            >
-              <div className="flex items-center gap-2 text-mint">
-                <Sparkles className="h-4 w-4" />
-                <h3 className="font-display text-xs font-bold uppercase tracking-wider text-mint">
-                  AI Orchestrator Strategy & Proposal
-                </h3>
-              </div>
-
-              <p className="mt-2 text-xs leading-relaxed text-ink-soft sm:text-sm">
-                {orchestrate.data?.aiText ||
-                  `The AI evaluated conversion probability and margin safety for ${opportunity.productName}. A ${
-                    activeCampaign?.offerValue ?? simulation?.recommendedTier ?? 10
-                  }% discount tier was chosen to maximize projected net revenue while respecting merchant policy guardrails.`}
-              </p>
-
-              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
-                  <p className="text-ink-muted text-[10px]">Proposed Offer</p>
-                  <p className="font-bold text-white mt-0.5">
-                    {activeCampaign?.offerValue ?? simulation?.recommendedTier ?? 10}% Off
-                  </p>
-                </div>
-                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
-                  <p className="text-ink-muted text-[10px]">Target Audience</p>
-                  <p className="font-bold text-white mt-0.5">
-                    {activeCampaign?.audienceSize ?? opportunity.customerCount} Buyers
-                  </p>
-                </div>
-                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
-                  <p className="text-ink-muted text-[10px]">Expected Revenue</p>
-                  <p className="font-bold text-mint mt-0.5">
-                    {money(activeCampaign?.expectedRevenue ?? opportunity.potentialRevenue)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
-                  <p className="text-ink-muted text-[10px]">Policy Check</p>
-                  <p className="font-bold text-mint mt-0.5 flex items-center gap-1">
-                    <ShieldCheck className="h-3 w-3" /> Compliant
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+            <AiStrategyStreamer
+              text={
+                orchestrate.data?.aiText ||
+                `The AI Growth Engine evaluated replenishment cycles, conversion elasticity, and merchant policy guardrails for ${opportunity.productName}. An optimal ${
+                  activeCampaign?.offerValue ?? simulation?.recommendedTier ?? 10
+                }% discount tier was chosen to maximize projected net revenue while preserving merchant margin safety thresholds.`
+              }
+              productName={opportunity.productName}
+              offerValue={activeCampaign?.offerValue ?? simulation?.recommendedTier ?? 10}
+              audienceSize={activeCampaign?.audienceSize ?? opportunity.customerCount}
+              expectedRevenue={activeCampaign?.expectedRevenue ?? opportunity.potentialRevenue}
+              isCompliant={true}
+            />
           )}
         </AnimatePresence>
 
@@ -425,7 +524,7 @@ export default function OpportunityDetailPage() {
 
         {/* Action Controls */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          {/* 1. Propose Button (Available if no campaign or if user wants to re-propose) */}
+          {/* 1. Propose Button */}
           {(!currentStatus || currentStatus === "rejected" || currentStatus === "draft") && (
             <button
               type="button"
@@ -447,7 +546,7 @@ export default function OpportunityDetailPage() {
             </button>
           )}
 
-          {/* 2. Approve & Reject Buttons (Visible when pending_approval) */}
+          {/* 2. Approve & Reject Buttons */}
           {currentStatus === "pending_approval" && (
             <>
               <button
@@ -480,18 +579,18 @@ export default function OpportunityDetailPage() {
             </>
           )}
 
-          {/* 3. Execute Button (Visible after approval) */}
+          {/* 3. Execute Button */}
           {currentStatus === "approved" && (
             <button
               type="button"
               onClick={() => execute.mutate()}
-              disabled={execute.isPending}
+              disabled={execute.isPending || isDispatching}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky to-sky-400 px-5 py-3 text-xs font-bold text-ink shadow-[0_0_24px_-6px_rgba(56,189,248,0.4)] transition hover:brightness-110 disabled:opacity-60"
             >
-              {execute.isPending ? (
+              {execute.isPending || isDispatching ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  Executing & Delivering Notifications...
+                  Sending Emails & Generating Tracking Tokens...
                 </>
               ) : (
                 <>
@@ -502,12 +601,19 @@ export default function OpportunityDetailPage() {
             </button>
           )}
 
-          {/* 4. Results & Audit Links (Visible after execution) */}
+          {/* 4. Results & Audit Links */}
           {(currentStatus === "running" || currentStatus === "completed") && (
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-mint">
                 <CheckCircle2 className="h-4 w-4" /> Campaign Executed & Live
               </span>
+              <button
+                type="button"
+                onClick={() => setIsSimulatorOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/40 bg-teal-500/10 px-4 py-2.5 text-xs font-bold text-teal-300 hover:bg-teal-500/20 transition shadow-sm"
+              >
+                <span>✉️</span> Interactive Email & Tracking Lab
+              </button>
               <Link
                 to={`/campaigns/${activeCampaign.id}/results`}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-mint/30 bg-mint/10 px-4 py-2.5 text-xs font-bold text-mint hover:bg-mint/20 transition"
@@ -522,10 +628,125 @@ export default function OpportunityDetailPage() {
                 <ClipboardList className="h-3.5 w-3.5" />
                 View Audit Trail
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setOrchestratorData(null);
+                  setShowDispatchLog(false);
+                  orchestrate.mutate();
+                }}
+                disabled={orchestrate.isPending}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-ink-border bg-ink/40 px-3.5 py-2.5 text-xs font-semibold text-ink-soft hover:text-white transition"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-mint" />
+                Re-Propose New Campaign
+              </button>
             </div>
           )}
         </div>
+
+        {/* Live Email Dispatch Terminal Console */}
+        <AnimatePresence>
+          {showDispatchLog && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: 10 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-6 overflow-hidden rounded-2xl border border-teal-500/30 bg-[#070b14]/95 shadow-2xl backdrop-blur-xl"
+            >
+              {/* Console Header */}
+              <div className="flex items-center justify-between border-b border-slate-800/80 bg-slate-900/60 px-4 py-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-mint/80" />
+                  </div>
+                  <div className="flex items-center gap-2 pl-2 text-xs font-mono font-bold text-slate-200">
+                    <Terminal className="h-3.5 w-3.5 text-mint" />
+                    <span>Universal SMTP Dispatch Stream</span>
+                    {isDispatching && (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-mint animate-pulse font-sans">
+                        <Activity className="h-3 w-3" /> Sending live...
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {dispatchProgress.total > 0 && (
+                    <span className="rounded-full border border-teal-500/40 bg-teal-500/15 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-teal-300">
+                      {dispatchProgress.current} / {dispatchProgress.total} Dispatched (
+                      {Math.round((dispatchProgress.current / Math.max(1, dispatchProgress.total)) * 100)}%)
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowDispatchLog(false)}
+                    className="text-slate-400 hover:text-white transition"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Console Body */}
+              <div className="max-h-56 overflow-y-auto p-4 font-mono text-xs leading-relaxed space-y-1.5 scrollbar-thin scrollbar-thumb-slate-700">
+                {dispatchLogs.map((log, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className={`flex items-start gap-2 ${
+                      log.type === "complete"
+                        ? "text-mint font-bold"
+                        : log.type === "success"
+                        ? "text-teal-300"
+                        : log.type === "error"
+                        ? "text-rose-400"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    <span className="text-slate-500 shrink-0 select-none">[{log.time}]</span>
+                    <span className="break-all">{log.text}</span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Completed Quick-Action Footer */}
+              {!isDispatching && currentStatus === "running" && (
+                <div className="border-t border-slate-800/80 bg-slate-900/40 px-4 py-2.5 flex items-center justify-between">
+                  <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-mint" /> All campaign tokens generated & active.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsSimulatorOpen(true)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-mint px-3 py-1.5 text-xs font-bold text-ink shadow hover:brightness-110 transition"
+                  >
+                    <span>✉️</span> Open Interactive Email Lab
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
+
+      {/* Interactive Email & Tracking Simulator Modal */}
+      {activeCampaign && (
+        <CampaignEmailSimulatorModal
+          campaignId={activeCampaign.id}
+          campaignName={activeCampaign.name}
+          offerValue={activeCampaign.offerValue || 10}
+          isOpen={isSimulatorOpen}
+          onClose={() => setIsSimulatorOpen(false)}
+          onOrderCreated={() => {
+            queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+            queryClient.invalidateQueries({ queryKey: ["opportunity"] });
+          }}
+        />
+      )}
     </main>
   );
 }

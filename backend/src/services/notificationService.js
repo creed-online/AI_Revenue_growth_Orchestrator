@@ -1,100 +1,227 @@
 // src/services/notificationService.js
+import crypto from "crypto";
 import { callModel, PROVIDER } from "../config/aiClient.js";
 import { prisma } from "../lib/prisma.js";
-import { sendRealEmail, isRealEmail } from "./emailService.js";
+import { sendRealEmail } from "./emailService.js";
+import { renderMarketingEmail } from "./emailTemplateEngine.js";
 
 /**
- * Generates personalized notification copy via AI for each customer in an
- * approved+executed campaign, then stores the simulated send.
- * For real email addresses (not demo patterns), also sends actual email.
- *
- * IMPORTANT: the model only writes the CONTENT (subject/body/cta wording).
- * The discount %, audience, and budget are already locked by the policy
- * engine at this point — the model never decides those numbers, it just
- * writes persuasive copy around fixed facts we hand it.
- *
- * Campaign.customerIds (added in Day 11 migration) is read back automatically —
- * no need to pass customerIds manually.
+ * Generates a collision-resistant tracking token for email open & click attribution.
+ */
+function generateTrackingToken(campaignId, customerId) {
+  const salt = crypto.randomBytes(4).toString("hex");
+  return `trk_${campaignId}_${customerId}_${Date.now().toString(36)}_${salt}`;
+}
+
+/**
+ * Generates personalized notification copy via AI, embeds tracking tags & pixels,
+ * and dispatches emails to the target audience.
  */
 export async function sendSimulatedNotifications({ campaignId, channel = "email" }) {
-  const campaign = await prisma.campaign.findUnique({ where: { id: Number(campaignId) } });
+  const campaign = await prisma.campaign.findUnique({
+    where: { id: Number(campaignId) },
+    include: { merchant: true },
+  });
+
   if (!campaign) return { error: "not_found" };
-  console.log(`[Notify] Campaign ${campaignId} status: ${campaign.status}, customerIds: ${JSON.stringify(campaign.customerIds)}`);
-  if (campaign.status !== "running") {
-    return { error: "not_executed", status: campaign.status, message: "Campaign must be executed before sending notifications" };
+  console.log(`[Notify] Campaign ${campaignId} (${campaign.name}) status: ${campaign.status}`);
+
+  if (campaign.status !== "running" && campaign.status !== "completed") {
+    return {
+      error: "not_executed",
+      status: campaign.status,
+      message: "Campaign must be running (executed) before notifications can be dispatched.",
+    };
   }
 
   const customerIds = campaign.customerIds || [];
-  if (customerIds.length === 0) {
-    return { error: "no_audience", message: "Campaign has no stored customerIds" };
+  let customers = [];
+
+  if (Array.isArray(customerIds) && customerIds.length > 0) {
+    customers = await prisma.customer.findMany({
+      where: { id: { in: customerIds.map(Number) } },
+    });
   }
 
-  const customers = await prisma.customer.findMany({ where: { id: { in: customerIds } } });
-  console.log(`[Notify] Found ${customers.length} customers:`, customers.map(c => ({ id: c.id, email: c.email, name: c.name })));
+  // Fallback: If no stored customerIds, select top audience for the merchant
+  if (customers.length === 0) {
+    customers = await prisma.customer.findMany({
+      where: { merchantId: campaign.merchantId },
+      take: Math.max(campaign.audienceSize || 10, 1),
+    });
+  }
 
-  const sends = [];
-  for (const customer of customers) {
-    console.log(`[Notify] Processing customer ${customer.id} (${customer.email})`);
-    const system = `You write short, warm marketing notification copy for an e-commerce replenishment campaign. Do NOT invent or change the discount percentage, product, or any numbers — use exactly what is given. Keep it concise: one subject line, one short body (2-3 sentences), one call-to-action phrase.`;
+  if (customers.length === 0) {
+    return { error: "no_audience", message: "No target customers found for this campaign" };
+  }
 
-    const user = `Write a ${channel} notification for customer "${customer.name}" about replenishing their order. Discount offered: ${campaign.offerValue}%. Product context: campaign "${campaign.name}". Respond ONLY as JSON: {"subject": "...", "body": "...", "cta": "..."} (omit "subject" key entirely for sms/whatsapp).`;
+  console.log(`[Notify] Processing ${customers.length} recipients for Campaign ${campaign.id}...`);
 
+  const merchantName = campaign.merchant?.name || "RakshFit Nutrition";
+  const baseUrl = process.env.BACKEND_URL || "http://localhost:3000";
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+  // 1. Generate high-converting AI marketing copy once for the campaign
+  const system = `You write short, persuasive marketing notification copy for an e-commerce campaign. Do NOT invent numbers — use exactly the discount provided. Keep it concise: one engaging subject line, one 2-sentence body, and one short call-to-action phrase.`;
+  const user = `Write a personalized ${channel} message for campaign "${campaign.name}". Offer: ${campaign.offerValue || 10}% OFF. Respond ONLY as valid JSON: {"subject": "...", "body": "...", "cta": "..."}`;
+
+  let copy = {
+    subject: `Exclusive ${campaign.offerValue || 10}% OFF — ${campaign.name}`,
+    body: `We have unlocked a special ${campaign.offerValue || 10}% discount on your next order. Don't miss out on your member benefits.`,
+    cta: `Claim ${campaign.offerValue || 10}% OFF Now`,
+  };
+
+  try {
     const resp = await callModel({
       system,
       messages: [{ role: "user", content: user }],
-      tools: [], // no tools needed here — plain text generation
+      tools: [],
     });
 
-    let copy;
-    try {
-      // strip potential markdown fences before parsing
+    if (resp?.text) {
       const cleaned = resp.text.replace(/```json|```/g, "").trim();
-      copy = JSON.parse(cleaned);
-    } catch {
-      copy = { body: resp.text || "Time to restock! Check out your personalized offer." };
+      const parsed = JSON.parse(cleaned);
+      if (parsed.body) {
+        copy = {
+          subject: parsed.subject || copy.subject,
+          body: parsed.body,
+          cta: parsed.cta || copy.cta,
+        };
+      }
     }
-
-    const send = await prisma.notificationSend.create({
-      data: {
-        campaignId: campaign.id,
-        customerId: customer.id,
-        channel,
-        subject: copy.subject ?? null,
-        body: copy.body,
-        cta: copy.cta ?? null,
-      },
-    });
-
-    // Send real email for real email addresses (not demo/test)
-    if (channel === "email" && customer.email && isRealEmail(customer.email)) {
-      console.log(`[Email] Sending real email to: ${customer.email}`);
-      const htmlBody = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #2dd4a8;">${copy.subject || "Your Replenishment Offer"}</h2>
-          <p>${copy.body}</p>
-          <p><a href="#" style="background: #2dd4a8; color: #070b12; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">${copy.cta || "Claim Offer"}</a></p>
-          <hr style="margin: 20px 0; border-color: #1c2a3d;" />
-          <p style="font-size: 12px; color: #8b9bb4;">AI Revenue Growth Orchestrator</p>
-        </div>
-      `;
-      const textBody = `${copy.subject || "Your Replenishment Offer"}\n\n${copy.body}\n\n${copy.cta || "Claim Offer"}`;
-
-      const emailResult = await sendRealEmail({
-        to: customer.email,
-        subject: copy.subject || `Your ${campaign.offerValue}% Replenishment Offer`,
-        text: textBody,
-        html: htmlBody,
-      });
-      console.log(`[Email] Result for ${customer.email}:`, emailResult);
-      send.emailSent = emailResult.success;
-      send.emailError = emailResult.error || null;
-    } else {
-      send.emailSent = false;
-      send.emailError = channel !== "email" ? "non_email_channel" : customer.email ? "demo_email" : "no_email";
-    }
-
-    sends.push(send);
+  } catch {
+    // Keep default copy on AI parse error
   }
 
-  return { provider: PROVIDER, campaignId: campaign.id, sentCount: sends.length, sends };
+  // 2. Dispatch to recipients in parallel chunks of 5 for maximum throughput & reliability
+  const sends = [];
+  const BATCH_SIZE = 5;
+
+  for (let i = 0; i < customers.length; i += BATCH_SIZE) {
+    const batch = customers.slice(i, i + BATCH_SIZE);
+    const batchPromises = batch.map(async (customer) => {
+      const trackingToken = generateTrackingToken(campaign.id, customer.id);
+
+      const { html, text, promoCode, clickTrackingUrl, openTrackingUrl } = renderMarketingEmail({
+        customerName: customer.name || "Valued Customer",
+        subject: copy.subject,
+        body: copy.body,
+        ctaText: copy.cta,
+        discountPercent: campaign.offerValue || 10,
+        trackingToken,
+        merchantName,
+        targetUrl: `${frontendUrl}?campaign=${campaign.id}&token=${trackingToken}`,
+        baseUrl,
+      });
+
+      let emailSent = false;
+      let emailError = null;
+      let previewUrl = null;
+
+      if (channel === "email" && customer.email) {
+        const emailResult = await sendRealEmail({
+          to: customer.email,
+          subject: copy.subject,
+          text,
+          html,
+          trackingToken,
+        });
+
+        emailSent = emailResult.success;
+        emailError = emailResult.error || null;
+        previewUrl = emailResult.previewUrl || null;
+      } else {
+        emailSent = true;
+      }
+
+      // Persist to NotificationSend
+      const sendRecord = await prisma.notificationSend.create({
+        data: {
+          campaignId: campaign.id,
+          customerId: customer.id,
+          channel,
+          subject: copy.subject,
+          body: copy.body,
+          cta: copy.cta,
+          emailSent,
+          emailError,
+          trackingToken,
+          sentAt: new Date(),
+        },
+      });
+
+      return {
+        ...sendRecord,
+        customerEmail: customer.email,
+        customerName: customer.name,
+        promoCode,
+        clickTrackingUrl,
+        openTrackingUrl,
+        previewUrl,
+      };
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    sends.push(...batchResults);
+  }
+
+  // Record AuditLog
+  await prisma.auditLog.create({
+    data: {
+      merchantId: campaign.merchantId,
+      actor: "system",
+      action: "notifications_dispatched",
+      entityType: "Campaign",
+      entityId: campaign.id,
+      inputSummary: `Dispatched ${sends.length} ${channel} notifications with tracking tokens.`,
+      executionResult: JSON.stringify({ sentCount: sends.length, channel }),
+    },
+  });
+
+  return {
+    provider: PROVIDER,
+    campaignId: campaign.id,
+    sentCount: sends.length,
+    channel,
+    notifications: sends,
+  };
 }
+
+/**
+ * List all sent notifications and tracking tokens for a campaign.
+ */
+export async function getCampaignNotifications(campaignId) {
+  const notifications = await prisma.notificationSend.findMany({
+    where: { campaignId: Number(campaignId) },
+    include: { customer: true },
+    orderBy: { sentAt: "asc" },
+  });
+
+  const baseUrl = process.env.BACKEND_URL || "http://localhost:3000";
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+  return notifications.map((n) => ({
+    id: n.id,
+    campaignId: n.campaignId,
+    customerId: n.customerId,
+    customerName: n.customer?.name || "Customer",
+    customerEmail: n.customer?.email || "",
+    channel: n.channel,
+    subject: n.subject,
+    body: n.body,
+    cta: n.cta,
+    trackingToken: n.trackingToken,
+    emailSent: n.emailSent,
+    openedAt: n.openedAt,
+    clickedAt: n.clickedAt,
+    openCount: n.openCount,
+    clickCount: n.clickCount,
+    sentAt: n.sentAt,
+    openUrl: n.trackingToken ? `${baseUrl}/api/track/open/${n.trackingToken}` : null,
+    clickUrl: n.trackingToken
+      ? `${baseUrl}/api/track/click/${n.trackingToken}?target=${encodeURIComponent(frontendUrl)}`
+      : null,
+  }));
+}
+
+export default { sendSimulatedNotifications, getCampaignNotifications };

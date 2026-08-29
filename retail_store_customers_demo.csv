@@ -1,0 +1,17 @@
+full_name,email_address,total_orders,lifetime_revenue,aov_inr,is_vip,is_discount_seeking,is_dormant,loyalty_tier,signup_date
+Arjun Singh,arjun.singh@example.com,8,48500.00,6062.50,true,false,false,Platinum VIP,2025-11-10
+Neha Sharma,neha.sharma@example.com,3,6797.00,2265.66,false,true,false,Silver,2026-02-14
+Rajesh Kumar,rajesh.kumar@example.com,14,89200.00,6371.42,true,false,false,Diamond Elite,2025-08-01
+Pooja Verma,pooja.verma@example.com,1,899.00,899.00,false,true,true,Bronze,2026-06-10
+Karan Mehta,karan.mehta@example.com,5,18900.00,3780.00,true,false,false,Gold,2025-12-05
+Anita Desai,anita.desai@example.com,4,7490.00,1872.50,false,false,false,Silver,2026-03-20
+Siddharth Rao,siddharth.rao@example.com,9,56700.00,6300.00,true,false,false,Platinum VIP,2025-09-15
+Divya Nair,divya.nair@example.com,2,3198.00,1599.00,false,true,false,Bronze,2026-04-12
+Manish Gupta,manish.gupta@example.com,1,1699.00,1699.00,false,true,true,Bronze,2026-06-05
+Simran Kaur,simran.kaur@example.com,6,24500.00,4083.33,true,false,false,Gold,2026-01-18
+Rahul Joshi,rahul.joshi@example.com,7,39800.00,5685.71,true,false,false,Platinum VIP,2025-10-22
+Tanvi Bhatia,tanvi.bhatia@example.com,3,8990.00,2996.66,false,true,false,Silver,2026-05-01
+Harsh Vardhan,harsh.vardhan@example.com,2,4290.00,2145.00,false,false,false,Silver,2026-03-10
+Geeta Menon,geeta.menon@example.com,1,1799.00,1799.00,false,true,true,Bronze,2026-06-18
+Vishal Saxena,vishal.saxena@example.com,11,72400.00,6581.81,true,false,false,Diamond Elite,2025-07-15
+

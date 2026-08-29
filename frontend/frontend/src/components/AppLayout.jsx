@@ -1,12 +1,13 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "./Navbar";
+import MobileActionDock from "./MobileActionDock";
 
 export default function AppLayout() {
   const location = useLocation();
 
   return (
-    <div className="app-shell text-ink-soft">
+    <div className="app-shell text-ink-soft pb-14 sm:pb-0">
       <Navbar />
       <AnimatePresence mode="wait">
         <motion.div
@@ -22,6 +23,7 @@ export default function AppLayout() {
       <footer className="border-t border-ink-border/80 py-6 text-center text-[11px] text-ink-muted">
         AI Revenue & Growth Orchestrator · Razorpay Buildathon Track 01
       </footer>
+      <MobileActionDock />
     </div>
   );
 }

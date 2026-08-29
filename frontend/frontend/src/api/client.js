@@ -170,4 +170,34 @@ export const clearAllCampaigns = async () => {
   return response.data;
 };
 
+export const fetchCampaignNotifications = async (campaignId) => {
+  const response = await api.get(`/campaigns/${campaignId}/notifications`);
+  return response.data;
+};
+
+export const simulateOpenTracking = async (token) => {
+  const response = await api.get(`/track/open/${token}`);
+  return response.data;
+};
+
+export const simulateClickTracking = async (token) => {
+  const response = await api.get(`/track/click/${token}?json=true`);
+  return response.data;
+};
+
+export const createCheckoutOrder = async (payload) => {
+  const response = await api.post("/track/checkout/create-order", payload);
+  return response.data;
+};
+
+export const verifyCheckoutPayment = async (payload) => {
+  const response = await api.post("/track/checkout/verify-payment", payload);
+  return response.data;
+};
+
+export const simulatePurchase = async (payload) => {
+  const response = await api.post("/track/simulate-purchase", payload);
+  return response.data;
+};
+
 export default api;

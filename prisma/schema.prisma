@@ -88,17 +88,24 @@ model Product {
 }
 
 model Order {
-  id           Int          @id @default(autoincrement())
-  customerId   Int
-  customer     Customer     @relation(fields: [customerId], references: [id])
+  id              Int          @id @default(autoincrement())
+  customerId      Int
+  customer        Customer     @relation(fields: [customerId], references: [id])
+
+  campaignId      Int?
+  campaign        Campaign?    @relation(fields: [campaignId], references: [id])
+
+  totalAmount     Float
+  discountAmount  Float?       @default(0)
+  attributionType String?      // "token_click", "razorpay_test", "razorpay_live", "email_window", "direct"
+  isTestMode      Boolean      @default(false)
+  status          String       @default("completed") // completed, cancelled, refunded
+  createdAt       DateTime     @default(now())
+
+  items           OrderItem[]
 
   @@index([customerId, createdAt])
-
-  totalAmount  Float
-  status       String       @default("completed") // completed, cancelled, refunded
-  createdAt    DateTime     @default(now())
-
-  items        OrderItem[]
+  @@index([campaignId])
 }
 
 model OrderItem {
@@ -146,6 +153,7 @@ model Campaign {
   approvalRequests ApprovalRequest[]
   results          CampaignResult[]
   notifications    NotificationSend[]
+  orders           Order[]
 }
 
 model CampaignVariant {
@@ -228,21 +236,29 @@ model CampaignResult {
 }
 
 model NotificationSend {
-  id           Int      @id @default(autoincrement())
-  campaignId   Int
-  campaign     Campaign @relation(fields: [campaignId], references: [id])
-  customerId   Int
-  customer     Customer @relation(fields: [customerId], references: [id])
+  id            Int       @id @default(autoincrement())
+  campaignId    Int
+  campaign      Campaign  @relation(fields: [campaignId], references: [id])
+  customerId    Int
+  customer      Customer  @relation(fields: [customerId], references: [id])
 
-  channel      String   // email | sms | whatsapp
-  subject      String?  // null for sms/whatsapp
-  body         String
-  cta          String?
+  channel       String    // email | sms | whatsapp
+  subject       String?   // null for sms/whatsapp
+  body          String
+  cta           String?
 
-  emailSent    Boolean  @default(false)
-  emailError   String?
+  emailSent     Boolean   @default(false)
+  emailError    String?
 
-  sentAt       DateTime @default(now())
+  trackingToken String?   @unique
+  openedAt      DateTime?
+  clickedAt     DateTime?
+  openCount     Int       @default(0)
+  clickCount    Int       @default(0)
+  ipAddress     String?
+  userAgent     String?
+
+  sentAt        DateTime  @default(now())
 }
 
 model FewShotExample {

@@ -2,6 +2,7 @@ import { lazy, Suspense, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Activity, ShieldCheck } from "lucide-react";
 import KPICards from "../components/KPICards";
 import OpportunityChart from "../components/OpportunityChart";
 import OpportunityFeed from "../components/OpportunityFeed";
@@ -11,10 +12,17 @@ import { fetchCampaigns, fetchOpportunities } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
 const Hero3D = lazy(() => import("../components/Hero3D"));
+const ThreeCustomerGlobe = lazy(() => import("../components/ThreeCustomerGlobe"));
 
 function HeroFallback() {
   return (
     <div className="mt-4 h-[300px] animate-pulse rounded-2xl border border-ink-border bg-ink-elevated lg:h-[340px]" />
+  );
+}
+
+function GlobeFallback() {
+  return (
+    <div className="mt-8 h-[360px] animate-pulse rounded-3xl border border-ink-border bg-ink-elevated" />
   );
 }
 
@@ -73,6 +81,19 @@ export default function DashboardPage() {
     <>
       {!isAuthenticated && <FloatingAuthBox />}
       <main className="mx-auto max-w-7xl px-4 pb-10 pt-2 sm:px-6 lg:px-8">
+
+        {/* AI Engine Status Bar */}
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-ink-border bg-ink-elevated/70 px-2.5 py-1 text-[11px] text-ink-soft">
+            <Activity className="h-3 w-3 text-sky live-dot" />
+            <span>Model: <strong className="font-semibold text-white">Groq Llama 3.3</strong></span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-mint/25 bg-mint/8 px-2.5 py-1 text-[11px] font-medium text-mint/90">
+            <ShieldCheck className="h-3 w-3" />
+            Policy guardrails on
+          </div>
+        </div>
+
         <ErrorBoundary fallback={<HeroFallback />}>
           <Suspense fallback={<HeroFallback />}>
             <Hero3D
@@ -99,7 +120,17 @@ export default function DashboardPage() {
             className="mb-4 flex items-center gap-2 rounded-xl border border-amber-signal/30 bg-amber-signal/10 px-4 py-2.5"
           >
             <span className="text-[11px] font-semibold text-amber-signal">🧪 Demo Mode</span>
-            <span className="text-[11px] text-ink-muted">Exploring Demo Fitness Store data. <a href="/register" className="text-mint font-semibold underline">Create your account</a> to use your own data.</span>
+            <span className="text-[11px] text-ink-muted">
+              Exploring Demo Fitness Store data.{" "}
+              <Link to="/import" className="text-mint font-semibold underline hover:brightness-110">
+                Import your own database / CSV
+              </Link>{" "}
+              or{" "}
+              <Link to="/register" className="text-sky font-semibold underline hover:brightness-110">
+                create your merchant account
+              </Link>
+              .
+            </span>
           </motion.div>
         )}
 
@@ -155,6 +186,13 @@ export default function DashboardPage() {
             </Link>
           </motion.aside>
         </div>
+
+        {/* 3D Interactive Customer Retention Globe */}
+        <ErrorBoundary fallback={<GlobeFallback />}>
+          <Suspense fallback={<GlobeFallback />}>
+            <ThreeCustomerGlobe />
+          </Suspense>
+        </ErrorBoundary>
 
         <OpportunityFeed />
       </main>

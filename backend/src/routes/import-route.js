@@ -282,6 +282,14 @@ router.post("/process", async (req, res) => {
           insertedCount++;
         }
       }
+
+      // Automatically run time-window campaign attribution on newly imported orders
+      try {
+        const { attributeUnattributedOrders } = await import("../services/attributionService.js");
+        await attributeUnattributedOrders(merchantId);
+      } catch (attrErr) {
+        console.warn("[Import] Attribution hook failed:", attrErr.message);
+      }
     }
 
     // Trigger Opportunity Engine & Post-Import Processing

@@ -1,0 +1,17 @@
+customer_email,customer_full_name,product_item_name,product_category,quantity,unit_price_inr,order_placed_at,applied_discount_code,payment_gateway_ref
+arjun.singh@example.com,Arjun Singh,Raw Whey Isolate 1kg,Nutrition Supplements,2,3299.00,2026-07-20T11:30:00Z,LOYALTY10,pay_rzp_demo_101
+neha.sharma@example.com,Neha Sharma,BCAA Energy Fuel 300g,Recovery,1,1699.00,2026-07-25T14:15:00Z,WELCOME5,pay_rzp_demo_102
+rajesh.kumar@example.com,Rajesh Kumar,Raw Whey Isolate 1kg,Nutrition Supplements,3,3299.00,2026-07-15T09:45:00Z,VIP20,pay_rzp_demo_103
+pooja.verma@example.com,Pooja Verma,Multivitamin Daily Pack 60ct,Daily Health,1,899.00,2026-06-10T16:00:00Z,NONE,pay_rzp_demo_104
+karan.mehta@example.com,Karan Mehta,Pre-Workout Igniter 250g,Performance,1,2199.00,2026-07-28T18:20:00Z,POWER10,pay_rzp_demo_105
+anita.desai@example.com,Anita Desai,Peanut Butter High Protein 1kg,Healthy Foods,2,549.00,2026-07-18T10:00:00Z,NONE,pay_rzp_demo_106
+siddharth.rao@example.com,Siddharth Rao,Raw Whey Isolate 1kg,Nutrition Supplements,1,3299.00,2026-08-01T12:30:00Z,SUMMER15,pay_rzp_demo_107
+divya.nair@example.com,Divya Nair,Electrolyte Hydration Mix 30ct,Hydration,2,799.00,2026-07-12T15:45:00Z,HYDRATE5,pay_rzp_demo_108
+manish.gupta@example.com,Manish Gupta,BCAA Energy Fuel 300g,Recovery,1,1699.00,2026-06-05T19:10:00Z,NONE,pay_rzp_demo_109
+simran.kaur@example.com,Simran Kaur,Pre-Workout Igniter 250g,Performance,2,2199.00,2026-07-22T08:30:00Z,SAVE10,pay_rzp_demo_110
+rahul.joshi@example.com,Rahul Joshi,Raw Whey Isolate 1kg,Nutrition Supplements,1,3299.00,2026-08-05T17:15:00Z,NONE,pay_rzp_demo_111
+tanvi.bhatia@example.com,Tanvi Bhatia,Multivitamin Daily Pack 60ct,Daily Health,3,899.00,2026-07-02T13:20:00Z,HEALTH15,pay_rzp_demo_112
+harsh.vardhan@example.com,Harsh Vardhan,Peanut Butter High Protein 1kg,Healthy Foods,1,549.00,2026-07-30T11:00:00Z,NONE,pay_rzp_demo_113
+geeta.menon@example.com,Geeta Menon,Electrolyte Hydration Mix 30ct,Hydration,1,799.00,2026-06-18T16:40:00Z,DEAL10,pay_rzp_demo_114
+vishal.saxena@example.com,Vishal Saxena,Raw Whey Isolate 1kg,Nutrition Supplements,2,3299.00,2026-07-27T10:15:00Z,FITVIP,pay_rzp_demo_115
+

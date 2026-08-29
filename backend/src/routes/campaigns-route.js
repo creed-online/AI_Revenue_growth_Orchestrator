@@ -8,7 +8,10 @@ import {
   clearAllCampaigns,
 } from "../services/campaignService.js";
 import { executeCampaign } from "../services/razorpayService.js";
-import { sendSimulatedNotifications } from "../services/notificationService.js";
+import {
+  sendSimulatedNotifications,
+  getCampaignNotifications,
+} from "../services/notificationService.js";
 import { requireMerchantAccess, resolveMerchantId } from "../middleware/auth.js";
 import { prisma } from "../lib/prisma.js";
 
@@ -112,13 +115,41 @@ router.post("/:id/notify", requireMerchantAccess, async (req, res) => {
   res.json(result);
 });
 
+// GET /api/campaigns/:id/notifications — list sent notifications & tracking tokens
+router.get("/:id/notifications", async (req, res) => {
+  try {
+    const notifications = await getCampaignNotifications(req.params.id);
+    res.json({
+      campaignId: Number(req.params.id),
+      totalSent: notifications.length,
+      notifications,
+    });
+  } catch (error) {
+    console.error("Error fetching campaign notifications:", error);
+    res.status(500).json({ error: "Failed to fetch notifications", message: error.message });
+  }
+});
+
 // GET /api/campaigns/:id/audit-trail
 router.get("/:id/audit-trail", async (req, res) => {
   try {
     const merchantId = resolveMerchantId(req, 1);
     const campaignId = Number(req.params.id);
+
+    const campaignOrders = await prisma.order.findMany({
+      where: { campaignId },
+      select: { id: true },
+    });
+    const orderIds = campaignOrders.map((o) => o.id);
+
     const logs = await prisma.auditLog.findMany({
-      where: { entityType: "Campaign", entityId: campaignId, merchantId },
+      where: {
+        merchantId,
+        OR: [
+          { entityType: "Campaign", entityId: campaignId },
+          { entityType: "Order", entityId: { in: orderIds } },
+        ],
+      },
       orderBy: { timestamp: "asc" },
     });
     res.json(logs);

@@ -27,7 +27,7 @@ export async function listCampaigns(merchantId = 1, status) {
 }
 
 /**
- * Get a single campaign with variants, approvals, results, notifications.
+ * Get a single campaign with variants, approvals, results, notifications, orders.
  */
 export async function getCampaignById(campaignId) {
   return prisma.campaign.findUnique({
@@ -36,22 +36,31 @@ export async function getCampaignById(campaignId) {
       variants: true,
       approvalRequests: { orderBy: { requestedAt: "desc" } },
       results: { orderBy: { createdAt: "desc" } },
-      notifications: { orderBy: { sentAt: "desc" }, take: 20 },
+      notifications: { orderBy: { sentAt: "desc" }, take: 50 },
+      orders: {
+        include: { customer: true, items: { include: { product: true } } },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 }
 
 /**
- * Simulate / measure campaign outcomes (predicted vs actual).
- * Idempotent: returns existing CampaignResult if already measured.
+ * Measures real-world campaign outcomes derived purely from live PostgreSQL database rows.
+ * Computes exact audience reach, email opens, link clicks, attributed orders,
+ * gross revenue, discount burn, email delivery cost, and honest ROI.
  */
 export async function measureCampaignResults(campaignId) {
   const campaign = await prisma.campaign.findUnique({
     where: { id: Number(campaignId) },
     include: {
       variants: true,
-      results: { orderBy: { createdAt: "desc" }, take: 1 },
+      results: { orderBy: { createdAt: "desc" } },
       notifications: true,
+      orders: {
+        include: { customer: true, items: { include: { product: true } } },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 
@@ -65,10 +74,6 @@ export async function measureCampaignResults(campaignId) {
     };
   }
 
-  if (campaign.results?.length) {
-    return buildResultsPayload(campaign, campaign.results[0]);
-  }
-
   const chosen =
     campaign.variants.find((v) => v.discountValue === campaign.offerValue) ||
     campaign.variants[0];
@@ -77,7 +82,7 @@ export async function measureCampaignResults(campaignId) {
   const predictedConversion = Number(chosen?.expectedConversion ?? 0.1);
   const predictedRevenue = Number(chosen?.expectedRevenue ?? campaign.expectedRevenue ?? 0);
   const predictedDiscountCost = Number(chosen?.expectedCost ?? campaign.expectedCost ?? 0);
-  const predictedCampaignCost = roundMoney(audienceSize * (campaign.offerValue > 0 ? 6 : 2));
+  const predictedCampaignCost = roundMoney(audienceSize * 0.50);
   const predictedNet = Number(
     chosen?.expectedNetRevenue ?? predictedRevenue - predictedDiscountCost - predictedCampaignCost
   );
@@ -88,25 +93,48 @@ export async function measureCampaignResults(campaignId) {
         ? 9.99
         : 0;
 
-  // Simulated actuals: slight variance around prediction (demo-friendly)
-  const seed = campaign.id * 17 + audienceSize;
-  const variance = 0.82 + ((seed % 37) / 100); // ~0.82 – 1.18
-  const reachRate = clamp(0.88 + ((seed % 10) / 100), 0.75, 0.98);
-  const reach = Math.round(audienceSize * reachRate);
-  const actualConversion = clamp(predictedConversion * variance, 0.02, 0.75);
-  const conversions = Math.max(1, Math.round(reach * actualConversion));
-  const aov =
-    predictedRevenue > 0 && predictedConversion > 0
-      ? predictedRevenue / (audienceSize * predictedConversion)
-      : 500;
-  const revenue = roundMoney(conversions * aov);
-  const discountCost = roundMoney(revenue * ((Number(campaign.offerValue) || 0) / 100));
-  const campaignCost = roundMoney(
-    (campaign.notifications?.length || reach) * (campaign.offerValue > 0 ? 5.5 : 2)
-  );
-  const netRevenue = roundMoney(revenue - discountCost - campaignCost);
-  const totalCost = discountCost + campaignCost;
-  const roi = totalCost > 0 ? roundMoney(netRevenue / totalCost) : netRevenue > 0 ? 9.99 : 0;
+  // 1. Live Funnel Aggregations from PostgreSQL
+  const deliveredNotifications = await prisma.notificationSend.findMany({
+    where: { campaignId: campaign.id, emailSent: true },
+  });
+
+  const deliveredCount = deliveredNotifications.length;
+  const reach = deliveredCount > 0 ? deliveredCount : audienceSize;
+
+  const openedCount = deliveredNotifications.filter((n) => n.openedAt !== null).length;
+  const clickedCount = deliveredNotifications.filter((n) => n.clickedAt !== null).length;
+
+  // 2. Real Attributed Orders from PostgreSQL
+  const attributedOrders = await prisma.order.findMany({
+    where: { campaignId: campaign.id },
+    include: { customer: true, items: { include: { product: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const uniqueConvertedCustomers = new Set(attributedOrders.map((o) => o.customerId));
+  const conversions = uniqueConvertedCustomers.size;
+  const totalOrdersCount = attributedOrders.length;
+  const actualConversionRate = reach > 0 ? Number((conversions / reach).toFixed(4)) : 0.0;
+
+  // 3. Real Financial Calculations
+  const revenue = roundMoney(attributedOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0));
+  const discountCost = roundMoney(attributedOrders.reduce((sum, o) => sum + (Number(o.discountAmount) || 0), 0));
+  const campaignCost = roundMoney(reach * 0.50); // ₹0.50 per email dispatched
+  const totalCost = roundMoney(discountCost + campaignCost);
+  const netRevenue = roundMoney(revenue - totalCost);
+
+  // Honest ROI: 0.0x if no orders placed yet
+  const roi =
+    revenue === 0
+      ? 0.0
+      : totalCost > 0
+        ? roundMoney(netRevenue / totalCost)
+        : netRevenue > 0
+          ? 9.99
+          : 0.0;
+
+  // 4. Upsert/Save CampaignResult in PostgreSQL
+  await prisma.campaignResult.deleteMany({ where: { campaignId: campaign.id } });
 
   const result = await prisma.campaignResult.create({
     data: {
@@ -114,7 +142,7 @@ export async function measureCampaignResults(campaignId) {
       audienceSize,
       reach,
       conversions,
-      conversionRate: Number(actualConversion.toFixed(4)),
+      conversionRate: actualConversionRate,
       revenue,
       campaignCost,
       discountCost,
@@ -123,11 +151,12 @@ export async function measureCampaignResults(campaignId) {
     },
   });
 
+  // 5. Update Campaign State
   await prisma.campaign.update({
     where: { id: campaign.id },
     data: {
       status: "completed",
-      completedAt: new Date(),
+      completedAt: campaign.completedAt || new Date(),
       actualRevenue: revenue,
       actualCost: totalCost,
       actualRoi: roi,
@@ -135,6 +164,7 @@ export async function measureCampaignResults(campaignId) {
     },
   });
 
+  // 6. Record AuditLog
   await prisma.auditLog.create({
     data: {
       merchantId: campaign.merchantId,
@@ -142,26 +172,40 @@ export async function measureCampaignResults(campaignId) {
       action: "campaign_results_measured",
       entityType: "Campaign",
       entityId: campaign.id,
-      inputSummary: `reach=${reach}, conversions=${conversions}, revenue=${revenue}`,
-      reason: "Simulated campaign outcomes vs prediction",
-      executionResult: JSON.stringify(result),
+      inputSummary: `Measured real results: reach=${reach}, opens=${openedCount}, clicks=${clickedCount}, conversions=${conversions}, orders=${totalOrdersCount}, grossRevenue=₹${revenue}, netRevenue=₹${netRevenue}, roi=${roi}x`,
+      reason: "Live database-driven campaign outcome measurement",
+      executionResult: JSON.stringify({
+        audienceSize,
+        reach,
+        openedCount,
+        clickedCount,
+        conversions,
+        totalOrdersCount,
+        revenue,
+        discountCost,
+        campaignCost,
+        netRevenue,
+        roi,
+      }),
     },
   });
 
   const refreshed = await getCampaignById(campaign.id);
-  return buildResultsPayload(refreshed, result);
+  return buildResultsPayload(refreshed, result, {
+    openedCount,
+    clickedCount,
+    attributedOrders,
+  });
 }
 
-function buildResultsPayload(campaign, result) {
+function buildResultsPayload(campaign, result, extras = {}) {
   const chosen =
     campaign.variants?.find((v) => v.discountValue === campaign.offerValue) ||
     campaign.variants?.[0];
 
   const predictedRevenue = Number(chosen?.expectedRevenue ?? campaign.expectedRevenue ?? 0);
   const predictedCost = Number(chosen?.expectedCost ?? campaign.expectedCost ?? 0);
-  const predictedCampaignCost = roundMoney(
-    (campaign.audienceSize || 0) * ((campaign.offerValue || 0) > 0 ? 6 : 2)
-  );
+  const predictedCampaignCost = roundMoney((campaign.audienceSize || 0) * 0.50);
   const predictedNet = Number(
     chosen?.expectedNetRevenue ?? predictedRevenue - predictedCost - predictedCampaignCost
   );
@@ -171,8 +215,22 @@ function buildResultsPayload(campaign, result) {
       ? roundMoney(predictedNet / (predictedCost + predictedCampaignCost))
       : 0);
 
+  const notifications = campaign.notifications || [];
+  const openedCount = extras.openedCount ?? notifications.filter((n) => n.openedAt !== null).length;
+  const clickedCount = extras.clickedCount ?? notifications.filter((n) => n.clickedAt !== null).length;
+  const attributedOrders = extras.attributedOrders ?? campaign.orders ?? [];
+
   return {
     campaign,
+    funnel: {
+      audienceSize: campaign.audienceSize || result?.audienceSize || 0,
+      delivered: result?.reach || notifications.length || 0,
+      opened: openedCount,
+      clicked: clickedCount,
+      conversions: result?.conversions || new Set(attributedOrders.map((o) => o.customerId)).size,
+      totalOrders: attributedOrders.length,
+      conversionRate: result?.conversionRate || 0,
+    },
     predicted: {
       audienceSize: campaign.audienceSize,
       conversionRate: Number(chosen?.expectedConversion ?? 0),
@@ -204,6 +262,24 @@ function buildResultsPayload(campaign, result) {
           conversionRate: Number((result.conversionRate - (chosen?.expectedConversion ?? 0)).toFixed(4)),
         }
       : null,
+    attributedOrders: attributedOrders.map((o) => ({
+      orderId: o.id,
+      orderNumber: `ORD-${o.id}`,
+      customerId: o.customerId,
+      customerName: o.customer?.name || "Customer",
+      customerEmail: o.customer?.email || "",
+      totalPrice: o.totalAmount,
+      discountAmount: o.discountAmount || 0,
+      attributionType: o.attributionType || "direct",
+      isTestMode: o.isTestMode,
+      createdAt: o.createdAt,
+      items: (o.items || []).map((it) => ({
+        productId: it.productId,
+        productName: it.product?.name || "Product Item",
+        quantity: it.quantity,
+        price: it.price,
+      })),
+    })),
   };
 }
 

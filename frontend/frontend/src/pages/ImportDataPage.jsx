@@ -15,11 +15,15 @@ import {
   Wand2,
   RefreshCw,
   Layers,
+  Eye,
+  Table,
 } from "lucide-react";
 import { api } from "../api/client";
 import DriftWarningBanner from "../components/DriftWarningBanner";
 import MappingTable from "../components/MappingTable";
 import SchemaDiffViewer from "../components/SchemaDiffViewer";
+import ThreeVectorMatcher from "../components/ThreeVectorMatcher";
+import { fireCelebrationConfetti } from "../utils/confetti";
 
 export default function ImportDataPage() {
   const navigate = useNavigate();
@@ -28,7 +32,7 @@ export default function ImportDataPage() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState(null);
-  const [activeTab, setActiveTab] = useState("mappings"); // mappings | topology
+  const [activeTab, setActiveTab] = useState("mappings"); // mappings | vector3d | topology
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -97,6 +101,7 @@ export default function ImportDataPage() {
       ]);
 
       setStep("success");
+      fireCelebrationConfetti();
     } catch (err) {
       alert("Processing failed: " + err.message);
       setStep("review");
@@ -173,7 +178,7 @@ export default function ImportDataPage() {
         className="max-w-6xl mx-auto p-6"
       >
         {/* Top Header Card */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center gap-3">
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-white">
@@ -188,29 +193,40 @@ export default function ImportDataPage() {
             </p>
           </div>
 
+          {/* View Toggles */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab("mappings")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition flex items-center gap-1.5 ${
                 activeTab === "mappings"
                   ? "bg-mint/15 text-mint border-mint/40"
                   : "bg-ink-elevated/60 text-ink-muted border-ink-border hover:bg-white/5"
               }`}
             >
+              <Table className="h-3.5 w-3.5" />
               Interactive Mapping
             </button>
             <button
+              onClick={() => setActiveTab("vector3d")}
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition flex items-center gap-1.5 ${
+                activeTab === "vector3d"
+                  ? "bg-sky/15 text-sky border-sky/40"
+                  : "bg-ink-elevated/60 text-ink-muted border-ink-border hover:bg-white/5"
+              }`}
+            >
+              <BrainCircuit className="h-3.5 w-3.5" />
+              3D Vector Field
+            </button>
+            <button
               onClick={() => setActiveTab("topology")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition flex items-center gap-1.5 ${
                 activeTab === "topology"
                   ? "bg-mint/15 text-mint border-mint/40"
                   : "bg-ink-elevated/60 text-ink-muted border-ink-border hover:bg-white/5"
               }`}
             >
-              <span className="flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5" />
-                Topology Diff
-              </span>
+              <Layers className="h-3.5 w-3.5" />
+              Topology Diff
             </button>
           </div>
         </div>
@@ -222,19 +238,27 @@ export default function ImportDataPage() {
           onExtensionRegistered={handleExtensionRegistered}
         />
 
-        {/* Tab 1: Interactive Mapping Table */}
-        {activeTab === "mappings" && (
-          <MappingTable
-            sourceColumns={schema.sourceColumns}
-            targetFields={schema.targetFields}
-            mappings={mappings}
-            entityName={targetEntity}
-            sampleRows={sampleData}
-            onMappingChange={handleMappingChange}
-          />
+        {/* Tab 1: 3D Vector Matcher Canvas (Also shown if vector3d selected) */}
+        {activeTab === "vector3d" && (
+          <ThreeVectorMatcher mappings={mappings} targetEntity={targetEntity} />
         )}
 
-        {/* Tab 2: Topology Diff Viewer */}
+        {/* Tab 2: Interactive Mapping Table */}
+        {activeTab === "mappings" && (
+          <>
+            <ThreeVectorMatcher mappings={mappings} targetEntity={targetEntity} />
+            <MappingTable
+              sourceColumns={schema.sourceColumns}
+              targetFields={schema.targetFields}
+              mappings={mappings}
+              entityName={targetEntity}
+              sampleRows={sampleData}
+              onMappingChange={handleMappingChange}
+            />
+          </>
+        )}
+
+        {/* Tab 3: Topology Diff Viewer */}
         {activeTab === "topology" && (
           <SchemaDiffViewer
             sourceColumns={schema.sourceColumns}
@@ -246,86 +270,101 @@ export default function ImportDataPage() {
         )}
 
         {/* Footer Actions */}
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <button
-            onClick={() => setStep("upload")}
-            className="w-full sm:w-1/3 py-3.5 border border-ink-border rounded-xl text-ink-muted hover:bg-white/5 font-bold text-sm transition"
-          >
-            Cancel & Upload Different File
-          </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
           <button
             onClick={handleConfirmAndProcess}
-            className="w-full sm:w-2/3 py-3.5 bg-gradient-to-r from-mint to-mint-deep text-ink rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-[0_0_24px_-6px_rgba(45,212,168,0.5)] transition"
+            className="w-full sm:w-auto flex-1 bg-gradient-to-r from-mint to-mint-deep text-ink font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_0_24px_-6px_rgba(45,212,168,0.4)] transition text-base"
           >
-            Confirm Schema & Process ({totalRows} records) <ArrowRight className="h-4 w-4" />
+            Confirm & Ingest Data ({totalRows || sampleData.length} rows) <ArrowRight className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setStep("upload")}
+            className="w-full sm:w-auto px-6 py-4 rounded-xl border border-ink-border text-ink-muted hover:text-white hover:bg-white/5 font-semibold text-sm transition"
+          >
+            Upload Different File
           </button>
         </div>
       </motion.div>
     );
   };
 
+  const renderProcessing = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-md mx-auto p-12 text-center flex flex-col items-center"
+    >
+      <Loader2 className="h-16 w-16 text-mint animate-spin mb-6" />
+      <h2 className="text-2xl font-bold font-display mb-2 text-white">
+        Ingesting & Transforming Records...
+      </h2>
+      <p className="text-ink-muted text-sm leading-relaxed">
+        Writing structured entities to PostgreSQL, training few-shot schema classifier, and regenerating high-value replenishment opportunities.
+      </p>
+    </motion.div>
+  );
+
   const renderSuccess = () => (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-lg mx-auto p-8 text-center"
+      className="max-w-xl mx-auto p-8 panel rounded-3xl text-center border border-mint/30 bg-ink-elevated/40"
     >
-      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-mint/20 text-mint">
-        <CheckCircle2 className="h-10 w-10" />
+      <div className="w-16 h-16 bg-mint/20 text-mint rounded-2xl flex items-center justify-center mx-auto mb-6 border border-mint/40 shadow-[0_0_24px_-6px_rgba(45,212,168,0.5)]">
+        <CheckCircle2 className="h-8 w-8" />
       </div>
-      <h2 className="text-3xl font-bold font-display mb-2 text-white">
-        Ingestion & Pipeline Complete!
+      <h2 className="text-2xl font-bold font-display text-white mb-2">
+        Dataset Successfully Ingested!
       </h2>
-      <p className="text-ink-muted mb-6 text-sm leading-relaxed">
-        Successfully mapped, type-coerced, and persisted{" "}
-        <strong className="text-white">{importResult?.insertedCount ?? analysis?.totalRows}</strong> {analysis?.aiAnalysis?.detectedEntity || "records"} into your PostgreSQL database.
+      <p className="text-ink-muted text-sm mb-6 leading-relaxed">
+        {importResult?.message || "All records have been parsed, transformed, and indexed in your merchant database."}
       </p>
 
-      {importResult?.opportunitiesGenerated > 0 && (
-        <div className="mb-6 rounded-2xl border border-mint/25 bg-mint/10 p-4 text-left">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-mint uppercase tracking-wider">
-              ✨ Opportunities Generated
-            </span>
-            <span className="rounded-md bg-mint px-2 py-0.5 text-xs font-extrabold text-ink">
-              {importResult.opportunitiesGenerated} Live
-            </span>
+      {importResult?.stats && (
+        <div className="grid grid-cols-3 gap-3 mb-8 text-left">
+          <div className="bg-ink/50 border border-ink-border p-3 rounded-xl">
+            <span className="text-[10px] text-ink-muted block uppercase font-semibold">Customers</span>
+            <span className="text-lg font-bold text-white font-display">{importResult.stats.customers}</span>
           </div>
-          <p className="mt-1 text-xs text-ink-soft">
-            Dormant win-backs, VIP upsells, and replenishment cycles were computed automatically.
-          </p>
+          <div className="bg-ink/50 border border-ink-border p-3 rounded-xl">
+            <span className="text-[10px] text-ink-muted block uppercase font-semibold">Orders</span>
+            <span className="text-lg font-bold text-white font-display">{importResult.stats.orders}</span>
+          </div>
+          <div className="bg-ink/50 border border-ink-border p-3 rounded-xl">
+            <span className="text-[10px] text-ink-muted block uppercase font-semibold">Opportunities</span>
+            <span className="text-lg font-bold text-mint font-display">{importResult.stats.opportunities}</span>
+          </div>
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex gap-4">
+        <button
+          onClick={() => navigate("/")}
+          className="flex-1 bg-gradient-to-r from-mint to-mint-deep text-ink font-bold py-3.5 rounded-xl hover:shadow-[0_0_24px_-6px_rgba(45,212,168,0.4)] transition text-sm"
+        >
+          View Dashboard
+        </button>
         <button
           onClick={() => {
             setFile(null);
             setAnalysis(null);
-            setImportResult(null);
             setStep("upload");
           }}
-          className="w-full sm:w-1/2 py-3.5 border border-ink-border rounded-xl text-ink-muted hover:bg-white/5 font-bold text-xs transition"
+          className="px-6 py-3.5 border border-ink-border rounded-xl text-ink-soft hover:text-white hover:bg-white/5 font-semibold text-sm transition"
         >
-          Import Another File
-        </button>
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="w-full sm:w-1/2 bg-gradient-to-r from-mint to-mint-deep text-ink font-bold py-3.5 rounded-xl hover:shadow-[0_0_24px_-6px_rgba(45,212,168,0.5)] text-xs flex items-center justify-center gap-1.5 transition"
-        >
-          View Live Feed <ArrowRight className="h-4 w-4" />
+          Import Another CSV
         </button>
       </div>
     </motion.div>
   );
 
   return (
-    <AnimatePresence mode="wait">
+    <div className="min-h-screen py-10 px-4">
       {step === "upload" && renderUpload()}
       {step === "analyze" && renderAnalyzing()}
       {step === "review" && renderReview()}
-      {step === "processing" && renderAnalyzing()}
+      {step === "processing" && renderProcessing()}
       {step === "success" && renderSuccess()}
-    </AnimatePresence>
+    </div>
   );
 }
