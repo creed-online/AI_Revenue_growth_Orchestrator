@@ -1,0 +1,18 @@
+﻿{
+  "records": [
+    {"name":"Whey Protein Powder","price":"2999","category":"Supplements","isReplenishable":"true","avgCycleDays":"30"},
+    {"name":"Creatine Monohydrate","price":"1499","category":"Supplements","isReplenishable":"true","avgCycleDays":"45"},
+    {"name":"Pre-Workout Formula","price":"2499","category":"Supplements","isReplenishable":"true","avgCycleDays":"30"},
+    {"name":"Omega-3 Fish Oil","price":"999","category":"Supplements","isReplenishable":"true","avgCycleDays":"60"},
+    {"name":"Resistance Bands Set","price":"799","category":"Equipment","isReplenishable":"false","avgCycleDays":""},
+    {"name":"Yoga Mat Premium","price":"1499","category":"Equipment","isReplenishable":"false","avgCycleDays":""},
+    {"name":"Shaker Bottle","price":"399","category":"Accessories","isReplenishable":"false","avgCycleDays":""}
+  ],
+  "mappings": [
+    {"sourceSheet":"data","sourceColumn":"name","targetEntity":"Product","targetField":"name","confidence":1,"transform":null,"reasoning":"Source column \"name\" contains product names matching the required Product.name field."},
+    {"sourceSheet":"data","sourceColumn":"price","targetEntity":"Product","targetField":"price","confidence":1,"transform":null,"reasoning":"Source column \"price\" holds numeric values that map directly to the Product.price field."},
+    {"sourceSheet":"data","sourceColumn":"category","targetEntity":"Product","targetField":"category","confidence":1,"transform":null,"reasoning":"Source column \"category\" contains category labels that correspond to the optional Product.category field."},
+    {"sourceSheet":"data","sourceColumn":"isReplenishable","targetEntity":"Product","targetField":"isReplenishable","confidence":1,"transform":null,"reasoning":"Source column \"isReplenishable\" is a boolean that maps to the Product.isReplenishable field."},
+    {"sourceSheet":"data","sourceColumn":"avgCycleDays","targetEntity":"Product","targetField":"avgCycleDays","confidence":1,"transform":null,"reasoning":"Source column \"avgCycleDays\" holds integer values suitable for the Product.avgCycleDays field."}
+  ]
+}

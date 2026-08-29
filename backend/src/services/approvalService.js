@@ -7,29 +7,33 @@ import { prisma } from "../lib/prisma.js";
 export async function createCampaignWithApproval({
   merchantId = 1,
   productId,
+  name,
+  type = "replenishment",
   proposal = {},
   simulatedScenarios = [],
   policyResult = {},
   revisionCount = 0,
 }) {
   const isApproved = policyResult.approved === true;
+  const campaignName =
+    name || (productId ? `Replenishment Campaign — Product ${productId}` : `Targeted Growth Campaign`);
 
   // 1. Create Campaign
   const campaign = await prisma.campaign.create({
     data: {
       merchantId,
-      name: `Replenishment Campaign — Product ${productId ?? "General"}`,
-      type: "replenishment",
+      name: campaignName,
+      type: type || "replenishment",
       status: isApproved ? "pending_approval" : "rejected",
       audienceSize: proposal.audienceSize ?? 0,
       customerIds: proposal.customerIds ?? [],
       offerType: "percentage",
       offerValue: proposal.discountPercent ?? 0,
       expectedRevenue: isApproved
-        ? simulatedScenarios?.find((s) => s.discountPercent === proposal.discountPercent)?.expectedRevenue
+        ? simulatedScenarios?.find((s) => s.discountPercent === proposal.discountPercent)?.expectedRevenue ?? 0
         : null,
       expectedCost: isApproved
-        ? simulatedScenarios?.find((s) => s.discountPercent === proposal.discountPercent)?.expectedCost
+        ? simulatedScenarios?.find((s) => s.discountPercent === proposal.discountPercent)?.expectedCost ?? 0
         : null,
     },
   });

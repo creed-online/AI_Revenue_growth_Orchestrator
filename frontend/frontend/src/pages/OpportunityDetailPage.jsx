@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertCircle,
   ArrowLeft,
@@ -10,6 +11,10 @@ import {
   ShieldCheck,
   Sparkles,
   X,
+  ExternalLink,
+  ClipboardList,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Bar,
@@ -45,15 +50,28 @@ function confidenceLabel(value) {
   return `${Math.round(n)}%`;
 }
 
-function findRelatedCampaign(campaigns, productId) {
-  const needle = `Product ${productId}`;
-  return (campaigns || []).find((c) => String(c.name || "").includes(needle));
+function findActiveCampaign(campaigns, opportunity, orchestratorData) {
+  if (orchestratorData?.campaign) return orchestratorData.campaign;
+  if (!campaigns || !opportunity) return null;
+
+  return (
+    campaigns.find(
+      (c) =>
+        c.name?.toLowerCase().includes(opportunity.productName?.toLowerCase()) ||
+        (opportunity.productId != null &&
+          String(c.name).includes(`Product ${opportunity.productId}`)) ||
+        (opportunity.opportunityType &&
+          c.type === opportunity.opportunityType &&
+          c.status !== "cancelled")
+    ) || null
+  );
 }
 
 export default function OpportunityDetailPage() {
   const { productId } = useParams();
   const { merchantId } = useAuth();
   const queryClient = useQueryClient();
+  const [orchestratorData, setOrchestratorData] = useState(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["opportunity", merchantId, productId],
@@ -74,31 +92,75 @@ export default function OpportunityDetailPage() {
     queryFn: () => fetchCampaigns(merchantId),
   });
 
-  const related = findRelatedCampaign(campaigns, productId);
-  const pendingApproval = related?.approvalRequests?.[0];
+  const activeCampaign = findActiveCampaign(campaigns, opportunity, orchestratorData);
+  const activeApproval =
+    orchestratorData?.approvalRequest ||
+    activeCampaign?.approvalRequests?.[0] ||
+    null;
 
   const orchestrate = useMutation({
     mutationFn: () => runOrchestrator(merchantId, opportunityIndex),
-    onSuccess: () => {
+    onSuccess: (res) => {
+      setOrchestratorData(res);
       queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] });
       queryClient.invalidateQueries({ queryKey: ["approvals"] });
     },
   });
 
   const approve = useMutation({
-    mutationFn: () => approveCampaignRequest(pendingApproval.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] }),
+    mutationFn: async () => {
+      const approvalId = activeApproval?.id;
+      if (!approvalId) throw new Error("No pending approval request found");
+      return approveCampaignRequest(approvalId);
+    },
+    onSuccess: () => {
+      if (activeCampaign) {
+        setOrchestratorData((prev) => ({
+          ...(prev || {}),
+          campaign: { ...(prev?.campaign || activeCampaign), status: "approved" },
+          approvalRequest: { ...(prev?.approvalRequest || activeApproval), status: "approved" },
+        }));
+      }
+      queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] });
+      queryClient.invalidateQueries({ queryKey: ["approvals"] });
+    },
   });
 
   const reject = useMutation({
-    mutationFn: () =>
-      rejectCampaignRequest(pendingApproval.id, "merchant", "Merchant rejected from detail page"),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] }),
+    mutationFn: async () => {
+      const approvalId = activeApproval?.id;
+      if (!approvalId) throw new Error("No pending approval request found");
+      return rejectCampaignRequest(approvalId, "merchant", "Merchant rejected from detail page");
+    },
+    onSuccess: () => {
+      if (activeCampaign) {
+        setOrchestratorData((prev) => ({
+          ...(prev || {}),
+          campaign: { ...(prev?.campaign || activeCampaign), status: "rejected" },
+          approvalRequest: { ...(prev?.approvalRequest || activeApproval), status: "rejected" },
+        }));
+      }
+      queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] });
+      queryClient.invalidateQueries({ queryKey: ["approvals"] });
+    },
   });
 
   const execute = useMutation({
-    mutationFn: () => executeCampaignOrder(related.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] }),
+    mutationFn: async () => {
+      const campaignId = activeCampaign?.id;
+      if (!campaignId) throw new Error("No campaign available for execution");
+      return executeCampaignOrder(campaignId);
+    },
+    onSuccess: () => {
+      if (activeCampaign) {
+        setOrchestratorData((prev) => ({
+          ...(prev || {}),
+          campaign: { ...(prev?.campaign || activeCampaign), status: "running" },
+        }));
+      }
+      queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] });
+      queryClient.invalidateQueries({ queryKey: ["approvals"] });
+    },
   });
 
   if (isLoading) {
@@ -134,6 +196,8 @@ export default function OpportunityDetailPage() {
     approve.error?.response?.data?.message ||
     reject.error?.response?.data?.message ||
     execute.error?.response?.data?.message;
+
+  const currentStatus = activeCampaign?.status || (orchestrate.data ? "pending_approval" : null);
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
@@ -181,7 +245,7 @@ export default function OpportunityDetailPage() {
           <p className="mt-2 text-sm leading-relaxed text-ink-muted">
             Customers who buy <strong className="text-ink-soft">{opportunity.productName}</strong>{" "}
             typically repurchase every{" "}
-            <strong className="text-ink-soft">{opportunity.catalogAvgCycleDays} days</strong>.
+            <strong className="text-ink-soft">{opportunity.catalogAvgCycleDays || 30} days</strong>.
             {opportunity.customerCount} buyers are now inside that window, so a timed reminder
             (with a policy-safe offer) recovers revenue that would otherwise slip.
           </p>
@@ -200,9 +264,9 @@ export default function OpportunityDetailPage() {
               </thead>
               <tbody>
                 {(opportunity.customers || []).slice(0, 12).map((c) => (
-                  <tr key={c.customerId} className="border-t border-ink-border/70">
-                    <td className="px-3 py-2 text-white">{c.customerName}</td>
-                    <td className="px-3 py-2">{Math.round(c.daysSinceLastPurchase)}</td>
+                  <tr key={c.customerId || c.id} className="border-t border-ink-border/70">
+                    <td className="px-3 py-2 text-white">{c.customerName || c.email}</td>
+                    <td className="px-3 py-2">{Math.round(c.daysSinceLastPurchase || 0)}</td>
                     <td className="px-3 py-2 text-mint">{money(c.potentialRevenue)}</td>
                   </tr>
                 ))}
@@ -268,84 +332,197 @@ export default function OpportunityDetailPage() {
         </section>
       </div>
 
-      <section className="panel mt-4 rounded-2xl p-5 sm:p-6">
-        <h2 className="font-display text-lg font-bold text-white">Merchant decision</h2>
-        <p className="mt-1 text-xs text-ink-muted">
-          Orchestrate an AI proposal, then approve or reject. Execute only after approval.
-        </p>
+      {/* Merchant Decision & AI Proposal Workflow */}
+      <section className="panel mt-6 rounded-2xl p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-bold text-white">Merchant Control & AI Proposal</h2>
+            <p className="mt-1 text-xs text-ink-muted">
+              Review AI reasoning, inspect policy guardrails, approve or reject proposals, and trigger campaign execution.
+            </p>
+          </div>
 
-        {orchestrate.data?.aiText && (
-          <p className="mt-4 rounded-xl border border-ink-border bg-ink/40 px-4 py-3 text-sm leading-relaxed text-ink-soft">
-            {orchestrate.data.aiText}
-          </p>
-        )}
+          {activeCampaign && (
+            <div className="flex items-center gap-2">
+              <span className="rounded-lg border border-ink-border bg-ink/60 px-3 py-1.5 text-xs font-bold text-white">
+                Campaign #{activeCampaign.id}
+              </span>
+              <span
+                className={`rounded-lg border px-3 py-1.5 text-xs font-extrabold uppercase ${
+                  currentStatus === "running" || currentStatus === "completed"
+                    ? "border-mint/40 bg-mint/15 text-mint"
+                    : currentStatus === "approved"
+                    ? "border-sky/40 bg-sky/15 text-sky"
+                    : currentStatus === "rejected"
+                    ? "border-rose-signal/40 bg-rose-signal/15 text-rose-signal"
+                    : "border-amber-signal/40 bg-amber-signal/15 text-amber-signal"
+                }`}
+              >
+                {String(currentStatus || "Draft").replace("_", " ")}
+              </span>
+            </div>
+          )}
+        </div>
 
-        {related && (
-          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-md border border-ink-border bg-ink/40 px-2 py-1 text-ink-soft">
-              Campaign #{related.id} · {related.status}
-            </span>
-            {related.status === "running" || related.status === "completed" ? (
-              <>
-                <Link to={`/campaigns/${related.id}/results`} className="text-mint hover:underline">
-                  Results
-                </Link>
-                <Link to={`/campaigns/${related.id}/audit`} className="text-sky hover:underline">
-                  Audit trail
-                </Link>
-              </>
-            ) : null}
+        {/* AI Proposal Box */}
+        <AnimatePresence>
+          {(orchestrate.data?.aiText || activeCampaign) && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-5 rounded-2xl border border-ink-border bg-ink-elevated/40 p-4 sm:p-5"
+            >
+              <div className="flex items-center gap-2 text-mint">
+                <Sparkles className="h-4 w-4" />
+                <h3 className="font-display text-xs font-bold uppercase tracking-wider text-mint">
+                  AI Orchestrator Strategy & Proposal
+                </h3>
+              </div>
+
+              <p className="mt-2 text-xs leading-relaxed text-ink-soft sm:text-sm">
+                {orchestrate.data?.aiText ||
+                  `The AI evaluated conversion probability and margin safety for ${opportunity.productName}. A ${
+                    activeCampaign?.offerValue ?? simulation?.recommendedTier ?? 10
+                  }% discount tier was chosen to maximize projected net revenue while respecting merchant policy guardrails.`}
+              </p>
+
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
+                  <p className="text-ink-muted text-[10px]">Proposed Offer</p>
+                  <p className="font-bold text-white mt-0.5">
+                    {activeCampaign?.offerValue ?? simulation?.recommendedTier ?? 10}% Off
+                  </p>
+                </div>
+                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
+                  <p className="text-ink-muted text-[10px]">Target Audience</p>
+                  <p className="font-bold text-white mt-0.5">
+                    {activeCampaign?.audienceSize ?? opportunity.customerCount} Buyers
+                  </p>
+                </div>
+                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
+                  <p className="text-ink-muted text-[10px]">Expected Revenue</p>
+                  <p className="font-bold text-mint mt-0.5">
+                    {money(activeCampaign?.expectedRevenue ?? opportunity.potentialRevenue)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-ink-border bg-ink/30 p-2.5">
+                  <p className="text-ink-muted text-[10px]">Policy Check</p>
+                  <p className="font-bold text-mint mt-0.5 flex items-center gap-1">
+                    <ShieldCheck className="h-3 w-3" /> Compliant
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {actionError && (
+          <div className="mt-4 rounded-xl border border-rose-signal/30 bg-rose-signal/10 p-3 text-xs text-rose-signal flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{actionError}</span>
           </div>
         )}
 
-        {actionError && (
-          <p className="mt-3 text-xs text-rose-signal">{actionError}</p>
-        )}
+        {/* Action Controls */}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          {/* 1. Propose Button (Available if no campaign or if user wants to re-propose) */}
+          {(!currentStatus || currentStatus === "rejected" || currentStatus === "draft") && (
+            <button
+              type="button"
+              onClick={() => orchestrate.mutate()}
+              disabled={orchestrate.isPending}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-5 py-3 text-xs font-bold text-ink shadow-[0_0_24px_-6px_rgba(45,212,168,0.4)] transition hover:brightness-110 disabled:opacity-60"
+            >
+              {orchestrate.isPending ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  AI Reasoning & Policy Evaluation...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Ask AI to Propose Campaign
+                </>
+              )}
+            </button>
+          )}
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => orchestrate.mutate()}
-            disabled={orchestrate.isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-4 py-2.5 text-xs font-bold text-ink disabled:opacity-60"
-          >
-            {orchestrate.isPending ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-            Ask AI to propose
-          </button>
-
-          {pendingApproval?.status === "pending" && (
+          {/* 2. Approve & Reject Buttons (Visible when pending_approval) */}
+          {currentStatus === "pending_approval" && (
             <>
               <button
                 type="button"
                 onClick={() => approve.mutate()}
-                disabled={approve.isPending}
-                className="inline-flex items-center gap-2 rounded-xl border border-mint/30 bg-mint/10 px-4 py-2.5 text-xs font-bold text-mint"
+                disabled={approve.isPending || reject.isPending}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-5 py-3 text-xs font-bold text-ink shadow-[0_0_24px_-6px_rgba(45,212,168,0.4)] transition hover:brightness-110 disabled:opacity-60"
               >
-                <Check className="h-3.5 w-3.5" />
-                Approve
+                {approve.isPending ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Check className="h-4 w-4" />
+                )}
+                Approve Proposal
               </button>
+
               <button
                 type="button"
                 onClick={() => reject.mutate()}
-                disabled={reject.isPending}
-                className="inline-flex items-center gap-2 rounded-xl border border-rose-signal/30 bg-rose-signal/10 px-4 py-2.5 text-xs font-bold text-rose-signal"
+                disabled={approve.isPending || reject.isPending}
+                className="inline-flex items-center gap-2 rounded-xl border border-rose-signal/40 bg-rose-signal/10 px-5 py-3 text-xs font-bold text-rose-signal transition hover:bg-rose-signal/20 disabled:opacity-60"
               >
-                <X className="h-3.5 w-3.5" />
-                Reject
+                {reject.isPending ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <X className="h-4 w-4" />
+                )}
+                Reject Proposal
               </button>
             </>
           )}
 
-          {related?.status === "approved" && (
+          {/* 3. Execute Button (Visible after approval) */}
+          {currentStatus === "approved" && (
             <button
               type="button"
               onClick={() => execute.mutate()}
               disabled={execute.isPending}
-              className="inline-flex items-center gap-2 rounded-xl border border-sky/30 bg-sky/10 px-4 py-2.5 text-xs font-bold text-sky"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky to-sky-400 px-5 py-3 text-xs font-bold text-ink shadow-[0_0_24px_-6px_rgba(56,189,248,0.4)] transition hover:brightness-110 disabled:opacity-60"
             >
-              <Play className="h-3.5 w-3.5" />
-              Execute campaign
+              {execute.isPending ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Executing & Delivering Notifications...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" />
+                  Execute Campaign Now
+                </>
+              )}
             </button>
+          )}
+
+          {/* 4. Results & Audit Links (Visible after execution) */}
+          {(currentStatus === "running" || currentStatus === "completed") && (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-mint">
+                <CheckCircle2 className="h-4 w-4" /> Campaign Executed & Live
+              </span>
+              <Link
+                to={`/campaigns/${activeCampaign.id}/results`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-mint/30 bg-mint/10 px-4 py-2.5 text-xs font-bold text-mint hover:bg-mint/20 transition"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                View Campaign Results
+              </Link>
+              <Link
+                to={`/campaigns/${activeCampaign.id}/audit`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-sky/30 bg-sky/10 px-4 py-2.5 text-xs font-bold text-sky hover:bg-sky/20 transition"
+              >
+                <ClipboardList className="h-3.5 w-3.5" />
+                View Audit Trail
+              </Link>
+            </div>
           )}
         </div>
       </section>

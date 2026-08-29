@@ -1,0 +1,7 @@
+shopper_email,item_title,order_quantity,unit_price,order_timestamp,discount_coupon_used
+aarav.sharma@example.com,Whey Protein Isolate 1kg,2,2899.00,2026-08-15T14:30:00Z,REPLENISH10
+priya.patel@example.com,Creatine Monohydrate 250g,1,999.00,2026-08-18T10:15:00Z,WELCOME5
+rohan.gupta@example.com,Whey Protein Isolate 1kg,3,2899.00,2026-08-20T18:45:00Z,VIP20
+sneha.reddy@example.com,Fish Oil Omega-3 60ct,1,699.00,2026-08-22T09:00:00Z,FLAT50
+vikram.m@example.com,Mass Gainer 3kg,1,3499.00,2026-08-25T16:20:00Z,BULK15
+

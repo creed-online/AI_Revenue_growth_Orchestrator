@@ -33,7 +33,7 @@ function pickFirstDefined(...values) {
   return undefined;
 }
 
-async function ensureDefaultPolicy(merchantId) {
+export async function ensureDefaultPolicy(merchantId) {
   const safeMerchantId = toNumber(merchantId, 1);
 
   const merchant = await prisma.merchant.findUnique({

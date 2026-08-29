@@ -218,9 +218,66 @@ export async function getCampaignResults(campaignId) {
   return buildResultsPayload(campaign, latest);
 }
 
+/**
+ * Delete a specific campaign and cascade delete its child records.
+ */
+export async function deleteCampaign(campaignId, merchantId = 1) {
+  const id = Number(campaignId);
+  const safeMerchantId = Number(merchantId) || 1;
+
+  const campaign = await prisma.campaign.findUnique({
+    where: { id },
+  });
+
+  if (!campaign) return { error: "not_found" };
+  if (campaign.merchantId !== safeMerchantId) return { error: "forbidden" };
+
+  await prisma.$transaction([
+    prisma.notificationSend.deleteMany({ where: { campaignId: id } }),
+    prisma.campaignResult.deleteMany({ where: { campaignId: id } }),
+    prisma.campaignVariant.deleteMany({ where: { campaignId: id } }),
+    prisma.approvalRequest.deleteMany({ where: { campaignId: id } }),
+    prisma.auditLog.deleteMany({ where: { entityType: "Campaign", entityId: id } }),
+    prisma.campaign.delete({ where: { id } }),
+  ]);
+
+  return { success: true, deletedId: id };
+}
+
+/**
+ * Clear all campaigns and related records for a merchant.
+ */
+export async function clearAllCampaigns(merchantId = 1) {
+  const safeMerchantId = Number(merchantId) || 1;
+
+  const campaigns = await prisma.campaign.findMany({
+    where: { merchantId: safeMerchantId },
+    select: { id: true },
+  });
+
+  const campaignIds = campaigns.map((c) => c.id);
+
+  if (campaignIds.length === 0) {
+    return { success: true, deletedCount: 0 };
+  }
+
+  await prisma.$transaction([
+    prisma.notificationSend.deleteMany({ where: { campaignId: { in: campaignIds } } }),
+    prisma.campaignResult.deleteMany({ where: { campaignId: { in: campaignIds } } }),
+    prisma.campaignVariant.deleteMany({ where: { campaignId: { in: campaignIds } } }),
+    prisma.approvalRequest.deleteMany({ where: { campaignId: { in: campaignIds } } }),
+    prisma.auditLog.deleteMany({ where: { entityType: "Campaign", entityId: { in: campaignIds } } }),
+    prisma.campaign.deleteMany({ where: { id: { in: campaignIds } } }),
+  ]);
+
+  return { success: true, deletedCount: campaignIds.length };
+}
+
 export default {
   listCampaigns,
   getCampaignById,
   measureCampaignResults,
   getCampaignResults,
+  deleteCampaign,
+  clearAllCampaigns,
 };

@@ -44,22 +44,21 @@ export default function DashboardPage() {
     const completed = (campaigns || []).filter(
       (c) => c.status === "completed" || c.actualRevenue != null
     );
-    const revenueGenerated =
-      completed.reduce((s, c) => s + Number(c.actualRevenue || 0), 0) ||
-      Math.round(opportunityValue * 0.38) ||
-      148250;
-    const netRevenue =
-      completed.reduce((s, c) => {
-        const cost = Number(c.actualCost || 0);
-        return s + (Number(c.actualRevenue || 0) - cost);
-      }, 0) || Math.round(revenueGenerated * 0.82);
+    const revenueGenerated = completed.reduce(
+      (s, c) => s + Number(c.actualRevenue || 0),
+      0
+    );
+    const netRevenue = completed.reduce((s, c) => {
+      const cost = Number(c.actualCost || 0);
+      return s + (Number(c.actualRevenue || 0) - cost);
+    }, 0);
     const rois = completed
       .map((c) => Number(c.actualRoi))
       .filter((n) => !Number.isNaN(n) && n > 0);
     const campaignRoi =
       rois.length > 0
         ? Number((rois.reduce((a, b) => a + b, 0) / rois.length).toFixed(2))
-        : 4.82;
+        : 0;
 
     return {
       opportunityCount: list.length,

@@ -1,0 +1,12 @@
+cust_name,client_email,total_orders_count,total_lifetime_spend,avg_basket_value,vip_member,discount_sensitive_flag,dormant_customer,loyalty_points_balance,preferred_brand
+Aarav Sharma,aarav.sharma@example.com,6,28990.00,4831.66,true,false,false,1450,Optimum Nutrition
+Priya Patel,priya.patel@example.com,2,3998.00,1999.00,false,true,false,200,MuscleBlaze
+Rohan Gupta,rohan.gupta@example.com,12,74500.00,6208.33,true,false,false,3800,Dymatize
+Sneha Reddy,sneha.reddy@example.com,1,1499.00,1499.00,false,true,true,50,Asitis Nutrition
+Vikram Malhotra,vikram.m@example.com,8,42000.00,5250.00,true,false,false,2100,Isopure
+Ananya Desai,ananya.d@example.com,4,11996.00,2999.00,false,false,false,600,MyProtein
+Kabir Verma,kabir.v@example.com,1,2499.00,2499.00,false,true,false,100,GNC
+Meera Nair,meera.nair@example.com,15,96000.00,6400.00,true,false,false,4900,Optimum Nutrition
+Aditya Joshi,aditya.j@example.com,3,7497.00,2499.00,false,true,true,150,MuscleBlaze
+Tara Kapoor,tara.kapoor@example.com,7,31500.00,4500.00,true,false,false,1600,Dymatize
+

@@ -160,4 +160,14 @@ export const fetchAuditTrail = async (campaignId) => {
   return response.data;
 };
 
+export const deleteCampaign = async (campaignId) => {
+  const response = await api.delete(`/campaigns/${campaignId}`);
+  return response.data;
+};
+
+export const clearAllCampaigns = async () => {
+  const response = await api.delete("/campaigns");
+  return response.data;
+};
+
 export default api;

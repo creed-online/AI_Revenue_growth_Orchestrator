@@ -4,6 +4,8 @@ import {
   getCampaignById,
   getCampaignResults,
   measureCampaignResults,
+  deleteCampaign,
+  clearAllCampaigns,
 } from "../services/campaignService.js";
 import { executeCampaign } from "../services/razorpayService.js";
 import { sendSimulatedNotifications } from "../services/notificationService.js";
@@ -25,6 +27,18 @@ router.get("/", async (req, res) => {
   }
 });
 
+// DELETE /api/campaigns — Clear all campaigns for merchant
+router.delete("/", async (req, res) => {
+  try {
+    const merchantId = resolveMerchantId(req, 1);
+    const result = await clearAllCampaigns(merchantId);
+    res.json(result);
+  } catch (error) {
+    console.error("Error clearing campaigns:", error);
+    res.status(500).json({ error: "Failed to clear campaigns", message: error.message });
+  }
+});
+
 // GET /api/campaigns/:id
 router.get("/:id", async (req, res) => {
   try {
@@ -38,6 +52,20 @@ router.get("/:id", async (req, res) => {
   } catch (error) {
     console.error("Error fetching campaign:", error);
     res.status(500).json({ error: "Failed to fetch campaign" });
+  }
+});
+
+// DELETE /api/campaigns/:id — Delete single campaign
+router.delete("/:id", async (req, res) => {
+  try {
+    const merchantId = resolveMerchantId(req, 1);
+    const result = await deleteCampaign(req.params.id, merchantId);
+    if (result.error === "not_found") return res.status(404).json(result);
+    if (result.error === "forbidden") return res.status(403).json(result);
+    res.json(result);
+  } catch (error) {
+    console.error("Error deleting campaign:", error);
+    res.status(500).json({ error: "Failed to delete campaign", message: error.message });
   }
 });
 

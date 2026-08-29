@@ -13,8 +13,8 @@ const containerVariants = {
 const itemVariants = {
   hidden: { y: 22, opacity: 0 },
   visible: {
-    y: 0,
     opacity: 1,
+    y: 0,
     transition: { type: "spring", stiffness: 120, damping: 16 },
   },
 };
@@ -26,18 +26,20 @@ function buildMetrics({
   campaignRoi = 0,
   netRevenue = 0,
 }) {
+  const hasExecutedCampaigns = revenueGenerated > 0 || campaignRoi > 0;
+
   return [
     {
       title: "Revenue generated",
       value: revenueGenerated,
       prefix: "₹",
       decimals: 0,
-      change: "+18.4%",
-      subtext: "executed campaigns · last 30d",
+      change: hasExecutedCampaigns ? "+18.4%" : "0 completed",
+      subtext: hasExecutedCampaigns ? "executed campaigns · last 30d" : "Execute a campaign to generate revenue",
       icon: DollarSign,
       accent: "mint",
       ring: "border-mint/25",
-      badge: "bg-mint/10 text-mint",
+      badge: hasExecutedCampaigns ? "bg-mint/10 text-mint" : "bg-white/5 text-ink-muted",
       iconBg: "bg-mint/15 text-mint",
       wash: "from-mint/15 via-transparent to-transparent",
     },
@@ -47,7 +49,7 @@ function buildMetrics({
       prefix: "₹",
       decimals: 0,
       change: `${opportunityCount} live`,
-      subtext: "ranked replenishment windows",
+      subtext: "pipeline potential across cohorts",
       icon: Target,
       accent: "sky",
       ring: "border-sky/25",
@@ -61,12 +63,12 @@ function buildMetrics({
       prefix: "",
       suffix: "x",
       decimals: 2,
-      change: "+0.6x",
-      subtext: "predicted net multiplier",
+      change: hasExecutedCampaigns ? "+0.6x" : "—",
+      subtext: hasExecutedCampaigns ? "predicted net multiplier" : "Run first campaign to measure ROI",
       icon: TrendingUp,
       accent: "amber",
       ring: "border-amber-signal/25",
-      badge: "bg-amber-signal/10 text-amber-signal",
+      badge: hasExecutedCampaigns ? "bg-amber-signal/10 text-amber-signal" : "bg-white/5 text-ink-muted",
       iconBg: "bg-amber-signal/15 text-amber-signal",
       wash: "from-amber-signal/15 via-transparent to-transparent",
     },
@@ -75,12 +77,12 @@ function buildMetrics({
       value: netRevenue,
       prefix: "₹",
       decimals: 0,
-      change: "after discounts",
-      subtext: "expected lift · policy-safe",
+      change: hasExecutedCampaigns ? "after discounts" : "—",
+      subtext: hasExecutedCampaigns ? "expected lift · policy-safe" : "Realized profit after campaign costs",
       icon: Wallet,
       accent: "mint",
       ring: "border-mint-deep/30",
-      badge: "bg-mint-deep/15 text-mint",
+      badge: hasExecutedCampaigns ? "bg-mint-deep/15 text-mint" : "bg-white/5 text-ink-muted",
       iconBg: "bg-mint-deep/15 text-mint",
       wash: "from-mint-deep/20 via-transparent to-transparent",
     },
@@ -90,9 +92,9 @@ function buildMetrics({
 export default function KPICards({
   opportunityValue = 0,
   opportunityCount = 0,
-  revenueGenerated = 148250,
-  campaignRoi = 4.82,
-  netRevenue = 121400,
+  revenueGenerated = 0,
+  campaignRoi = 0,
+  netRevenue = 0,
   loading = false,
 }) {
   const metrics = buildMetrics({
@@ -138,28 +140,30 @@ export default function KPICards({
                 <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
                   {metric.title}
                 </span>
-                <div className={`rounded-lg p-2 ${metric.iconBg}`}>
-                  <Icon className="h-4 w-4" />
+                <span
+                  className={`rounded-lg px-2 py-0.5 text-[10px] font-bold tracking-wide transition-transform group-hover:scale-105 ${metric.badge}`}
+                >
+                  {metric.change}
+                </span>
+              </div>
+
+              <div className="flex items-baseline justify-between gap-2">
+                <div className="font-display text-2xl font-black tracking-tight text-white sm:text-3xl">
+                  <AnimatedNumber
+                    value={metric.value}
+                    prefix={metric.prefix}
+                    suffix={metric.suffix}
+                    decimals={metric.decimals}
+                  />
+                </div>
+                <div
+                  className={`rounded-xl p-2.5 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110 ${metric.iconBg}`}
+                >
+                  <Icon className="h-5 w-5" />
                 </div>
               </div>
 
-              <div>
-                <AnimatedNumber
-                  value={metric.value}
-                  prefix={metric.prefix}
-                  suffix={metric.suffix}
-                  decimals={metric.decimals}
-                  className="font-display text-[1.7rem] font-extrabold tracking-tight text-white sm:text-3xl"
-                />
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span
-                    className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${metric.badge}`}
-                  >
-                    {metric.change}
-                  </span>
-                  <span className="text-[11px] text-ink-muted">{metric.subtext}</span>
-                </div>
-              </div>
+              <p className="text-xs text-ink-muted">{metric.subtext}</p>
             </div>
           </motion.div>
         );

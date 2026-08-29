@@ -1,0 +1,501 @@
+name,email,totalOrders,totalSpend,avgOrderValue,lastPurchaseDate,firstPurchaseDate,isVip,isDiscountSensitive,isDormant
+Maurine Jenkins,Darlene92@yahoo.com,2,6064.14,3032.07,2026-07-31,2024-08-14,false,true,false
+Myriam Kulas,Allen.Heaney@yahoo.com,1,4982.61,4982.61,2026-08-20,2026-02-19,false,false,false
+Tevin Klocko,Danika_Larson6@hotmail.com,16,51944.48,3246.53,2026-08-12,2025-02-05,false,false,false
+Michele Rippin II,Nels_Barrows69@hotmail.com,2,2349.66,1174.83,2026-08-02,2026-01-14,false,false,false
+Kane Ullrich DDS,Whitney.Greenholt@yahoo.com,5,21478.15,4295.63,2026-04-04,2026-01-30,false,false,true
+Araceli Hegmann,Nathen.Stokes@hotmail.com,7,30337.23,4333.89,2026-08-19,2025-05-24,false,false,false
+Billy Russel,Kathleen52@gmail.com,7,31784.9,4540.7,2026-08-09,2025-04-08,false,false,false
+Enoch Renner,Kennedy_Kihn35@yahoo.com,9,11321.73,1257.97,2026-07-19,2024-11-13,false,false,false
+Claud Brown DVM,Fern_Treutel@hotmail.com,6,23033.82,3838.97,2026-08-24,2026-03-05,false,false,false
+Ayana Schuster,Grayce.Dare29@yahoo.com,9,43461.54,4829.06,2026-07-25,2025-04-16,false,true,false
+Dianna Rippin,Toby_Ortiz@hotmail.com,3,17295.72,5765.24,2026-08-03,2026-02-18,false,false,false
+Aylin Pacocha,Trinity_Wolff@yahoo.com,16,14666.88,916.68,2026-08-18,2026-07-12,false,false,false
+Kellie Durgan,Schuyler_Brakus36@gmail.com,24,250112.16,10421.34,2026-08-26,2025-05-21,true,false,false
+Callie Lockman DVM,Garnett66@gmail.com,18,157555.98,8753.11,2026-08-07,2026-07-05,true,true,false
+Napoleon Hyatt,Rufus.Graham@gmail.com,16,21580,1348.75,2026-07-25,2024-09-18,false,true,false
+Ivah Muller,Joaquin42@gmail.com,17,35571.99,2092.47,2026-08-04,2024-11-03,false,false,false
+Jake Nicolas,Augustus.Gleichner26@yahoo.com,18,86999.58,4833.31,2026-08-23,2025-09-23,false,true,false
+Herminia VonRueden,Piper_Ziemann94@hotmail.com,11,31720.92,2883.72,2026-08-02,2025-04-08,false,true,false
+Alyce Schumm,Brendan30@gmail.com,13,14219.14,1093.78,2026-08-06,2024-08-12,false,false,false
+Ms. Merl Kling,Pierce_Parker30@yahoo.com,19,193594.04,10189.16,2026-07-26,2025-05-01,true,true,false
+Hortense Hand,Nakia22@yahoo.com,1,3705.57,3705.57,2026-06-24,2025-08-18,false,false,true
+Edmund Romaguera,Elvira.Kihn51@hotmail.com,8,35408,4426,2026-08-11,2025-01-11,false,false,false
+Earl Bernier,Cristobal.Bradtke13@hotmail.com,7,15568.91,2224.13,2026-08-11,2024-10-23,false,false,false
+Bennett Pfeffer,Celine.Kulas68@yahoo.com,16,40242.88,2515.18,2026-08-20,2026-07-06,false,false,false
+Tyshawn Bruen,Rafael49@gmail.com,10,43280.3,4328.03,2026-08-24,2026-07-01,false,true,false
+Judd Kiehn,Nicola.Hermann65@yahoo.com,9,42659.73,4739.97,2026-08-02,2025-10-03,false,false,false
+Nyah Labadie,Onie_Osinski@hotmail.com,13,31983.12,2460.24,2026-08-01,2025-09-02,false,true,false
+Rahul Mante I,Bertram_Murray@gmail.com,11,13675.97,1243.27,2026-08-06,2025-01-19,false,true,false
+Jett Goodwin,Neva85@yahoo.com,13,69330.04,5333.08,2026-08-11,2024-11-04,false,false,false
+Amaya Cassin-Casper,Hobart_Moen@yahoo.com,17,47798.22,2811.66,2026-03-06,2025-07-05,false,false,true
+Dr. Paula Lindgren,Jerome51@gmail.com,18,54154.8,3008.6,2026-08-11,2025-08-19,false,false,false
+Henderson Wisozk,Reggie24@hotmail.com,2,1965.56,982.78,2026-08-04,2024-11-29,false,false,true
+Conrad Durgan,Eliza_Witting@gmail.com,9,25516.26,2835.14,2026-06-02,2026-03-19,false,false,true
+Emelia Ruecker,Gisselle.Metz@gmail.com,3,16396.26,5465.42,2026-08-04,2025-06-04,false,true,false
+Guadalupe Runolfsson,Ambrose_Beer38@yahoo.com,18,84151.98,4675.11,2026-08-14,2025-09-06,false,false,false
+Stacy Boehm,Alexis_Greenfelder33@hotmail.com,17,14980.4,881.2,2026-08-14,2025-07-29,false,true,false
+Ms. Marianne Labadie,Javon.Hackett-Gleason25@gmail.com,16,61205.12,3825.32,2026-07-12,2025-04-13,false,true,true
+Dr. Eddie O'Reilly V,Damien.Armstrong@gmail.com,4,5558.12,1389.53,2026-07-21,2025-02-05,false,false,false
+Quentin Flatley,Ariel59@hotmail.com,18,85032.9,4724.05,2026-08-12,2024-11-07,false,false,false
+Elenora Ullrich,Juana45@yahoo.com,10,58513.8,5851.38,2026-07-21,2024-11-19,false,false,false
+Deshawn Friesen,Alejandra.Hammes@gmail.com,4,10450.08,2612.52,2026-08-09,2025-04-09,false,false,false
+Jerel Morar,Althea_Harber@gmail.com,12,43862.16,3655.18,2025-11-05,2023-12-09,false,false,true
+Jolie Hills,Candelario61@hotmail.com,41,340744.44,8310.84,2026-08-24,2025-02-25,true,false,false
+Emely Wolf,Ila_Purdy14@gmail.com,10,20869.5,2086.95,2026-08-11,2024-09-20,false,true,false
+Liliane Lubowitz,Emil63@hotmail.com,18,90767.52,5042.64,2025-09-11,2025-05-10,false,false,true
+Cullen Fisher,Chanelle.Reinger38@hotmail.com,4,3877.52,969.38,2026-07-21,2025-03-16,false,false,false
+Mr. Lane Parker,Newton.Spinka44@gmail.com,7,19508.44,2786.92,2026-07-25,2025-02-20,false,false,false
+Araceli Cassin,Reid_Ondricka49@hotmail.com,4,14996.6,3749.15,2026-02-27,2026-02-14,false,false,true
+Deontae Lehner DDS,Meredith39@yahoo.com,12,41401.2,3450.1,2026-04-24,2026-01-13,false,false,true
+Alanna Hayes,Dominique35@gmail.com,9,32836.41,3648.49,2026-07-22,2025-12-01,false,false,false
+Ismael Borer-Schmidt,Jo_Kiehn@yahoo.com,2,7206.74,3603.37,2026-07-19,2025-12-31,false,false,false
+Stephania Murazik,Lela.Beahan83@gmail.com,2,1747.44,873.72,2026-08-22,2026-08-18,false,false,false
+Leann Toy Jr.,Juana_Bartoletti@hotmail.com,13,50777.22,3905.94,2026-08-23,2024-12-08,false,true,false
+Abdiel Tremblay,Joseph.Langosh@hotmail.com,12,66941.88,5578.49,2026-08-04,2025-04-02,false,true,false
+Felipe Ebert,Glenna_Oberbrunner92@hotmail.com,17,68991.44,4058.32,2026-08-10,2026-07-24,false,false,true
+Burnice Zemlak,Brady59@gmail.com,12,19684.68,1640.39,2025-11-18,2025-11-04,false,true,true
+Orie Schowalter,Elijah_Wyman@yahoo.com,6,34170.96,5695.16,2026-08-23,2024-10-23,false,false,false
+Rhiannon Rowe,Santino23@yahoo.com,4,3237.76,809.44,2026-08-20,2026-06-26,false,false,false
+Luke Gusikowski,Melody_Bauch67@gmail.com,8,46635.44,5829.43,2026-07-30,2025-01-29,false,false,false
+Giovanna Bosco,Hilda.Crona11@gmail.com,18,67997.88,3777.66,2026-08-25,2026-07-15,false,true,false
+Rachel Rice II,Napoleon.Cummerata29@yahoo.com,17,82200.78,4835.34,2026-08-01,2024-08-23,false,false,false
+Rickie Willms-Cormier,Dillon_West6@gmail.com,37,258130.87,6976.51,2026-08-14,2025-06-25,true,false,false
+Nakia Blick,Carroll.Haag@yahoo.com,3,9303.9,3101.3,2026-08-03,2024-09-16,false,false,false
+Waldo Runolfsson,Noah_Cassin23@gmail.com,18,96820.92,5378.94,2026-07-31,2026-02-24,false,true,false
+Tom Feeney,June.Rowe0@hotmail.com,16,98741.76,6171.36,2026-08-10,2025-07-25,true,false,false
+Mr. Dante Hudson,June68@yahoo.com,1,2744.16,2744.16,2026-08-01,2025-04-22,false,true,false
+Norwood Cremin PhD,Lucy_Nienow78@yahoo.com,14,17740.24,1267.16,2026-07-21,2025-11-20,false,false,false
+Clementine Keeling,Ambrose_Runte@gmail.com,3,4086.24,1362.08,2025-11-23,2025-08-28,false,true,true
+Rubie Kreiger,Ericka.Collins@gmail.com,3,16996.02,5665.34,2026-08-16,2025-05-20,false,false,false
+Jerald Koepp,Antone89@gmail.com,9,10199.43,1133.27,2026-08-15,2026-04-30,false,false,false
+Laisha Fay V,Karson96@gmail.com,18,20607.12,1144.84,2026-07-19,2024-12-12,false,false,false
+Mr. Orrin Franey,Clifford.Schumm89@hotmail.com,20,110709,5535.45,2026-06-21,2026-05-19,true,false,true
+Joanne Johnson,Kenneth_Lang85@gmail.com,2,1617.34,808.67,2026-08-15,2025-05-23,false,true,false
+Beryl Schuppe,Green_Kub@yahoo.com,14,78911.42,5636.53,2026-08-13,2024-11-07,false,false,false
+Zena Koss-Maggio,Katlynn59@yahoo.com,12,35874.12,2989.51,2026-07-25,2025-03-12,false,true,false
+Vern Murphy I,Demarco98@yahoo.com,9,25261.74,2806.86,2026-01-03,2025-01-23,false,true,true
+Devon Wisozk,Maegan91@gmail.com,40,288054,7201.35,2026-08-23,2025-12-16,true,false,false
+Remington Okuneva,Francesca.Raynor@gmail.com,10,48388.5,4838.85,2025-11-21,2024-01-25,false,false,true
+Sherwood Mante,Amara.Hettinger@gmail.com,18,76405.32,4244.74,2026-08-13,2025-05-01,false,false,false
+Mr. Loren Nitzsche,Mya.Powlowski49@gmail.com,5,22724.45,4544.89,2026-07-26,2025-05-01,false,false,false
+Eliza Kassulke,Loyal.Harvey@gmail.com,9,22586.49,2509.61,2026-08-20,2026-03-14,false,true,false
+Lessie Mitchell,Adolphus_Upton77@hotmail.com,4,15641.2,3910.3,2026-03-22,2024-10-10,false,false,true
+Glennie Blick,Garry_Kulas@gmail.com,7,41767.39,5966.77,2026-08-04,2026-02-04,false,true,false
+Estell Medhurst,Rebeca71@yahoo.com,17,72468.62,4262.86,2026-08-17,2025-11-24,false,false,false
+Tristin Schroeder,Mariam_Towne47@hotmail.com,16,29457.76,1841.11,2025-11-09,2024-01-16,false,false,true
+Rose Kerluke,Deontae.Bergstrom87@yahoo.com,4,19740.8,4935.2,2026-08-16,2025-08-17,false,true,false
+Quentin Sanford Sr.,Bertram81@yahoo.com,13,70188.56,5399.12,2026-07-23,2025-04-12,false,true,false
+Roderick Jenkins,Pierre_Hirthe@gmail.com,10,47504,4750.4,2026-08-22,2025-02-21,false,false,false
+Dylan Parisian,Nicolette.Watsica90@yahoo.com,11,41636.98,3785.18,2026-08-12,2025-05-06,false,true,false
+Rosalind Kuhn,Diego.Walker@yahoo.com,13,55005.08,4231.16,2026-07-25,2025-04-29,false,false,false
+Krystel Murray,Priscilla_Hamill43@gmail.com,43,433185.44,10074.08,2026-08-01,2025-01-09,true,false,false
+Zetta Dare,Leon.Frami@hotmail.com,5,21250.6,4250.12,2026-08-20,2025-08-02,false,true,false
+Mark Ratke,Ara.Ratke45@yahoo.com,17,84647.08,4979.24,2025-09-30,2025-01-29,false,false,true
+Kadin Orn,Orie_Gutkowski@gmail.com,13,16513.38,1270.26,2026-08-16,2024-10-24,false,false,false
+Marcellus Considine,Kyla.Gottlieb@gmail.com,24,244113.84,10171.41,2026-08-06,2025-11-07,true,true,false
+Renee Herman,Melany.Buckridge33@hotmail.com,6,32425.32,5404.22,2025-11-18,2024-03-11,false,true,true
+Mr. Justice Kuhic,Laurianne35@gmail.com,17,32216.02,1895.06,2026-07-20,2025-11-02,false,true,false
+Murray Schneider,Ebony.Von@yahoo.com,5,27060.45,5412.09,2026-03-19,2024-03-19,false,true,true
+Rossie Smith,Teagan0@yahoo.com,4,14273.72,3568.43,2026-08-07,2024-12-23,false,true,false
+Chet Streich,Fleta.Wisoky63@yahoo.com,17,203978.24,11998.72,2026-02-21,2025-06-17,true,false,true
+Dr. Thaddeus Bauch IV,Harvey_Rath8@gmail.com,13,63693.24,4899.48,2026-08-20,2025-12-19,false,false,false
+Meredith Bruen,Sierra_Kshlerin38@yahoo.com,13,26961.35,2073.95,2026-07-25,2025-01-12,false,false,false
+Rebeca Streich MD,Sandrine.Langosh14@gmail.com,10,21339.9,2133.99,2026-07-29,2024-12-09,false,true,false
+Ezekiel Buckridge,Ashtyn74@hotmail.com,2,5502.7,2751.35,2026-07-22,2026-03-05,false,true,false
+Alanis Herzog,Shaylee55@yahoo.com,2,4540.92,2270.46,2026-08-14,2026-08-02,false,false,false
+Mr. Declan Rowe,Joey.Doyle@yahoo.com,11,47786.2,4344.2,2026-08-26,2026-05-15,false,true,false
+Romaine Hodkiewicz,Tia74@yahoo.com,8,10972.24,1371.53,2025-09-13,2024-09-28,false,false,true
+Peyton Oberbrunner,Anjali.Hodkiewicz@gmail.com,8,20261.28,2532.66,2026-08-02,2026-05-11,false,true,false
+Eldridge Tremblay,Marcelle.Huels39@gmail.com,6,6777.48,1129.58,2025-10-27,2025-05-27,false,false,true
+Madisyn Ruecker,Shakira75@gmail.com,9,19997.19,2221.91,2026-07-22,2024-07-31,false,false,false
+Bianka Schimmel I,Caitlyn.Tromp@hotmail.com,17,77886.69,4581.57,2026-07-27,2026-03-11,false,false,false
+Teagan Bins,Destiney_Sanford86@gmail.com,3,17175.78,5725.26,2026-08-07,2025-06-26,false,true,false
+Miss Clementine Kautzer,Anibal.Borer-Thompson@yahoo.com,8,37924.16,4740.52,2026-07-28,2025-06-05,false,false,false
+Audrey Beahan,Spencer_Dietrich@gmail.com,16,77566.88,4847.93,2026-08-20,2025-05-30,true,true,false
+Oleta Balistreri,Lilla_Hilll@gmail.com,1,4102.67,4102.67,2026-07-19,2026-07-18,false,true,false
+Alessandra Cartwright,Gillian84@hotmail.com,7,35476.42,5068.06,2026-06-20,2026-05-28,false,false,true
+Francisco O'Reilly MD,Kenyatta3@yahoo.com,14,68196.38,4871.17,2026-08-22,2025-04-07,false,true,false
+Holden Waelchi,Luisa_VonRueden@yahoo.com,10,50272.3,5027.23,2026-08-22,2024-10-07,false,false,false
+Inez Keebler,Sydnee71@yahoo.com,13,16449.03,1265.31,2026-08-25,2026-05-09,false,false,false
+Ibrahim Kertzmann MD,Gerhard65@gmail.com,15,33352.35,2223.49,2026-07-30,2026-07-01,false,false,false
+Harley Koch,Alberta_Grant44@hotmail.com,16,84789.28,5299.33,2026-08-12,2026-05-17,false,true,false
+Avery Medhurst,Ladarius_Terry90@gmail.com,8,31745.52,3968.19,2025-10-03,2023-10-06,false,true,true
+Ayla Stroman,Nico_Hermann13@hotmail.com,14,81201.96,5800.14,2026-07-21,2025-08-25,false,false,false
+Terrell Wuckert,Norbert_Gerhold@hotmail.com,16,76165.6,4760.35,2026-08-16,2026-05-05,false,false,false
+Cielo Turner,Leann.Funk49@hotmail.com,15,34973.4,2331.56,2026-07-30,2024-12-27,false,true,false
+Mr. Uriah Osinski,Rowena_Feest16@hotmail.com,9,26359.65,2928.85,2026-08-16,2025-12-17,false,false,false
+Gregory Satterfield,Burnice.Boehm-Pollich@hotmail.com,1,3341.21,3341.21,2026-08-21,2025-09-17,false,false,false
+Miss Bridgette Mitchell-Rutherford,Jill80@yahoo.com,15,36267.15,2417.81,2026-05-22,2025-01-25,false,false,true
+Mr. Dandre Johnson,Adam75@gmail.com,2,2952.84,1476.42,2026-08-10,2025-08-06,false,false,false
+Vita Frami,Cathy_Grimes@hotmail.com,12,44438.28,3703.19,2026-05-07,2025-01-11,false,false,true
+Clemens Daugherty,Emilie.Sawayn@hotmail.com,8,26384.64,3298.08,2026-08-20,2025-12-18,false,true,false
+Ettie Dickens,Everett.Ritchie32@yahoo.com,1,5183.15,5183.15,2026-08-16,2025-07-08,false,false,false
+Casimer Collins,Dortha_Macejkovic-Sanford28@hotmail.com,8,26610.08,3326.26,2026-08-20,2025-05-05,false,false,false
+Quincy Hintz,Yvette.Denesik8@hotmail.com,18,17098.56,949.92,2026-08-18,2025-01-09,false,false,false
+Joanie Stamm,Desmond_Kunde@yahoo.com,9,9312.3,1034.7,2026-04-15,2025-12-17,false,true,true
+Monserrate Steuber,Mertie.Bode@hotmail.com,14,17367,1240.5,2026-01-16,2024-09-06,false,true,true
+Kenyon Klocko,Mateo_Nitzsche@gmail.com,7,17789.31,2541.33,2026-08-20,2024-11-07,false,false,false
+Jayne Willms,Broderick23@yahoo.com,1,1161.69,1161.69,2025-11-07,2025-05-26,false,false,true
+Cheyanne Morissette,Addie77@gmail.com,6,17717.64,2952.94,2026-07-28,2025-08-15,false,false,false
+Randolph Ankunding,Marjory_Douglas34@gmail.com,12,16190.64,1349.22,2026-06-15,2025-12-13,false,true,true
+Jalon Waters,Alexander.Carroll@gmail.com,4,10857.2,2714.3,2026-08-19,2026-04-19,false,false,false
+Brown Rutherford,Marguerite_Casper69@gmail.com,12,17088.96,1424.08,2026-07-25,2026-06-21,false,true,false
+Will Mraz,Sherman2@gmail.com,11,63525,5775,2026-08-07,2024-09-11,false,false,false
+Jocelyn Herzog,Jerad_Schimmel@gmail.com,11,15075.39,1370.49,2026-08-04,2025-10-06,false,false,false
+Sonja Spencer,Vicki_Ullrich@hotmail.com,1,5992.89,5992.89,2026-08-23,2024-12-14,false,false,false
+Jedidiah Waters,Ines19@yahoo.com,18,36203.22,2011.29,2026-08-17,2025-04-05,false,true,false
+Jerald Weber,Laney92@gmail.com,26,311821.64,11993.14,2026-07-25,2025-03-24,true,false,false
+Daisha Erdman V,Kelsi.Vandervort5@hotmail.com,13,33267.52,2559.04,2026-08-12,2025-11-15,false,true,false
+Jaquan Schulist,Carlos86@hotmail.com,12,63217.92,5268.16,2026-07-19,2025-11-18,false,false,false
+Jennings Murphy,Jermain37@gmail.com,9,13949.82,1549.98,2026-08-25,2025-07-30,false,false,false
+Toby Dooley,Emilie.Schultz@gmail.com,12,64325.04,5360.42,2026-08-24,2025-01-12,false,false,false
+Bryan MacGyver,Rocky_Crona5@hotmail.com,9,38969.82,4329.98,2026-07-30,2024-11-07,false,false,false
+Alvah Rohan DDS,Herta_Kohler-Kuhn@hotmail.com,15,59976.75,3998.45,2026-08-04,2025-03-15,false,false,false
+Ransom Nolan,Alia.Glover@gmail.com,2,3146.58,1573.29,2026-08-02,2026-03-02,false,false,false
+Dr. Christa Feil,Dalton_Funk30@hotmail.com,9,47681.19,5297.91,2026-08-15,2025-08-30,false,false,false
+Orlo Mante,Justice.Schuppe@hotmail.com,8,14174,1771.75,2026-08-17,2025-04-03,false,false,false
+Kareem Block,Kenton13@gmail.com,14,29017.1,2072.65,2026-08-09,2025-03-12,false,false,false
+Camille Senger,German25@hotmail.com,4,17400.52,4350.13,2026-02-26,2025-02-27,false,false,true
+Daniela Lang,Layne_Hegmann4@hotmail.com,2,4034.64,2017.32,2026-08-18,2026-01-09,false,false,false
+Onie Ullrich,Brendon.Huel@hotmail.com,5,13987.35,2797.47,2026-08-13,2024-10-25,false,true,true
+Marietta Graham,Regina.Von@hotmail.com,13,64894.96,4991.92,2026-08-07,2026-04-03,false,false,false
+Donato Hintz,Nils.Gorczany@hotmail.com,7,40118.05,5731.15,2026-08-14,2025-09-26,false,false,false
+Leona Ritchie,Wilfred_Runolfsson22@gmail.com,4,6887.8,1721.95,2026-07-19,2025-03-28,false,false,false
+Walter Tromp,Conrad_Fritsch23@gmail.com,29,181721.54,6266.26,2026-07-18,2025-08-21,true,false,false
+Miss Dahlia Kuvalis,Matilda_Bechtelar@hotmail.com,15,53661.45,3577.43,2026-08-13,2025-01-07,false,false,false
+Phoebe Graham PhD,Mollie27@hotmail.com,6,8243.58,1373.93,2026-07-27,2025-05-06,false,false,false
+Ashtyn Satterfield,Melinda40@yahoo.com,8,29308.4,3663.55,2026-08-19,2025-09-26,false,false,false
+Olin Will I,Pansy31@hotmail.com,5,19097.75,3819.55,2026-08-21,2024-10-27,false,false,false
+Josefina Volkman,Leo.Tremblay-Heidenreich@hotmail.com,18,22318.38,1239.91,2026-08-24,2026-05-09,false,false,false
+Pierre Prohaska,Margaretta.Wunsch@hotmail.com,16,74194.72,4637.17,2026-08-14,2025-09-24,false,false,false
+Adelia Quigley,Bryant.Goodwin@yahoo.com,2,2706.98,1353.49,2026-05-11,2025-02-02,false,false,true
+Essie Pouros MD,Taurean.Crist36@gmail.com,8,18904.32,2363.04,2026-04-17,2024-04-26,false,false,true
+Debbie Yost,Skyla_Feil@yahoo.com,5,25530.95,5106.19,2026-08-18,2026-01-14,false,true,false
+Maci Bruen,Cloyd.Cole@gmail.com,4,6675.04,1668.76,2026-08-09,2025-10-23,false,false,false
+Hillard Klein,Zaria.Gibson@hotmail.com,15,60703.2,4046.88,2026-08-02,2024-12-04,false,false,false
+Jerad Kihn,Dedrick_Erdman94@gmail.com,16,82688.64,5168.04,2026-08-02,2026-05-12,false,true,false
+Lucio Kuhn MD,Isabel.Heidenreich73@yahoo.com,24,249554.4,10398.1,2026-07-28,2024-08-07,true,true,false
+Clovis Carroll,Douglas_Simonis@yahoo.com,18,101734.2,5651.9,2026-07-18,2026-06-24,false,true,false
+Mr. Arthur Franey,Florence.McCullough@hotmail.com,9,9264.24,1029.36,2026-08-14,2025-09-04,false,true,false
+Tianna Reinger,Blanche37@hotmail.com,8,30480.4,3810.05,2026-08-20,2025-08-03,false,false,false
+Dameon Willms,Arnoldo.Hudson@gmail.com,18,18860.94,1047.83,2026-08-17,2025-07-15,false,true,false
+Beatrice Gibson,Bret_Douglas79@hotmail.com,14,41954.22,2996.73,2026-07-27,2025-06-09,false,false,false
+Adelle Lueilwitz V,Macy.Stokes58@gmail.com,11,30851.37,2804.67,2026-07-19,2026-02-19,false,false,false
+Timothy Marks,Marcelo59@yahoo.com,2,7686.1,3843.05,2026-08-09,2025-05-01,false,true,false
+Myrtis Muller III,Felicita25@yahoo.com,9,16947.27,1883.03,2026-08-14,2025-10-20,false,false,false
+Candace Turcotte,Nola.Berge92@gmail.com,11,40288.6,3662.6,2026-08-09,2024-12-31,false,true,true
+Marty Kulas,Leanna_Weimann56@gmail.com,17,53707.42,3159.26,2026-06-13,2024-12-19,false,false,true
+Eleazar Kuhic IV,Ericka_Williamson-Welch@gmail.com,16,80615.36,5038.46,2026-08-10,2026-06-09,false,false,false
+Delia Barrows Sr.,Damaris.Mertz3@yahoo.com,2,1815.02,907.51,2026-07-25,2025-03-04,false,true,true
+Forest Goldner PhD,Rosalia81@yahoo.com,17,17956.08,1056.24,2026-08-06,2025-11-13,false,true,false
+Loyce Witting,Marlen78@yahoo.com,6,28217.64,4702.94,2026-08-01,2025-01-10,false,false,false
+Vincenzo Nader,Marquise.Kunde17@gmail.com,5,12630.95,2526.19,2026-08-02,2025-03-05,false,true,false
+Austyn Gutmann,Ernest72@hotmail.com,6,21283.68,3547.28,2026-08-01,2025-02-01,false,false,false
+Bernadette Carter,Darien.Klein47@yahoo.com,2,8285.74,4142.87,2026-07-20,2024-09-19,false,true,false
+Vito Bode I,Gilda.Daugherty@hotmail.com,5,20233.05,4046.61,2026-08-23,2025-08-31,false,false,false
+Julian Heller,Jennie.Nolan@yahoo.com,13,71634.68,5510.36,2026-07-20,2024-12-07,false,true,false
+Wendy Rowe-Strosin,Tara.Larkin@hotmail.com,16,78149.28,4884.33,2025-11-20,2024-03-13,false,false,true
+Jakob Block,Chaz_Kemmer74@yahoo.com,17,99676.95,5863.35,2026-02-25,2025-11-29,false,false,true
+Arlo Weissnat PhD,Luis50@gmail.com,8,13205.28,1650.66,2025-10-11,2025-07-30,false,true,true
+Camila Oberbrunner,Rico5@hotmail.com,2,6408,3204,2026-08-26,2026-06-01,false,true,false
+Ricardo Davis,Viola.Hermiston12@hotmail.com,33,154786.17,4690.49,2026-07-26,2026-05-10,true,true,false
+Kendrick Heller,Justine90@hotmail.com,5,29627.65,5925.53,2026-07-29,2025-02-10,false,false,false
+Mr. Bobby Runte,Alison.Nader37@gmail.com,11,32304.8,2936.8,2026-08-18,2026-02-17,false,false,false
+Charlotte Mraz,Myah45@gmail.com,12,35263.08,2938.59,2026-07-19,2024-09-28,false,false,false
+Ms. Barbara Hoppe,Gertrude.Hilll@hotmail.com,1,4206.72,4206.72,2026-08-11,2026-02-13,false,false,false
+Adelle Grimes I,Patrick99@hotmail.com,6,13798.56,2299.76,2026-08-16,2025-04-03,false,false,false
+Tito Gleason,Alberta.Kreiger72@hotmail.com,32,150488.64,4702.77,2026-07-24,2025-03-14,true,false,false
+Colton VonRueden,Joan.Price11@gmail.com,8,14047.44,1755.93,2026-02-26,2024-10-07,false,false,true
+Lafayette Wilderman,Deshaun.Borer38@yahoo.com,7,31875.06,4553.58,2026-08-07,2024-10-04,false,false,false
+Susanna Mosciski II,Montana9@hotmail.com,12,64493.16,5374.43,2026-08-02,2025-04-14,false,false,false
+Andreanne O'Hara,Korey.Farrell61@gmail.com,9,9614.34,1068.26,2026-08-24,2026-01-26,false,true,false
+Mrs. Joy Hahn,Cesar_Schuppe@gmail.com,13,46636.07,3587.39,2026-07-31,2026-05-05,false,false,false
+Lance Schmidt,Darby.McGlynn10@gmail.com,5,10834.3,2166.86,2026-08-19,2025-02-02,false,true,true
+Mrs. Kiera Balistreri,Selina.Kemmer16@gmail.com,12,57125.16,4760.43,2025-08-28,2025-07-11,false,true,true
+Miracle Rutherford IV,Anibal.Smitham@yahoo.com,3,4062.06,1354.02,2026-08-26,2026-07-19,false,true,false
+Bertha Gleichner,Brionna36@yahoo.com,11,56544.4,5140.4,2026-08-14,2025-10-02,false,false,false
+Marlin Bartell,Elvis.Altenwerth@gmail.com,38,223506.12,5881.74,2026-08-07,2025-11-03,true,false,false
+Darin Turcotte,Lou.Larson@yahoo.com,18,51595.56,2866.42,2025-10-18,2025-04-16,false,false,true
+Major Dietrich DVM,Price78@yahoo.com,12,49848.96,4154.08,2026-08-17,2024-12-26,false,true,false
+Cory Leuschke,Makenzie_Macejkovic8@yahoo.com,13,21441.94,1649.38,2026-07-21,2025-08-27,false,false,false
+Thea Blanda,Kadin_Kris@hotmail.com,11,52272.11,4752.01,2026-08-26,2025-10-22,false,true,false
+Zoe Beahan,Kylee_Fadel73@hotmail.com,4,17474.8,4368.7,2026-01-29,2025-10-22,false,true,true
+Melanie Jakubowski-Goyette MD,Annette.Gorczany47@yahoo.com,7,22397.97,3199.71,2026-07-19,2024-10-28,false,true,false
+Vada Gerhold,Callie10@hotmail.com,4,9308.52,2327.13,2026-07-18,2026-04-09,false,false,false
+Ewald Zieme IV,Addie.Sipes-Bartell2@gmail.com,8,27537.92,3442.24,2026-08-17,2026-05-16,false,false,false
+Victor Franecki,Ned81@gmail.com,8,6857.04,857.13,2026-08-03,2025-10-18,false,false,false
+Dr. Angela Stokes,Annie.Olson52@gmail.com,17,74185.62,4363.86,2026-07-29,2025-06-05,false,false,false
+Archie Jast II,Mason.Aufderhar19@gmail.com,7,18740.47,2677.21,2026-08-18,2026-08-08,false,false,false
+Mr. Tavares Ankunding,Audie_Mayer@hotmail.com,18,85916.16,4773.12,2026-08-14,2025-06-06,false,false,false
+Antwon Altenwerth,Joshua_McCullough@hotmail.com,10,56131.1,5613.11,2026-08-02,2025-07-21,false,true,false
+Adrain O'Keefe,Dario.Corkery70@hotmail.com,10,22912.8,2291.28,2026-07-27,2025-01-29,false,false,false
+Ashley Stokes,Nyasia_Monahan@hotmail.com,33,357597.57,10836.29,2026-08-24,2024-08-24,true,false,false
+Daron Parker,Diego.Gusikowski97@gmail.com,13,29399.37,2261.49,2026-08-18,2025-06-30,false,false,false
+Kristofer Barrows,Pam.Ryan62@yahoo.com,14,33589.22,2399.23,2026-07-23,2025-09-18,false,true,false
+Mr. Jaime Herman II,Tate.Fisher38@hotmail.com,18,60205.68,3344.76,2026-07-20,2024-11-17,false,false,false
+Jaqueline Brown Jr.,Tommie19@gmail.com,9,33857.91,3761.99,2026-08-01,2025-04-17,false,false,false
+Abdiel Lehner-Terry,Aditya12@yahoo.com,14,70876.96,5062.64,2026-08-02,2024-10-27,false,false,false
+Johnnie Hilll,Brendon.Goodwin@yahoo.com,5,9238.3,1847.66,2026-06-20,2026-04-12,false,false,true
+Mr. Ubaldo Williamson,Harmony.Beer@gmail.com,14,31295.88,2235.42,2026-08-17,2026-06-17,false,true,false
+Shemar Goodwin,Brown43@yahoo.com,14,61117.56,4365.54,2026-08-03,2026-07-13,false,false,false
+Remington Green,Laurence_Schneider36@yahoo.com,5,17961.2,3592.24,2026-08-19,2025-06-12,false,false,false
+Abe Yundt,Odessa_Morissette69@gmail.com,15,12616.65,841.11,2026-08-10,2026-07-15,false,false,false
+Lisa Fisher,Layla_Kutch@yahoo.com,8,15474,1934.25,2026-08-26,2025-02-10,false,false,false
+Daren Carroll,Nickolas28@gmail.com,7,17781.75,2540.25,2026-08-22,2025-02-06,false,false,false
+Mariah Adams,Loy99@hotmail.com,7,40378.45,5768.35,2025-12-18,2024-04-29,false,false,true
+Barney Kunze,Shad.Tillman23@hotmail.com,7,5908.49,844.07,2026-07-24,2025-06-27,false,false,false
+Jaron Jenkins,Priscilla55@yahoo.com,16,113970.88,7123.18,2026-08-13,2026-03-02,true,false,false
+Adrain Shields,Elody.Fay@gmail.com,7,36377.11,5196.73,2026-07-21,2025-01-24,false,false,false
+Dino Cummerata,Willie_Sipes46@gmail.com,17,83685.22,4922.66,2026-04-08,2025-12-19,false,false,true
+Marcelo Ritchie,Ronald_Von@yahoo.com,12,51002.52,4250.21,2026-08-25,2026-05-01,false,false,false
+Colin Fahey,Edgardo47@gmail.com,10,10605.4,1060.54,2026-07-30,2025-05-16,false,false,false
+Lisandro Cremin,Delphia57@hotmail.com,14,27718.04,1979.86,2026-08-14,2025-03-02,false,false,false
+Devyn Spinka,Rachelle_Crona@yahoo.com,14,75904.22,5421.73,2026-08-14,2026-06-09,false,false,false
+Brain Franecki,Diamond.Hilpert@yahoo.com,44,327026.92,7432.43,2026-07-27,2026-04-21,true,false,false
+Alverta Graham,Winston_Larkin@hotmail.com,12,48539.4,4044.95,2026-03-27,2025-04-18,false,false,true
+Keegan Schmidt,Dortha_Sipes@yahoo.com,14,28983.36,2070.24,2026-08-08,2025-05-16,false,false,false
+Cyril Bernhard DDS,Noemi64@hotmail.com,12,10099.56,841.63,2026-07-29,2025-09-18,false,false,true
+Juvenal Hackett I,Lois.Kunze85@hotmail.com,21,71480.64,3403.84,2026-08-24,2025-04-28,true,false,false
+Mrs. Gladys Bogan,Thea57@gmail.com,18,64328.94,3573.83,2026-07-20,2024-11-13,false,false,false
+Austyn Frami-Muller,Gail.Collier@hotmail.com,17,15906.39,935.67,2026-07-23,2025-10-17,false,false,false
+Zachariah Padberg,Faith.Runte@gmail.com,17,71257.71,4191.63,2026-08-04,2025-09-01,false,false,false
+Cortez Hoeger III,Lavonne.Dickens@yahoo.com,16,94820,5926.25,2026-08-19,2025-06-24,false,true,false
+Electa Tremblay,Fannie_Batz@yahoo.com,7,30650.41,4378.63,2026-08-25,2025-06-25,false,true,false
+Prince Funk-Block,Jayda.Lueilwitz@hotmail.com,9,7216.74,801.86,2026-08-04,2025-04-30,false,false,false
+Stevie Kuhn,Albina.Watsica-Goyette@yahoo.com,2,3687.46,1843.73,2026-08-25,2025-03-12,false,false,false
+Osborne Rempel-Rodriguez PhD,Karson_McDermott10@gmail.com,4,17742.08,4435.52,2026-08-14,2026-06-05,false,false,false
+Dorian Baumbach,Zita78@yahoo.com,9,33092.82,3676.98,2026-08-10,2026-04-05,false,true,false
+Malcolm Gislason,Michael72@hotmail.com,12,20702.4,1725.2,2026-08-14,2025-10-21,false,false,false
+Annette Beatty,Bernice34@gmail.com,3,5590.65,1863.55,2026-08-10,2026-04-26,false,true,false
+Mrs. Kendra Steuber,Kent.McDermott74@yahoo.com,17,58680.94,3451.82,2026-08-09,2025-08-18,false,false,false
+Mrs. Norene Reichel V,Diego_Moen@yahoo.com,2,10238.14,5119.07,2026-08-01,2026-03-04,false,false,false
+Ms. Brianne Rice,Myles2@yahoo.com,3,13245.15,4415.05,2026-07-30,2026-02-15,false,false,false
+Althea Crist,Jeramy.Roberts38@hotmail.com,13,77591.28,5968.56,2026-07-29,2026-03-26,false,false,false
+Jared Gulgowski MD,Chris93@yahoo.com,3,7411.17,2470.39,2026-07-22,2025-08-16,false,false,false
+Dell Spinka,Ora.Parisian78@yahoo.com,15,50164.95,3344.33,2026-07-31,2025-09-30,false,true,false
+Ezekiel Will,Jerod.Terry-Marquardt@hotmail.com,11,20398.95,1854.45,2026-08-14,2024-09-07,false,false,true
+Tierra Kshlerin,Ludwig66@gmail.com,8,20550.64,2568.83,2026-07-24,2024-08-12,false,false,false
+Hanna Roob,Clare_Torphy1@yahoo.com,17,101255.91,5956.23,2026-07-22,2026-01-08,false,false,false
+Roxane Witting,Dahlia.Lind80@hotmail.com,17,25778.8,1516.4,2026-08-15,2025-11-17,false,false,false
+Damaris Hilll,Travon.Bayer3@gmail.com,11,18774.91,1706.81,2026-07-21,2026-01-12,false,false,false
+Ardella Baumbach,Sydney_Murray98@hotmail.com,17,58416.59,3436.27,2026-07-31,2025-03-03,false,true,false
+Schuyler Murazik,Abigayle_Russel9@yahoo.com,4,12397.64,3099.41,2026-08-09,2025-05-16,false,true,false
+Eula Zboncak,Pamela40@hotmail.com,2,5822.04,2911.02,2026-08-02,2026-07-15,false,false,false
+Ulices Hickle,Jane_Beier@gmail.com,19,80668.87,4245.73,2026-08-01,2025-06-07,true,true,false
+Mr. Curt Schaden,Humberto_Jones@yahoo.com,5,14499.35,2899.87,2026-08-24,2025-12-22,false,true,false
+Vicki Bailey,Luther.Bogisich13@yahoo.com,16,53737.6,3358.6,2026-08-13,2025-06-06,false,false,false
+Cathrine Kshlerin,Chasity.Jaskolski87@hotmail.com,14,82190.64,5870.76,2026-08-26,2026-02-02,false,false,false
+Herman Bernier I,Chelsey_Bins86@gmail.com,6,30934.74,5155.79,2026-07-29,2024-12-10,false,true,false
+Tillman Ebert,Horacio_Erdman77@gmail.com,7,31706.43,4529.49,2026-07-28,2024-10-13,false,true,false
+Kody Botsford,Carissa35@yahoo.com,5,21165.55,4233.11,2026-08-09,2025-07-20,false,true,false
+Saul Bahringer,Nicholas.Yost26@hotmail.com,12,48190.44,4015.87,2026-08-13,2025-05-11,false,false,false
+Melany Hodkiewicz,Karlee61@gmail.com,3,16457.13,5485.71,2026-08-15,2026-04-05,false,false,false
+Jamil Stanton,Adelle59@yahoo.com,7,35283.29,5040.47,2026-02-14,2024-05-04,false,false,true
+Mr. Pasquale Cartwright,Dusty47@gmail.com,10,33291.1,3329.11,2026-08-14,2024-12-12,false,false,false
+Vicki Padberg,Helena15@yahoo.com,8,41358.8,5169.85,2026-08-18,2025-02-13,false,false,false
+Ericka Wunsch,Russell_Hilpert@gmail.com,6,4901.64,816.94,2026-08-09,2026-01-06,false,false,false
+Andrea Kertzmann,Karson_Windler66@gmail.com,17,99181.06,5834.18,2026-07-27,2026-06-21,false,false,false
+Emilia Ziemann,Adeline48@hotmail.com,5,29383.55,5876.71,2026-08-25,2026-04-17,false,false,false
+Lorenza Parisian,Maudie25@hotmail.com,6,13619.4,2269.9,2026-08-12,2025-07-09,false,false,false
+Rashawn Fay,Jeffrey_Kuhic67@hotmail.com,11,59013.68,5364.88,2026-08-21,2025-02-02,false,false,false
+Shany Marks,Tabitha14@gmail.com,10,9812,981.2,2026-08-16,2026-06-14,false,true,false
+Mr. Jerrod Kiehn,Allie_Deckow-Berge76@yahoo.com,4,17100.04,4275.01,2026-07-30,2025-04-30,false,true,false
+Michael Gusikowski,Felicity.Klocko-Kunze@gmail.com,10,17277.1,1727.71,2026-08-07,2025-10-27,false,true,false
+Haylee Botsford,Elton.Casper70@hotmail.com,37,379985.93,10269.89,2025-10-05,2025-03-13,true,true,true
+Josiah Mante,Alexane.Lynch@hotmail.com,18,80058.06,4447.67,2026-08-25,2026-08-08,false,false,false
+Gennaro McCullough,Johan_Hirthe54@yahoo.com,10,51541.9,5154.19,2026-08-23,2025-10-18,false,true,false
+Myriam Rohan,Gary_Murray@yahoo.com,18,38390.58,2132.81,2026-07-20,2025-11-02,false,false,false
+Boyd Hintz,Curtis.Quitzon37@hotmail.com,27,119124.81,4412.03,2026-07-29,2024-09-23,true,false,true
+Pascale Goyette,Taylor40@hotmail.com,15,166505.4,11100.36,2026-03-12,2025-01-17,true,false,true
+Samuel Bernier,Dora.Zulauf@hotmail.com,9,35463.78,3940.42,2026-08-11,2025-01-07,false,false,false
+Rowan Kihn,Martina_Bartell@yahoo.com,6,12685.02,2114.17,2026-08-01,2026-02-17,false,true,false
+Mr. Darryl Marvin,Liam.Langosh@gmail.com,11,56050.06,5095.46,2026-08-13,2025-08-25,false,true,false
+Ole Robel,Kay_Walker88@hotmail.com,4,3862.68,965.67,2026-07-20,2024-08-26,false,false,false
+Dillan Boyer DVM,Ivah66@yahoo.com,15,68366.55,4557.77,2026-07-30,2025-09-15,false,false,false
+Dallas Prohaska,Jude.Russel@hotmail.com,4,7562.16,1890.54,2026-07-31,2025-12-09,false,true,false
+Ophelia Smith,Sammy14@yahoo.com,9,20922.39,2324.71,2026-08-20,2025-05-26,false,false,false
+Felicity Ebert,Kacie65@gmail.com,18,89352.9,4964.05,2026-08-15,2025-12-31,false,false,false
+Julia Beahan,Gertrude.Weber@hotmail.com,4,14100.2,3525.05,2026-08-11,2024-11-01,false,false,false
+Lucienne Abshire I,Mariah87@hotmail.com,13,20887.1,1606.7,2026-08-03,2025-08-06,false,false,false
+Dianna Cole,Khalid.Keebler51@gmail.com,8,16875.12,2109.39,2026-07-27,2026-02-26,false,false,false
+Angelo Ratke MD,Barton_Jaskolski24@gmail.com,8,31851.76,3981.47,2026-08-01,2025-02-27,false,false,false
+Aaron Jast,Keith.Wintheiser17@yahoo.com,12,69965.4,5830.45,2026-01-16,2025-09-04,false,true,true
+Emile Rau,Madge.Toy@hotmail.com,16,43463.68,2716.48,2026-07-29,2025-02-06,false,false,true
+Naomie Breitenberg,Zander_Conroy72@yahoo.com,1,5189.61,5189.61,2026-08-11,2025-07-19,false,true,false
+Mr. Kennedy Hyatt-Jacobson,Beulah.Kshlerin11@hotmail.com,18,89575.92,4976.44,2026-01-11,2025-01-27,false,true,true
+Dwayne Daugherty,Giovanni_Barton@hotmail.com,8,38310.88,4788.86,2025-10-12,2025-01-25,false,true,true
+Miss Cayla Gislason,Cedric.Ward26@yahoo.com,18,68348.34,3797.13,2025-09-22,2024-07-29,false,false,true
+Scot Farrell,Deangelo_Davis16@yahoo.com,42,418343.94,9960.57,2025-08-29,2024-11-28,true,false,true
+Dewey Goldner,Josiane95@gmail.com,10,20130.2,2013.02,2026-08-11,2025-05-04,false,false,false
+Brionna Von,Sydney.Anderson@hotmail.com,8,11886.88,1485.86,2026-08-13,2025-09-17,false,false,false
+Lonnie Nolan IV,Wilhelm.Kemmer51@yahoo.com,3,14111.37,4703.79,2026-08-04,2024-12-15,false,false,false
+Jordane Sawayn,Brent_Kulas@gmail.com,18,32183.28,1787.96,2026-08-10,2025-09-09,false,false,false
+Clara Purdy,Corey97@hotmail.com,1,5164.05,5164.05,2026-07-19,2025-11-10,false,false,false
+Mr. Boyd Hammes,Gene_Marvin28@yahoo.com,16,60516.96,3782.31,2026-08-13,2026-02-04,false,true,false
+Raegan Ankunding,Kay50@yahoo.com,7,13542.69,1934.67,2026-08-19,2026-07-20,false,false,false
+Ibrahim Schuster,Joy_Upton@gmail.com,17,16712.19,983.07,2026-07-31,2025-04-20,false,false,false
+Jocelyn Ernser II,Chris70@gmail.com,1,861.73,861.73,2026-05-07,2024-12-23,false,true,true
+Yolanda Swaniawski,Burdette.Abernathy@gmail.com,4,9430.56,2357.64,2026-08-13,2025-12-17,false,false,false
+Parker Boehm,Laisha_Kuvalis20@hotmail.com,6,18380.04,3063.34,2026-01-15,2025-11-04,false,false,true
+Wilfred Mann,Korey98@gmail.com,5,5531.75,1106.35,2026-07-20,2026-02-07,false,false,false
+Jada Glover,Elton_Veum@hotmail.com,2,5807.42,2903.71,2026-07-28,2025-11-19,false,true,false
+Micah Grady,Lorene_Kulas@gmail.com,12,19201.8,1600.15,2026-08-06,2026-05-11,false,false,false
+Tyree Mills,Price.Heidenreich@hotmail.com,7,15404.13,2200.59,2026-03-30,2025-07-01,false,false,true
+Dr. Dallin Mohr,Shemar.Beer@gmail.com,12,46133.04,3844.42,2026-08-20,2024-11-20,false,false,false
+Malika Waelchi,Zoey_Lemke52@hotmail.com,11,64117.57,5828.87,2026-07-26,2026-02-06,false,true,false
+Maia Bergnaum,Carter_Runte42@yahoo.com,6,23679.18,3946.53,2026-08-05,2025-07-06,false,false,true
+Denise White,Zoey_Russel@yahoo.com,9,29354.67,3261.63,2026-08-18,2025-03-01,false,false,false
+Rene Kiehn,Kayley_Conroy84@gmail.com,5,4978.6,995.72,2026-07-21,2024-08-12,false,false,false
+Coty Larkin,Tasha_Moore@yahoo.com,11,51284.2,4662.2,2026-07-21,2026-04-15,false,false,false
+Gregg Weber,Norris.Klocko49@gmail.com,18,56696.04,3149.78,2026-06-23,2024-10-06,false,false,true
+Gayle Schaden,Kianna_Kling@gmail.com,9,49364.55,5484.95,2026-08-08,2025-03-20,false,false,false
+London Jerde,Myles38@yahoo.com,3,3222.06,1074.02,2026-08-10,2025-07-31,false,false,false
+Magnus O'Kon,Scottie.Schaden80@yahoo.com,15,35724.6,2381.64,2026-08-02,2025-08-07,false,false,false
+Ms. Chelsie D'Amore,Mohammad9@gmail.com,6,10734.42,1789.07,2026-07-28,2025-08-19,false,false,false
+Arianna Vandervort,Gregorio77@hotmail.com,17,26665.01,1568.53,2026-07-04,2025-10-24,false,false,true
+Ahmad Thiel PhD,Elenor72@gmail.com,37,391990.58,10594.34,2026-07-18,2026-02-13,true,true,false
+Blanche Schmidt,Neil.Kihn@gmail.com,4,5292.72,1323.18,2026-08-02,2025-03-17,false,false,false
+Consuelo Roob,Neoma.Stracke-Parisian@yahoo.com,1,3736.27,3736.27,2026-07-31,2026-01-17,false,false,false
+Earnest Marvin,Claudie64@hotmail.com,14,66574.06,4755.29,2026-07-30,2025-08-09,false,false,false
+Osbaldo McKenzie,Fredy_Keebler11@yahoo.com,18,86068.26,4781.57,2026-08-24,2025-12-21,false,false,true
+Abelardo Howe,Rico.Hauck@yahoo.com,4,20802.64,5200.66,2026-08-23,2025-08-24,false,false,false
+Kamren Treutel,Syble.Stracke56@gmail.com,4,10198.28,2549.57,2026-08-05,2025-08-26,false,false,false
+Cruz Hills,Caden.Jacobi@hotmail.com,16,56111.04,3506.94,2026-07-18,2026-05-25,false,false,false
+Dr. Audra Jones,Arlo.Langworth@hotmail.com,16,91774.24,5735.89,2026-07-20,2025-09-13,false,false,false
+Perry Daniel,Antonia.Towne87@hotmail.com,17,37276.75,2192.75,2026-08-07,2025-12-28,false,false,false
+Adonis Kuvalis DVM,Frederick.Altenwerth87@hotmail.com,5,18030.25,3606.05,2026-07-18,2024-08-20,false,true,false
+Darnell Fay,Abdiel.Stoltenberg-Bartell60@gmail.com,3,3051.78,1017.26,2025-12-31,2024-02-16,false,false,true
+Milan Bins,Kariane62@yahoo.com,29,248215.06,8559.14,2026-07-24,2026-05-09,true,false,false
+Manuela Osinski,Trudie66@hotmail.com,3,10816.08,3605.36,2026-07-25,2025-12-15,false,true,false
+Maggie Bailey,Wilburn.Schiller-Torphy3@gmail.com,4,4458.36,1114.59,2026-08-18,2024-10-03,false,true,false
+Domingo Terry,Ansley.Bergstrom@yahoo.com,21,151611.6,7219.6,2026-08-24,2025-02-14,true,true,false
+Linnie Smitham,Jason.Runolfsdottir@yahoo.com,22,70578.42,3208.11,2026-07-23,2025-08-24,true,true,false
+Joany Wiza,Nickolas71@gmail.com,15,55942.8,3729.52,2026-07-24,2026-01-23,false,false,true
+Mr. Jermain Fay,Demetrius.Vandervort@hotmail.com,15,19836,1322.4,2026-07-25,2026-03-27,false,false,false
+Zoila Schinner,Neha93@yahoo.com,26,140853.96,5417.46,2026-08-07,2026-02-23,true,false,false
+Clara Hodkiewicz,Rylan.Runolfsdottir48@gmail.com,2,2602.28,1301.14,2026-08-17,2025-08-26,false,false,false
+Katelynn Effertz,Noemy_Keeling59@yahoo.com,21,233929.08,11139.48,2026-07-24,2025-11-28,true,false,false
+Montana McKenzie,Horace16@gmail.com,10,40442.1,4044.21,2026-07-23,2026-03-17,false,true,false
+Mr. Brandt Barrows,Beaulah_Bruen@gmail.com,18,81994.86,4555.27,2026-07-26,2026-06-01,false,false,false
+Edgar Cormier,Denise_Morissette25@yahoo.com,6,21763.38,3627.23,2026-07-27,2025-06-16,false,false,false
+Reymundo Bogan,Nikolas98@hotmail.com,16,53697.28,3356.08,2026-08-22,2026-01-22,false,false,false
+Aaron Reinger,Porter23@yahoo.com,10,28267.5,2826.75,2026-08-08,2025-04-17,false,true,false
+Olive Gulgowski,Ralph.Ward@hotmail.com,39,193686.09,4966.31,2026-08-10,2024-12-08,true,false,false
+Vicenta Jacobs Jr.,Madelyn.Boyer15@hotmail.com,17,77972.88,4586.64,2026-08-14,2024-09-04,false,true,false
+Delphia Fritsch,Dagmar92@yahoo.com,2,9379.68,4689.84,2026-08-20,2024-10-13,false,false,false
+Jadon McCullough,Agnes20@hotmail.com,13,43110.34,3316.18,2026-08-01,2024-11-14,false,true,false
+Daniella Huel,Stefan.Mayer@hotmail.com,44,502734.76,11425.79,2026-08-06,2025-12-27,true,false,false
+Alaina Hayes,Blair90@hotmail.com,42,442450.68,10534.54,2026-07-22,2024-10-27,true,false,false
+Ms. Jeanie Mohr,Monserrate_Bergstrom86@yahoo.com,8,12524.4,1565.55,2026-08-02,2025-06-27,false,true,false
+Albertha Corwin,Alyssa.Schneider@gmail.com,5,4371.8,874.36,2026-08-10,2024-11-03,false,false,false
+Cristobal Nolan,Jerome_Russel63@gmail.com,12,24537.96,2044.83,2026-08-18,2024-12-27,false,false,false
+Maiya Zulauf IV,Malika19@gmail.com,14,58582.16,4184.44,2026-08-11,2025-11-12,false,false,false
+Montana Auer,Hillard.Huels10@hotmail.com,22,240881.74,10949.17,2026-01-27,2025-08-22,true,false,true
+Deborah Hauck,Pearl_Wiza@hotmail.com,3,14426.88,4808.96,2026-08-07,2026-01-27,false,false,false
+Darius Daniel,Antonetta6@yahoo.com,15,48210.3,3214.02,2026-08-14,2025-02-17,false,false,false
+Maybell Dooley,Wilbert_Kuhlman@hotmail.com,15,41050.8,2736.72,2026-08-16,2025-11-06,false,false,false
+River Wolf,Cloyd.Considine15@gmail.com,13,71498.57,5499.89,2026-07-20,2026-06-10,false,false,false
+Margarett Stokes I,Assunta_Buckridge@hotmail.com,12,37955.52,3162.96,2026-07-04,2026-02-20,false,false,true
+Harriet Powlowski V,Evelyn.Quitzon@gmail.com,10,30512.4,3051.24,2026-08-12,2025-10-11,false,true,false
+Mr. Marcus Doyle,Hollie72@yahoo.com,6,24461.16,4076.86,2026-08-20,2025-02-15,false,false,false
+Eli Cruickshank,Erik24@yahoo.com,7,7072.03,1010.29,2026-07-26,2024-10-21,false,true,false
+Mrs. Debra Davis,Dwight_Robel41@gmail.com,18,101070.54,5615.03,2026-08-20,2024-10-06,false,false,false
+Nathen Conroy,Stacey94@yahoo.com,2,2115.36,1057.68,2026-08-05,2025-05-25,false,false,false
+Michele Renner,Shea.Bogan12@gmail.com,24,277943.76,11580.99,2026-08-22,2025-12-20,true,false,false
+Reuben Pollich-Barton,Arnaldo_Von@gmail.com,13,46098,3546,2026-08-09,2025-10-01,false,false,false
+Mr. Marshall Bergstrom,Esta74@yahoo.com,8,13569.28,1696.16,2026-08-03,2026-06-28,false,true,true
+Grant Kulas,Alan_Hermann25@yahoo.com,13,66515.28,5116.56,2026-07-28,2025-07-21,false,true,false
+Tyree Wilkinson,Ariane_Ledner90@yahoo.com,15,60368.25,4024.55,2026-02-01,2025-08-04,false,true,true
+Terrell Boehm,Leola.Ondricka@hotmail.com,6,32186.4,5364.4,2026-07-21,2026-01-28,false,false,false
+Brock Pouros,Sidney_Monahan@hotmail.com,30,119942.7,3998.09,2026-08-26,2026-07-30,true,false,false
+Imogene Lemke,Julianne77@hotmail.com,13,51589.85,3968.45,2026-08-23,2025-12-23,false,false,false
+Soledad Koepp,Karolann_Beer46@yahoo.com,16,68169.28,4260.58,2026-08-10,2024-09-14,false,false,false
+Adell Padberg PhD,Bert_Weimann@gmail.com,5,28123.45,5624.69,2026-08-19,2025-03-01,false,false,false
+Anahi Simonis,Efren83@gmail.com,7,11380.46,1625.78,2026-08-10,2024-10-22,false,false,false
+Sherry Lubowitz,Gregorio_Willms@yahoo.com,6,35583.36,5930.56,2026-06-20,2026-06-19,false,false,true
+Jarrod Wilkinson IV,Maureen_Spencer@yahoo.com,10,59805.4,5980.54,2026-07-22,2025-05-18,false,false,false
+Millie Hirthe,Mustafa_Murphy@gmail.com,16,38130.4,2383.15,2026-08-18,2025-02-15,false,false,false
+Celia Rath-Leuschke,Gus83@gmail.com,1,4951.83,4951.83,2026-07-31,2025-05-12,false,false,false
+Jovan Quigley V,Nat_McLaughlin@hotmail.com,8,45412.72,5676.59,2026-02-23,2025-07-25,false,false,true
+Ms. Molly Pouros-Kassulke,Callie_Cole@gmail.com,33,239750.94,7265.18,2026-07-18,2025-08-02,true,false,false
+Keon Kulas,Alexandro_Nitzsche22@hotmail.com,31,293056.95,9453.45,2026-08-05,2025-02-07,true,false,false
+Daphne Frami-Kuhlman,Bobby_Nicolas@gmail.com,8,25281.6,3160.2,2026-01-01,2025-08-02,false,false,true
+Percy Bergnaum,Raymond.Zulauf10@hotmail.com,21,238041.93,11335.33,2026-08-08,2025-06-26,true,false,false
+Luciano Botsford,Carolyne_Sanford@hotmail.com,16,31245.92,1952.87,2026-08-17,2025-10-01,false,true,false
+Bailey Bartoletti II,Teri_Oberbrunner38@yahoo.com,5,12676.65,2535.33,2026-08-17,2026-01-19,false,false,false
+Jordane Morissette,Petra88@gmail.com,14,68216.68,4872.62,2026-08-17,2026-03-26,false,false,false
+Fredy Erdman,Jena_White@yahoo.com,5,12672.05,2534.41,2026-08-12,2025-05-06,false,true,false
+Mr. Colt Hyatt,Hannah52@gmail.com,7,25851.14,3693.02,2026-07-26,2025-05-31,false,true,false
+Mr. Chadd Streich,Electa.Armstrong51@yahoo.com,11,42787.69,3889.79,2025-10-29,2024-11-20,false,false,true
+Sonny Swift,Triston_Schuster@gmail.com,6,35131.56,5855.26,2026-08-15,2025-06-22,false,true,false
+Isom Dooley PhD,Quincy.Corkery36@hotmail.com,6,10910.7,1818.45,2025-08-27,2025-07-22,false,true,true
+Bella Mraz,Karla.Casper@yahoo.com,6,29569.32,4928.22,2026-07-30,2025-09-12,false,false,false
+Vida Mills,Gustave50@gmail.com,7,17536.4,2505.2,2026-08-03,2026-08-02,false,true,false
+Verla Schaefer,Carroll32@hotmail.com,2,11993.74,5996.87,2026-08-26,2025-12-09,false,false,false
+Tess Kohler,Eli.Botsford70@gmail.com,1,5155.17,5155.17,2026-07-18,2026-03-13,false,false,false
+Royal Lubowitz,Omar22@hotmail.com,4,20248.88,5062.22,2026-08-16,2026-07-27,false,false,false
+Lucas Sporer,Morgan49@hotmail.com,7,14504.77,2072.11,2026-07-23,2025-11-04,false,false,false
+Jeffrey Cruickshank,Kali25@hotmail.com,1,3881.35,3881.35,2026-08-13,2026-01-08,false,false,false
+Lavon Wilderman,Kiana_Armstrong@gmail.com,3,9960.51,3320.17,2026-05-26,2026-05-12,false,false,true
+Pete Reichert,Yasmeen20@gmail.com,9,28346.49,3149.61,2026-07-21,2024-10-01,false,false,false
+Reggie Lueilwitz,Maymie85@hotmail.com,3,14038.41,4679.47,2026-08-14,2026-01-09,false,false,false
+Eleanora Huel,Cloyd_Adams@hotmail.com,1,1285.24,1285.24,2026-07-31,2025-10-02,false,false,false
+Diego D'Amore,Tess24@gmail.com,31,210389.87,6786.77,2026-08-13,2025-04-12,true,false,false
+Robyn O'Connell,Niko.Durgan@yahoo.com,1,5235.75,5235.75,2026-08-23,2026-04-22,false,true,false
+Paul McKenzie,Joseph21@yahoo.com,10,15601.5,1560.15,2026-07-24,2025-11-27,false,true,false
+Sage Rolfson,Alessandro46@yahoo.com,15,20647.5,1376.5,2026-08-04,2025-11-06,false,false,false
+Jaylin Pacocha PhD,Nasir.Bruen99@gmail.com,10,23105.7,2310.57,2026-08-22,2025-03-10,false,false,false
+Leon Gleason,Jolie63@yahoo.com,8,12417.92,1552.24,2026-07-29,2025-10-17,false,false,false
+Mr. Tyler Schinner,Alexandrea.Kris71@gmail.com,19,189474.46,9972.34,2026-08-02,2026-03-13,true,false,false
+Aniya Jerde,Reta_Bode38@hotmail.com,6,9353.04,1558.84,2026-08-02,2025-12-19,false,false,false
+Andrew Sauer,Kellen.Gleason25@hotmail.com,12,45636.84,3803.07,2026-08-06,2026-05-04,false,true,false
+Kaelyn Mertz-Champlin,Reyes77@yahoo.com,2,11978.54,5989.27,2026-08-04,2026-03-20,false,false,false
+Michale Cummings-Krajcik,Brett.Greenholt28@yahoo.com,5,7885.4,1577.08,2026-07-27,2026-01-04,false,true,false
+Harley Balistreri,Abdul_Dibbert34@hotmail.com,9,42615.45,4735.05,2026-08-06,2025-12-04,false,false,false
+Buster Leannon,Germaine85@yahoo.com,7,26518.59,3788.37,2026-07-23,2024-11-01,false,true,false
+Cleve Hartmann II,Abigale8@yahoo.com,18,73932.66,4107.37,2026-06-01,2024-11-30,false,false,true
+Hilario Ziemann,Diamond61@yahoo.com,4,6224.12,1556.03,2026-08-10,2026-06-26,false,false,false
+Harvey Douglas,Camille_Bartell@yahoo.com,15,46281,3085.4,2026-08-24,2026-01-25,false,false,false
+Carol Bauch,Guy_McLaughlin55@gmail.com,8,44207.52,5525.94,2026-08-22,2024-11-08,false,false,false
+Nia O'Conner,Julie87@hotmail.com,9,17901.09,1989.01,2026-07-23,2025-08-31,false,false,false
+Asha Boehm I,Quinn_Boehm58@gmail.com,3,8777.04,2925.68,2026-07-30,2025-05-21,false,true,false
+Lenna McCullough,Cooper_Franecki95@gmail.com,5,15317.35,3063.47,2025-12-29,2025-04-23,false,true,true
+Assunta Bergnaum,Ellie.Lakin@yahoo.com,7,24359.16,3479.88,2026-07-27,2026-04-21,false,false,false
+Brendon Zboncak,Uriel95@hotmail.com,2,2930.66,1465.33,2025-12-26,2024-04-03,false,false,true
+Jamal Dach-Lubowitz,Carolyne.Kilback99@hotmail.com,1,1074.53,1074.53,2026-08-03,2025-11-02,false,false,false
+Loraine Will,Anais_Rodriguez@yahoo.com,37,294535.91,7960.43,2026-05-01,2024-10-14,true,false,true
+Bridget Hirthe,Vern_Gusikowski@yahoo.com,15,48070.5,3204.7,2026-07-31,2025-06-14,false,false,false
+Jess Dooley,Elwin23@gmail.com,10,32672.5,3267.25,2026-07-20,2026-07-04,false,false,false
+Kenny Hansen-Abshire,Samuel_Hauck@hotmail.com,10,31543,3154.3,2026-07-22,2026-04-30,false,true,false
+Ila Stroman DVM,Kip_Jones32@gmail.com,3,8940.09,2980.03,2026-08-24,2026-05-17,false,false,false
+Burnice Zulauf,Gia.Kiehn35@hotmail.com,2,8510.88,4255.44,2026-07-18,2025-08-20,false,false,false
+Tiara Mertz,Andy.Marvin-Aufderhar@yahoo.com,13,12291.89,945.53,2026-08-18,2026-01-23,false,false,false
+Astrid Hackett,Mateo.Mohr71@hotmail.com,9,25100.1,2788.9,2026-07-25,2026-02-06,false,false,false
+Garry Carter,Brooks_Dare14@hotmail.com,8,19219.68,2402.46,2026-07-28,2026-01-16,false,true,false
+Lucinda Aufderhar,Gerhard_Conn@gmail.com,18,71887.68,3993.76,2026-08-22,2024-10-13,false,false,false
+Tina Gulgowski,Elsie_DuBuque21@yahoo.com,7,38180.38,5454.34,2026-08-07,2025-06-24,false,false,false
+Levi Yost,Nova.Daugherty-Hand@gmail.com,1,4927.87,4927.87,2026-07-29,2026-01-17,false,false,false
+Minnie Bruen,Chasity52@gmail.com,11,38310.03,3482.73,2026-08-01,2024-12-30,false,false,false
+Emma Erdman-Auer,Kenna.Bernier@yahoo.com,5,17484.45,3496.89,2026-08-06,2024-08-18,false,false,false
+Ron Dooley,Foster_Bartell@gmail.com,9,18223.92,2024.88,2026-08-08,2026-04-08,false,true,false
+Lue Cormier,Americo_Doyle@gmail.com,7,30491.93,4355.99,2026-07-19,2025-07-09,false,false,true
+Rasheed Jerde,Annabell.Johns@yahoo.com,1,1633.55,1633.55,2025-09-11,2025-05-05,false,false,true
+Dorian Deckow,Kennedy_Hane38@yahoo.com,15,20162.4,1344.16,2026-07-26,2025-08-31,false,false,false
+Miss Alexanne Casper,Tabitha54@gmail.com,11,60619.24,5510.84,2026-08-09,2024-09-29,false,true,false
+Okey Brown Jr.,Jaiden83@hotmail.com,14,73395.84,5242.56,2026-07-18,2026-03-29,false,true,false
+Layla Hegmann,Katrine.Satterfield@gmail.com,17,40417.84,2377.52,2026-07-31,2025-11-24,false,false,false
+Lavinia Jenkins,Kristine26@gmail.com,6,29104.98,4850.83,2026-07-06,2024-10-11,false,false,true
+Austen Rempel,Samuel_Rippin49@yahoo.com,18,69270.84,3848.38,2026-08-25,2026-01-14,false,false,false
+Presley Anderson,Catalina.Gislason@yahoo.com,1,3428.6,3428.6,2026-01-28,2025-09-12,false,false,true
+Grace Johnston,Martin1@gmail.com,10,47060.5,4706.05,2026-08-05,2024-11-14,false,true,false
+Lauretta Haley MD,Aidan.Jerde@yahoo.com,15,61519.65,4101.31,2026-08-20,2026-06-18,false,false,false
+Christina Emmerich V,Brennan_Purdy52@yahoo.com,2,3651.92,1825.96,2025-09-07,2024-12-29,false,false,true
+Karla Wiza,Rosamond44@gmail.com,5,27469.45,5493.89,2026-08-12,2025-10-06,false,false,false
+Miss Malika Lindgren,Rosie.Stracke44@hotmail.com,17,50987.93,2999.29,2026-08-04,2025-10-18,false,false,false
+Alicia Veum,Anderson.Mraz@hotmail.com,12,17477.04,1456.42,2026-08-03,2025-07-31,false,false,false
+Melissa Lindgren II,Darian85@gmail.com,2,3089.72,1544.86,2026-08-23,2025-03-24,false,false,false
+Mafalda Moen,Nayeli82@gmail.com,15,73126.95,4875.13,2026-08-04,2024-08-08,false,false,false
+Art King,Amina_Carter@yahoo.com,3,2878.95,959.65,2026-07-21,2026-07-19,false,false,false
+Myriam Torphy,Lilla.Lindgren@hotmail.com,14,34711.18,2479.37,2026-07-23,2025-06-01,false,false,false
+Wilhelmine Parisian,Garland_Schulist@yahoo.com,11,36501.3,3318.3,2026-07-18,2025-05-09,false,true,false

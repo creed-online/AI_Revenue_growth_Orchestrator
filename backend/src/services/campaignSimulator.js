@@ -46,9 +46,12 @@ export function simulateCampaign({ opportunity = {}, audience = [] } = {}) {
   );
 
   const audienceSize = Math.max(baseCustomerCount || safeAudience.length || 0, 0);
+  const derivedAov = opportunity?.potentialRevenue && audienceSize > 0
+    ? Math.round(Number(opportunity.potentialRevenue) / audienceSize)
+    : 1500;
   const avgOrderValue = Number(
-    opportunity?.averageOrderValue ?? opportunity?.avgOrderValue ?? 120
-  ) || 120;
+    opportunity?.averageOrderValue ?? opportunity?.avgOrderValue ?? derivedAov
+  ) || derivedAov;
   const confidence = clamp(Number(opportunity?.confidence ?? 0.7), 0.1, 0.99);
   const classificationCounts = getClassificationCounts(safeAudience);
 

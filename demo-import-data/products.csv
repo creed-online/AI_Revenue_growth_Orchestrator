@@ -1,0 +1,8 @@
+name,price,category,isReplenishable,avgCycleDays
+Whey Protein Powder,2999,Supplements,true,30
+Creatine Monohydrate,1499,Supplements,true,45
+Pre-Workout Formula,2499,Supplements,true,30
+Omega-3 Fish Oil,999,Supplements,true,60
+Resistance Bands Set,799,Equipment,false,
+Yoga Mat Premium,1499,Equipment,false,
+Shaker Bottle,399,Accessories,false,

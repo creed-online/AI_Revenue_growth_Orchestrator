@@ -242,7 +242,7 @@ export default function OpportunityFeed() {
                         {op.productName}
                       </h3>
                       <p className="mt-0.5 text-[11px] capitalize text-ink-muted">
-                        {op.opportunityType || "replenishment"} · Product #{op.productId}
+                        {op.opportunityType || "replenishment"} · {op.productId > 0 ? `Product #${op.productId}` : "Customer Cohort"}
                       </p>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ export default function OpportunityFeed() {
 
                 <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-ink-muted">
                   {op.recommendedAction ||
-                    `Target ${op.customerCount} customers approaching repurchase.`}
+                    `Target ${op.customerCount} customers in this opportunity cohort.`}
                 </p>
 
                 <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl border border-ink-border/80 bg-ink/40 p-3">
@@ -290,7 +290,7 @@ export default function OpportunityFeed() {
 
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   <Link
-                    to={`/opportunities/${op.productId}`}
+                    to={`/opportunities/${op.id || op.productId || (originalIndex >= 0 ? originalIndex : idx)}`}
                     className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-ink-border bg-ink/40 px-3 py-2.5 text-xs font-bold text-ink-soft transition hover:border-mint/30 hover:text-white"
                   >
                     Review

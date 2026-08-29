@@ -22,6 +22,8 @@ model Merchant {
   policies     Policy[]
   auditLogs    AuditLog[]
   users        User[]
+  fewShotExamples FewShotExample[]
+  schemaExtensions MerchantSchemaExtension[]
 }
 
 model User {
@@ -241,4 +243,32 @@ model NotificationSend {
   emailError   String?
 
   sentAt       DateTime @default(now())
+}
+
+model FewShotExample {
+  id              Int      @id @default(autoincrement())
+  merchantId      Int
+  merchant        Merchant @relation(fields: [merchantId], references: [id])
+  
+  sourceColumn    String
+  targetEntity    String
+  targetField     String
+  confidenceScore Float    @default(1.0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([merchantId, sourceColumn, targetEntity, targetField])
+}
+
+model MerchantSchemaExtension {
+  id           Int      @id @default(autoincrement())
+  merchantId   Int
+  merchant     Merchant @relation(fields: [merchantId], references: [id])
+  
+  entityName   String
+  customFields Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([merchantId, entityName])
 }

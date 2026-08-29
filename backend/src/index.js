@@ -14,6 +14,7 @@ import approvalRoutes from "./routes/approval-route.js";
 import campaignsRoute from "./routes/campaigns-route.js";
 import authRoute from "./routes/auth-route.js";
 import importRoute from "./routes/import-route.js";
+import schemaRoute from "./routes/schema-route.js";
 import { optionalAuth } from "./middleware/auth.js";
 import { ensureDemoMerchantCredentials } from "./services/authService.js";
 
@@ -41,6 +42,7 @@ app.use("/api/opportunities", opportunitiesRoute);
 app.use("/api/approvals", approvalRoutes);
 app.use("/api/campaigns", campaignsRoute);
 app.use("/api/import", importRoute);
+app.use("/api/schema", schemaRoute);
 
 async function verifyDatabaseConnection() {
   try {

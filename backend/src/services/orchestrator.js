@@ -182,6 +182,8 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
     const { campaign, approvalRequest } = await createCampaignWithApproval({
       merchantId,
       productId: opportunity.productId,
+      name: `${opportunity.productName} Campaign`,
+      type: opportunity.opportunityType || "replenishment",
       proposal: finalDraftResult.proposal,
       simulatedScenarios,
       policyResult: finalDraftResult.policy,
