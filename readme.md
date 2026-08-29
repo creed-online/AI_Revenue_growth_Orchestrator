@@ -1,374 +1,501 @@
-# 🚀 AI Revenue & Growth Orchestrator
+# ARGO — AI Revenue & Growth Orchestrator
 
-> **Find the opportunity. Make the decision. Grow the revenue.**
+<div align="center">
 
-An AI-powered merchant growth platform built for **Razorpay Buildathon — Track 01: AI Growth & Agentic Commerce**.
+**An autonomous AI-powered revenue engine for D2C merchants**  
+Predict replenishment windows • Propose discount campaigns • Execute & attribute real-world results
 
-The goal is simple: help merchants discover **untapped revenue opportunities** in their existing customer and transaction data, turn those opportunities into targeted campaigns, and measure the revenue impact.
+[![Built with React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev)
+[![Powered by Groq](https://img.shields.io/badge/AI-Groq%20Llama%203.3-F54E42?style=flat-square)](https://groq.com)
+[![Prisma ORM](https://img.shields.io/badge/ORM-Prisma%207-2D3748?style=flat-square&logo=prisma)](https://prisma.io)
+[![Express.js](https://img.shields.io/badge/Backend-Express%205-000000?style=flat-square&logo=express)](https://expressjs.com)
+[![Razorpay](https://img.shields.io/badge/Payments-Razorpay-072654?style=flat-square)](https://razorpay.com)
 
----
-
-## 💡 What is this?
-
-Merchants already have a lot of valuable data:
-
-* Customer purchase history
-* Products
-* Orders
-* Spending behaviour
-* Purchase frequency
-* Product relationships
-* Campaign performance
-
-But finding actionable growth opportunities manually is difficult.
-
-**AI Revenue & Growth Orchestrator** acts as an AI-powered growth operator that analyzes this data and answers:
-
-> **"Where can this merchant generate more revenue, and what should they do about it?"**
-
-The system can identify opportunities such as:
-
-* 🔄 Customer reactivation
-* 🛍️ Cross-selling
-* ⬆️ Upselling
-* 🔁 Product replenishment
-* 🎯 Targeted campaigns
+</div>
 
 ---
 
-## 🧠 How it works
+## 📋 Table of Contents
 
-The platform follows an agentic growth loop:
+- [What is ARGO?](#what-is-argo)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Quick Start (Demo Mode)](#quick-start-demo-mode)
+- [Full Setup Guide](#full-setup-guide)
+  - [Prerequisites](#prerequisites)
+  - [Environment Variables](#environment-variables)
+  - [Database Setup](#database-setup)
+  - [Running the Backend](#running-the-backend)
+  - [Running the Frontend](#running-the-frontend)
+- [How to Use ARGO](#how-to-use-argo)
+  - [1. Demo Mode](#1-demo-mode)
+  - [2. Import Your Own Data](#2-import-your-own-data)
+  - [3. Review Opportunities](#3-review-opportunities)
+  - [4. Approve & Execute Campaigns](#4-approve--execute-campaigns)
+  - [5. Measure Results](#5-measure-results)
+- [API Reference](#api-reference)
+- [Demo CSV Files](#demo-csv-files)
+- [Environment Variables Reference](#environment-variables-reference)
+- [Architecture](#architecture)
+- [License](#license)
 
-```text
-Merchant Data
-     ↓
-Customer Intelligence
-     ↓
-Revenue Opportunity Detection
-     ↓
-AI Analysis
-     ↓
-Campaign Strategy
-     ↓
-Campaign Simulation
-     ↓
-Policy Validation
-     ↓
-Merchant Approval
-     ↓
-Campaign Execution
-     ↓
-Revenue Measurement
-     ↓
-Learning
+---
+
+## 🤖 What is ARGO?
+
+**ARGO** is an autonomous AI revenue orchestration platform built for D2C (Direct-to-Consumer) merchants. It connects to your customer and order data, identifies replenishment and re-engagement opportunities using AI, proposes optimised discount campaigns with full policy guardrails, and then executes them — sending real emails, tracking opens/clicks, and attributing payments.
+
+> Built for **Razorpay Buildathon Track 01** — demonstrates a complete agentic AI loop: sense → reason → propose → approve → execute → measure.
+
+### The ARGO Loop
+
 ```
-
-The AI doesn't simply generate marketing copy.
-
-It helps determine:
-
-**Who → What → When → Why**
-
----
-
-## ✨ Core Features
-
-### 🔍 Revenue Opportunity Engine
-
-Automatically identifies potential growth opportunities across the merchant's customer base.
-
-### 👥 Customer Intelligence
-
-Analyzes:
-
-* Purchase frequency
-* Recency
-* Spending
-* Average order value
-* Customer behaviour
-* Product preferences
-
-### 🎯 AI Campaign Orchestrator
-
-Creates targeted campaign strategies based on identified opportunities.
-
-### 🛒 Cross-Sell & Upsell
-
-Identifies products customers are likely to purchase based on historical behaviour.
-
-### 🔁 Reactivation
-
-Finds dormant customers who are likely to purchase again.
-
-### 📦 Replenishment
-
-Identifies customers approaching their normal repurchase cycle.
-
-### 📊 Campaign Simulation
-
-Compare different strategies before launching a campaign.
-
-### 🛡️ Policy & Approval Layer
-
-AI actions are bounded by merchant-defined rules and require approval where appropriate.
-
-### 🧾 Audit Trail
-
-Every important AI decision and campaign action is recorded and explainable.
-
-### 🤖 AI Command Center
-
-Merchants can ask questions such as:
-
-> "Where can I increase revenue this week?"
-
-> "Which customers should I target?"
-
-> "Why are you recommending this campaign?"
-
-> "Create a campaign for my highest-value opportunity."
-
----
-
-## 🏗️ Architecture
-
-```text
-                    MERCHANT
-                       │
-                       ▼
-                REACT DASHBOARD
-                       │
-                       ▼
-                 NODE / EXPRESS
-                       │
-        ┌──────────────┼──────────────┐
-        ▼              ▼              ▼
-   PostgreSQL     AI Orchestrator   Razorpay
-                                     Test APIs
-                       │
-             ┌─────────┼─────────┐
-             ▼         ▼         ▼
-        Reactivation Cross-Sell Upsell
-           Agent       Agent     Agent
-             │         │         │
-             └─────────┼─────────┘
-                       ▼
-              Campaign Engine
-                       │
-                       ▼
-              Policy Engine
-                       │
-                       ▼
-               Human Approval
-                       │
-                       ▼
-                 Execution
-                       │
-                       ▼
-              Results & Analytics
-                       │
-                       ▼
-                  Audit Trail
+Customer Order Data  →  AI Replenishment Scan  →  Opportunity Feed
+        ↓
+  AI Orchestrator (Groq Llama 3.3)  →  Policy Guardrail Check
+        ↓
+  Merchant: Approve / Reject
+        ↓
+  Campaign Execution (Email + Tracking Tokens)
+        ↓
+  Razorpay Payment Attribution  →  Real Revenue Measurement
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Key Features
+
+| Feature | Description |
+|---|---|
+| 🧠 **AI Opportunity Engine** | Detects replenishment windows by analysing order intervals, cohort behaviour, and product cycle data |
+| 🌐 **3D Customer Retention Galaxy** | WebGL globe showing customer segments (VIPs, At-Risk, Price Sensitive) in interactive 3D |
+| 💡 **AI Strategy Streaming** | Groq Llama 3.3 streams reasoning live as it evaluates discount tiers and policy compliance |
+| 🛡️ **Policy Guardrails** | Hard-coded merchant policy engine prevents margin-destroying discounts (configurable cap) |
+| ✅ **Merchant Approval Gate** | No campaign executes without explicit Approve then Execute from the merchant |
+| 📧 **Universal SMTP Dispatch** | Real email delivery with click-tracking pixels, voucher codes, and live delivery logs |
+| 💳 **Razorpay Attribution** | Test-mode Razorpay checkout attributes purchases back to specific campaigns |
+| 📈 **3D Conversion Funnel** | Glass isometric 3D funnel: Audience → Delivered → Opened → Clicked → Purchased |
+| 🗂️ **AI Schema Matcher** | Upload any CSV — AI maps your columns to the internal schema with confidence scores |
+| ⌨️ **Command Palette** | Cmd+K global search across pages, quick actions, and workspace switching |
+| 📄 **PDF Report Export** | One-click branded executive PDF report for any campaign |
+| 📱 **Mobile First** | Swipe-to-orchestrate on cards, bottom navigation dock, responsive card views |
+| 🔔 **Notification Preferences** | Per-customer Email / SMS / WhatsApp digest scheduling and quiet hours |
+
+---
+
+## 🛠 Tech Stack
 
 ### Frontend
 
-* React
-* TypeScript
-* Vite
-* Tailwind CSS
-* Recharts
+| Technology | Role |
+|---|---|
+| **React 19** | UI framework |
+| **Vite** | Build tool and dev server (port `5173`) |
+| **Tailwind CSS v4** | Utility-first styling with custom dark design system |
+| **Framer Motion** | Animations, page transitions, swipe gestures |
+| **@react-three/fiber + Three.js** | 3D WebGL visualisations (Galaxy, Funnel, Schema Matcher) |
+| **TanStack Query v5** | Server state, caching, optimistic mutations |
+| **Recharts** | Bar charts and comparison visualisations |
+| **jsPDF** | Client-side PDF report generation |
+| **canvas-confetti** | Celebration micro-interactions |
 
 ### Backend
 
-* Node.js
-* Express.js
-* TypeScript
-
-### Database
-
-* PostgreSQL
-
-### AI
-
-* LLM API
-* Tool Calling
-* Structured AI outputs
-
-### Analytics / ML
-
-* Python
-* Pandas
-* NumPy
-* scikit-learn
-
-### Payments
-
-* Razorpay Test Mode APIs
+| Technology | Role |
+|---|---|
+| **Express.js v5** | REST API server (port `3000`) |
+| **Prisma ORM v7** | Type-safe database access |
+| **Prisma Postgres** | Managed PostgreSQL database |
+| **Groq SDK** | Llama 3.3 AI reasoning and campaign proposal generation |
+| **Anthropic SDK** | Claude fallback for complex reasoning |
+| **Nodemailer** | SMTP email dispatch with tracking |
+| **Razorpay SDK** | Payment order creation and webhook attribution |
+| **JWT + bcrypt** | Authentication and merchant session management |
+| **Multer** | CSV file upload handling |
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
-```text
-AI-Revenue-Growth-Orchestrator/
-│
-├── frontend/
+```
+AI Revenue growth Orchestrator/
 ├── backend/
-├── analytics/
-├── database/
-├── scripts/
-├── docs/
+│   └── src/
+│       ├── index.js                     # Express app entry point
+│       ├── routes/                      # API route handlers
+│       │   ├── auth-route.js
+│       │   ├── orchestrator-route.js
+│       │   ├── approval-route.js
+│       │   ├── campaign-route.js
+│       │   ├── campaigns-route.js
+│       │   ├── opportunities-route.js
+│       │   ├── import-route.js
+│       │   ├── schema-route.js
+│       │   ├── tracking-route.js
+│       │   ├── razorpay-execution-route.js
+│       │   └── notificationPrefsRoute.js
+│       ├── services/                    # Business logic
+│       │   ├── orchestratorService.js   # AI campaign proposal
+│       │   ├── approvalService.js       # Approve/reject lifecycle
+│       │   ├── emailService.js          # SMTP dispatch
+│       │   └── authService.js           # JWT auth
+│       ├── middleware/
+│       │   └── auth.js                 # requireMerchantAccess guard
+│       └── lib/
+│           └── prisma.js               # Prisma client singleton
 │
-├── .env.example
-├── docker-compose.yml
-├── package.json
-└── README.md
+├── frontend/frontend/
+│   ├── public/
+│   │   └── argo-logo.png              # App logo (navbar + favicon)
+│   └── src/
+│       ├── components/
+│       │   ├── Navbar.jsx
+│       │   ├── AppLayout.jsx
+│       │   ├── CommandPalette.jsx
+│       │   ├── MobileActionDock.jsx
+│       │   ├── OpportunityFeed.jsx
+│       │   ├── ThreeCustomerGlobe.jsx       # 3D retention galaxy
+│       │   ├── ThreeConversionFunnel.jsx    # 3D glass funnel
+│       │   ├── ThreeVectorMatcher.jsx       # 3D schema neural field
+│       │   ├── AiStrategyStreamer.jsx
+│       │   ├── InteractiveProfitSlider.jsx
+│       │   └── CampaignEmailSimulatorModal.jsx
+│       ├── pages/
+│       │   ├── DashboardPage.jsx
+│       │   ├── OpportunityDetailPage.jsx
+│       │   ├── CampaignResultsPage.jsx
+│       │   ├── ImportDataPage.jsx
+│       │   ├── NotificationPreferencesPage.jsx
+│       │   └── AuditTrailPage.jsx
+│       ├── api/client.js               # Axios API client
+│       ├── context/AuthContext.jsx
+│       └── utils/
+│           ├── confetti.js             # Celebration fireworks
+│           └── exportPDF.js            # jsPDF report generator
+│
+├── prisma/
+│   └── schema.prisma                  # Database schema
+├── .env                               # Environment variables (never commit)
+├── demo_customers_dataset.csv         # Sample customer data
+├── demo_orders_dataset.csv            # Sample order data
+└── Docs/                              # Planning and enhancement docs
 ```
 
-The detailed architecture and development documentation will be added as the project progresses.
-
 ---
 
-## 🎯 Current MVP Scope
+## ⚡ Quick Start (Demo Mode)
 
-The initial MVP focuses on:
+The fastest way to explore ARGO. Uses a pre-seeded demo fitness supplement store.
 
-* Customer intelligence
-* Revenue opportunity detection
-* Reactivation campaigns
-* Cross-sell opportunities
-* Upsell opportunities
-* Replenishment opportunities
-* AI campaign orchestration
-* Campaign simulation
-* Merchant approval
-* Policy enforcement
-* Campaign execution in test/simulated mode
-* Revenue measurement
-* AI audit trail
+### Step 1 — Clone the repository
 
----
-
-## 🔐 Safety & Guardrails
-
-The AI does **not** have unrestricted control over merchant actions.
-
-Important operations are:
-
-```text
-AI Recommendation
-       ↓
-Policy Validation
-       ↓
-Merchant Approval
-       ↓
-Execution
+```bash
+git clone <your-repo-url>
+cd "AI Revenue growth Orchestrator"
 ```
 
-Merchant policies can define limits such as:
+### Step 2 — Create your .env file
 
-* Maximum discount
-* Maximum campaign budget
-* Maximum audience size
-* Campaign frequency
-* Approval requirements
+Create `.env` in the project root:
 
-The AI cannot bypass these policies.
-
----
-
-## 🧪 Development Status
-
-🚧 **Currently under development**
-
-This repository is being built as a **15-day hackathon project** for the Razorpay Buildathon.
-
-Features and architecture may evolve during development.
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1 — Foundation
-
-* [x] Project concept
-* [x] Product requirements
-* [ ] Database schema
-* [ ] Synthetic dataset
-
-### Phase 2 — Intelligence
-
-* [ ] Customer intelligence
-* [ ] Revenue opportunity engine
-* [ ] Reactivation engine
-* [ ] Cross-sell engine
-* [ ] Upsell engine
-* [ ] Replenishment engine
-
-### Phase 3 — Agentic Layer
-
-* [ ] AI orchestrator
-* [ ] Campaign agent
-* [ ] Tool calling
-* [ ] Campaign simulation
-* [ ] Policy engine
-
-### Phase 4 — Product
-
-* [ ] Merchant dashboard
-* [ ] Campaign management
-* [ ] Approval workflow
-* [ ] AI Command Center
-* [ ] Audit trail
-
-### Phase 5 — Demo
-
-* [ ] Razorpay test-mode integration
-* [ ] Campaign execution
-* [ ] Revenue measurement
-* [ ] Prediction vs actual comparison
-* [ ] Final hackathon demo
-
----
-
-## 🏆 Hackathon
-
-Built for:
-
-**Razorpay Buildathon**
-
-**Track 01 — AI Growth & Agentic Commerce**
-
-**Direction — Campaign Orchestrator**
-
-The project focuses on the challenge of using AI to help merchants identify and act on revenue growth opportunities.
-
----
-
-## 📌 Vision
-
-The long-term goal is to build more than a marketing dashboard.
-
-The vision is an **AI growth operator** that continuously understands a merchant's business and proactively recommends the next best growth action.
-
-```text
-Understand the business
-        ↓
-Find the opportunity
-        ↓
-Make the decision
-        ↓
-Take the approved action
-        ↓
-Measure the result
-        ↓
-Learn
+```env
+PORT=3000
+DATABASE_URL="postgres://USER:PASSWORD@db.prisma.io:5432/postgres?sslmode=require"
+GROQ_API_KEY="gsk_..."
 ```
 
-> **Find the opportunity. Make the decision. Grow the revenue.**
+### Step 3 — Start the Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+# Server starts on http://localhost:3000
+```
+
+### Step 4 — Start the Frontend (in a new terminal)
+
+```bash
+cd frontend/frontend
+npm install
+npm run dev
+# Vite starts on http://localhost:5173
+```
+
+### Step 5 — Open and explore
+
+Visit **http://localhost:5173** and click **"Try Demo"**.
+
+---
+
+## 🔧 Full Setup Guide
+
+### Prerequisites
+
+- **Node.js** v18 or higher
+- **npm** v9 or higher
+- A **Prisma Postgres** database — free tier at [prisma.io](https://prisma.io)
+- A **Groq API key** — free at [console.groq.com](https://console.groq.com)
+- Optional: **Razorpay** test account, **Gmail** SMTP credentials
+
+---
+
+### Environment Variables
+
+Create a `.env` file in the **project root** (same level as `/backend` and `/frontend`):
+
+```env
+# Server
+PORT=3000
+
+# Database
+DATABASE_URL="postgres://USER:PASSWORD@db.prisma.io:5432/postgres?sslmode=require"
+
+# AI Models
+GROQ_API_KEY="gsk_..."
+ANTHROPIC_API_KEY="sk-ant-..."         # Optional
+
+# Razorpay (test mode)
+RAZORPAY_KEY_ID="rzp_test_..."
+RAZORPAY_KEY_SECRET="..."
+
+# SMTP Email
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="your@gmail.com"
+SMTP_PASS="your-app-password"          # Gmail App Password, not your real password
+SMTP_FROM="ARGO <your@gmail.com>"
+```
+
+> **Gmail App Password:** Google Account → Security → 2-Step Verification → App passwords → Mail
+
+---
+
+### Database Setup
+
+```bash
+cd backend
+
+# Generate Prisma client
+npx prisma generate
+
+# Push schema to database
+npx prisma db push
+
+# Optional: seed demo data
+npx prisma db seed
+```
+
+---
+
+### Running the Backend
+
+```bash
+cd backend
+npm install
+npm run dev          # Hot-reload dev server
+# OR
+npm start            # Production mode
+```
+
+Starts on **http://localhost:3000**
+
+---
+
+### Running the Frontend
+
+```bash
+cd frontend/frontend
+npm install
+npm run dev          # Vite dev server with HMR
+# OR
+npm run build        # Production build → dist/
+npm run preview      # Preview production build
+```
+
+Starts on **http://localhost:5173**
+
+Vite automatically proxies all `/api/*` requests to `localhost:3000` in development.
+
+---
+
+## 📖 How to Use ARGO
+
+### 1. Demo Mode
+
+1. Visit `http://localhost:5173`
+2. Click **"Try Demo"** — no registration needed
+3. Logged in as **RakshFit** (a demo fitness supplements merchant)
+4. Explore the Dashboard, Opportunity Feed, and sample campaigns
+
+---
+
+### 2. Import Your Own Data
+
+1. Navigate to **Import CSV** from the navbar or `Cmd+K`
+2. Upload your **customers CSV** — needs at minimum: `name`, `email`
+3. Upload your **orders CSV** — needs at minimum: customer identifier, `order_date`, `total_amount`, `product_name`
+4. AI Schema Matcher maps your columns automatically — review in the 3D neural field
+5. Click **"Confirm & Import"** — data indexes and AI analysis starts immediately
+
+Demo CSV files included in root:
+- `demo_customers_dataset.csv`
+- `demo_orders_dataset.csv`
+- `retail_store_customers_demo.csv`
+- `retail_store_orders_demo.csv`
+
+---
+
+### 3. Review Opportunities
+
+1. Go to **Overview (Dashboard)** → scroll to Opportunity Feed
+2. Each card shows: product, audience size, AI confidence %, and potential revenue
+3. Click **"Review"** to open the detail page:
+   - AI Simulation Chart — net revenue across discount tiers
+   - Interactive Profit Slider — real-time margin impact
+   - Target Customer Table — who will receive the campaign
+
+> On mobile: swipe cards **right to orchestrate**, **left to snooze**
+
+---
+
+### 4. Approve and Execute Campaigns
+
+| Step | Action | Result |
+|---|---|---|
+| 1 | Click **"Ask AI to Propose Campaign"** | Groq Llama 3.3 evaluates and streams reasoning |
+| 2 | Review the AI strategy and policy check | See offer value, audience, expected revenue |
+| 3 | Click **"Approve Proposal"** | Campaign status → `approved`; confetti fires 🎉 |
+| 4 | Click **"Execute Campaign Now"** | Real emails dispatched; live dispatch log appears |
+| 5 | (Optional) Use **"Interactive Testing Lab"** | Simulate opens, clicks, and Razorpay test payments |
+
+---
+
+### 5. Measure Results
+
+1. Go to **Campaigns** → find your campaign → **"View Results"**
+2. See the **5-stage 3D Conversion Funnel**
+3. Review **Predicted vs. Actual** performance chart
+4. Check **Attributed Orders** table
+5. Click **"Export PDF Report"** for a branded executive summary
+6. Click **"Audit Trail"** for the full immutable decision ledger
+
+---
+
+## 🔌 API Reference
+
+### Auth
+```
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/demo-session
+```
+
+### Opportunities
+```
+GET /api/opportunities?merchantId=1
+GET /api/opportunities/:productId?merchantId=1
+```
+
+### AI Orchestrator
+```
+POST /api/orchestrate
+Body: { merchantId, opportunityIndex }
+```
+
+### Approvals
+```
+GET  /api/approvals
+GET  /api/approvals/:id
+POST /api/approvals/:id/approve
+POST /api/approvals/:id/reject
+```
+
+### Campaigns
+```
+GET  /api/campaigns?merchantId=1
+GET  /api/campaigns/:id
+POST /api/campaigns/:id/execute
+GET  /api/campaigns/:id/results
+GET  /api/campaigns/:id/audit
+```
+
+### Import and Schema Matching
+```
+POST /api/import/customers     (multipart/form-data)
+POST /api/import/orders        (multipart/form-data)
+POST /api/schema/match         (AI column matching)
+POST /api/schema/feedback      (learning feedback loop)
+```
+
+### Tracking
+```
+GET /api/track/open/:token     (email open pixel)
+GET /api/track/click/:token    (link click redirect)
+```
+
+### Notification Preferences
+```
+GET  /api/customers/notification-prefs
+PUT  /api/customers/notification-prefs
+GET  /api/customers/notification-prefs/:customerId
+PUT  /api/customers/notification-prefs/:customerId
+```
+
+---
+
+## 🔑 Environment Variables Reference
+
+| Variable | Required | Description |
+|---|---|---|
+| `PORT` | No | Backend port — default `3000` |
+| `DATABASE_URL` | **Yes** | Prisma Postgres connection string |
+| `GROQ_API_KEY` | **Yes** | Groq API key for Llama 3.3 |
+| `ANTHROPIC_API_KEY` | No | Anthropic Claude fallback |
+| `RAZORPAY_KEY_ID` | No | Razorpay test key ID |
+| `RAZORPAY_KEY_SECRET` | No | Razorpay test key secret |
+| `SMTP_HOST` | No | SMTP server host |
+| `SMTP_PORT` | No | SMTP port — `587` for TLS |
+| `SMTP_USER` | No | SMTP username / email address |
+| `SMTP_PASS` | No | SMTP password or app password |
+| `SMTP_FROM` | No | From display name and email |
+
+> Without Razorpay and SMTP credentials the system runs in simulation mode — all AI features still work fully.
+
+---
+
+## 🏛 Architecture
+
+```
+┌──────────────────────────────────────────────────────┐
+│                  Browser (Vite + React)              │
+│  Dashboard · Opportunities · Campaigns · Import      │
+│  3D Visuals (Three.js) · Command Palette · PDF       │
+└──────────────────────┬───────────────────────────────┘
+                       │  HTTP /api/*
+┌──────────────────────▼───────────────────────────────┐
+│             Express.js API (port 3000)               │
+│  Auth · Orchestrator · Approvals · Campaigns         │
+│  Import · Schema · Tracking · Notifications          │
+└──────┬───────────────┬──────────────┬────────────────┘
+       │               │              │
+┌──────▼──────┐  ┌─────▼──────┐  ┌───▼──────────┐
+│  Prisma DB  │  │  Groq AI   │  │  Razorpay    │
+│  (Postgres) │  │ Llama 3.3  │  │  + SMTP      │
+└─────────────┘  └────────────┘  └──────────────┘
+```
+
+---
+
+## 📜 License
+
+MIT — see [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+
+Built for **Razorpay Buildathon 2025** • ARGO — AI Revenue & Growth Orchestrator
+
+</div>

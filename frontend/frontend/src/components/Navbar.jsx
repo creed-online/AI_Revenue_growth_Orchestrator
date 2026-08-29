@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LogOut, Sparkles, UserPlus, LogIn } from "lucide-react";
+import { LogOut, UserPlus, LogIn } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import MerchantSwitcher from "./MerchantSwitcher";
 import CommandPalette from "./CommandPalette";
@@ -30,8 +30,13 @@ export default function Navbar() {
           onClick={() => navigate("/")}
           className="flex min-w-0 items-center gap-3 text-left shrink-0"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-sky text-ink shadow-[0_0_24px_-6px_rgba(45,212,168,0.55)]">
-            <Sparkles className="h-4.5 w-4.5" strokeWidth={2.25} />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink-elevated border border-ink-border/80 shadow-[0_0_18px_-4px_rgba(45,212,168,0.35)] overflow-hidden">
+            <img
+              src="/argo-logo.png"
+              alt="ARGO Logo"
+              className="h-7 w-7 object-contain"
+              style={{ filter: "invert(1) sepia(1) saturate(3) hue-rotate(120deg) brightness(1.15)" }}
+            />
           </div>
           <div className="min-w-0 hidden sm:block">
             <p className="font-display text-[14px] font-bold leading-tight tracking-tight text-white">
