@@ -1,0 +1,55 @@
+name: Deploy ARGOES to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure CLI
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build & Push Backend Container
+        run: |
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/argo-backend:${{ github.sha }} -t ${{ secrets.ACR_NAME }}.azurecr.io/argo-backend:latest -f backend/Dockerfile .
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/argo-backend:${{ github.sha }}
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/argo-backend:latest
+
+      - name: Build & Push Frontend Container
+        run: |
+          cd frontend/frontend
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/argo-frontend:${{ github.sha }} -t ${{ secrets.ACR_NAME }}.azurecr.io/argo-frontend:latest -f Dockerfile .
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/argo-frontend:${{ github.sha }}
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/argo-frontend:latest
+
+      - name: Deploy Backend to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          acrName: ${{ secrets.ACR_NAME }}
+          containerAppName: argo-backend
+          resourceGroup: argo-resource-group
+          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/argo-backend:${{ github.sha }}
+
+      - name: Deploy Frontend to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          acrName: ${{ secrets.ACR_NAME }}
+          containerAppName: argo-frontend
+          resourceGroup: argo-resource-group
+          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/argo-frontend:${{ github.sha }}
