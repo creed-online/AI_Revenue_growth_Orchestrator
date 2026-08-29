@@ -24,8 +24,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.set("trust proxy", 1);
-app.use(helmet({ crossOriginResourcePolicy: false }));
-app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"] }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 // Rate limiting
