@@ -9,7 +9,6 @@ RUN apk add --no-cache openssl libc6-compat
 # Copy package files
 COPY backend/package*.json ./
 COPY prisma ./prisma/
-COPY generated ./generated/
 
 # Install dependencies (including pg and tsx)
 RUN npm install
