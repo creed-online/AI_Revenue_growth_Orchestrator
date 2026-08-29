@@ -1,8 +1,8 @@
-# ARGO — AI Revenue & Growth Orchestrator
+# ARGOES — AI Revenue & Growth Orchestrator
 
 <div align="center">
 
-**An autonomous AI-powered revenue engine for D2C merchants**  
+**An autonomous AI-powered revenue engine for D2C merchants — [argoes.app](https://argoes.app)**  
 Predict replenishment windows • Propose discount campaigns • Execute & attribute real-world results
 
 [![Built with React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev)

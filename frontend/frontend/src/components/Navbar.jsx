@@ -39,8 +39,8 @@ export default function Navbar() {
             />
           </div>
           <div className="min-w-0 hidden sm:block">
-            <p className="font-display text-[14px] font-bold leading-tight tracking-tight text-white">
-              AI Revenue <span className="text-mint-gradient">Orchestrator</span>
+            <p className="font-display text-[15px] font-extrabold leading-tight tracking-tight text-white">
+              ARGOES <span className="text-mint-gradient font-semibold text-[13px]">· AI Orchestrator</span>
             </p>
             <p className="truncate text-[10px] font-medium text-ink-muted leading-tight">
               {merchant?.businessName || "Merchant growth operator"}
