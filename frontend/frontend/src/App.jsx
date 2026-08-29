@@ -12,6 +12,7 @@ import OpportunityDetailPage from "./pages/OpportunityDetailPage";
 import CampaignsPage from "./pages/CampaignsPage";
 import CampaignResultsPage from "./pages/CampaignResultsPage";
 import AuditTrailPage from "./pages/AuditTrailPage";
+import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
 
 export default function App() {
   return (
@@ -31,11 +32,14 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/import-data" element={<ImportDataPage />} />
+              {/* /import alias for convenience */}
+              <Route path="/import" element={<ImportDataPage />} />
               <Route path="/opportunities" element={<OpportunitiesPage />} />
               <Route path="/opportunities/:productId" element={<OpportunityDetailPage />} />
               <Route path="/campaigns" element={<CampaignsPage />} />
               <Route path="/campaigns/:campaignId/results" element={<CampaignResultsPage />} />
               <Route path="/campaigns/:campaignId/audit" element={<AuditTrailPage />} />
+              <Route path="/notifications" element={<NotificationPreferencesPage />} />
             </Route>
           </Route>
           

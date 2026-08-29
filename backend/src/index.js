@@ -16,6 +16,7 @@ import authRoute from "./routes/auth-route.js";
 import importRoute from "./routes/import-route.js";
 import schemaRoute from "./routes/schema-route.js";
 import trackingRoute from "./routes/tracking-route.js";
+import notificationPrefsRoute from "./routes/notificationPrefsRoute.js";
 import { optionalAuth } from "./middleware/auth.js";
 import { ensureDemoMerchantCredentials } from "./services/authService.js";
 
@@ -40,6 +41,7 @@ app.use("/api", campaignRoute);
 app.use("/api", policyRoute);
 app.use("/api", orchestratorRoute);
 app.use("/api/customers", customerRoute);
+app.use("/api/customers", notificationPrefsRoute);
 app.use("/api/opportunities", opportunitiesRoute);
 app.use("/api/approvals", approvalRoutes);
 app.use("/api/campaigns", campaignsRoute);

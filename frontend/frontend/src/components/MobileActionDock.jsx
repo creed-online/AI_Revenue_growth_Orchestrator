@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Sparkles, Send, UploadCloud, Shield } from "lucide-react";
+import { LayoutDashboard, Sparkles, Send, UploadCloud, Bell } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function MobileActionDock() {
@@ -11,7 +11,8 @@ export default function MobileActionDock() {
     { label: "Dashboard", path: "/", icon: LayoutDashboard },
     { label: "Opportunities", path: "/opportunities", icon: Sparkles },
     { label: "Campaigns", path: "/campaigns", icon: Send },
-    { label: "Import CSV", path: "/import", icon: UploadCloud },
+    { label: "Import", path: "/import", icon: UploadCloud },
+    { label: "Alerts", path: "/notifications", icon: Bell },
   ];
 
   return (

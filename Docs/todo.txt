@@ -146,45 +146,45 @@ DAY 11 - NOTIFICATION SIMULATION + RESULTS ENGINE
 
 DAY 12 - FRONTEND: DASHBOARD + OPPORTUNITY FEED (with Three.js + animations)
 ------------------------------------------------------------------------------
-[ ] Set up Tailwind in Vite React project
-[ ] Dark fintech theme (charcoal bg, accent colors) — design tokens first,
+[✓] Set up Tailwind in Vite React project
+[✓] Dark fintech theme (charcoal bg, accent colors) — design tokens first,
     everything else builds on this
-[ ] npm install @tanstack/react-query axios recharts
-[ ] npm install three @react-three/fiber @react-three/drei framer-motion lucide-react
-[ ] Build ONE Three.js hero visual for the dashboard (animated particle field
+[✓] npm install @tanstack/react-query axios recharts
+[✓] npm install three @react-three/fiber @react-three/drei framer-motion lucide-react
+[✓] Build ONE Three.js hero visual for the dashboard (animated particle field
     or wireframe grid reacting to mouse movement, OR a 3D opportunity-funnel
     visualization) — scope to a single centerpiece, not scattered everywhere
-[ ] Build main Dashboard page: KPI cards (revenue generated,
+[✓] Build main Dashboard page: KPI cards (revenue generated,
     opportunity value, campaign ROI, net revenue) with framer-motion
     count-up number animations
-[ ] Build Opportunity Feed page: ranked cards from /api/opportunities
+[✓] Build Opportunity Feed page: ranked cards from /api/opportunities
     with framer-motion staggered reveal + hover animations
-[ ] Wire up React Query for data fetching
-[ ] Make dashboard + feed fully responsive (mobile/tablet breakpoints)
+[✓] Wire up React Query for data fetching
+[✓] Make dashboard + feed fully responsive (mobile/tablet breakpoints)
 
 DAY 13 - FRONTEND: DETAIL PAGES + AUDIT + AUTH
 ------------------------------------------------------
-[ ] Build Opportunity Detail page (why/how/recommended action/simulation/
+[✓] Build Opportunity Detail page (why/how/recommended action/simulation/
     approve-reject buttons) with smooth page-transition animation
-[ ] Build Campaign Results page (predicted vs actual, ROI)
-[ ] Build Audit Trail viewer (scrollable timeline, animated step-by-step reveal)
-[ ] Add JWT auth: npm install jsonwebtoken bcryptjs (backend),
+[✓] Build Campaign Results page (predicted vs actual, ROI)
+[✓] Build Audit Trail viewer (scrollable timeline, animated step-by-step reveal)
+[✓] Add JWT auth: npm install jsonwebtoken bcryptjs (backend),
     login route, protected routes, merchant scoping
-[ ] Polish charts with Recharts, matching dark theme + animation style
-[ ] Full responsiveness pass across all pages
+[✓] Polish charts with Recharts, matching dark theme + animation style
+[✓] Full responsiveness pass across all pages
 
 DAY 14 - DEMO PREP + BUFFER
 ----------------------------------
-[ ] SWITCH FULLY TO CLAUDE API for the live demo (this is where the $4
+[✓] SWITCH FULLY TO CLAUDE API for the live demo (this is where the $4
     credit gets spent — not before)
-[ ] Full end-to-end run-through on Claude: opportunity -> AI proposal ->
+[✓] Full end-to-end run-through on Claude: opportunity -> AI proposal ->
     policy reject -> revise -> approve -> execute -> results -> audit trail
-[ ] Fix any breaking bugs found during run-through
-[ ] Write demo script matching the scene order (dashboard open ->
+[✓] Fix any breaking bugs found during run-through
+[✓] Write demo script matching the scene order (dashboard open ->
     ask AI -> why -> create campaign -> policy check -> approve ->
     execute -> results -> audit trail)
-[ ] Record a backup demo video in case live demo breaks
-[ ] Final README + pitch deck slide with roadmap items (cross-sell,
+[✓] Record a backup demo video in case live demo breaks
+[✓] Final README + pitch deck slide with roadmap items (cross-sell,
     upsell, replenishment-for-other-products, A/B testing, in-app AI
     assistant with read-only dashboard tools) as "next"
-[ ] Rehearse pitch out loud at least twice
+[✓] Rehearse pitch out loud at least twice

@@ -112,10 +112,33 @@ export default function OpportunityDetailPage() {
     queryFn: () => fetchCampaigns(merchantId),
   });
 
-  const activeCampaign = findActiveCampaign(campaigns, opportunity, orchestratorData);
+  // ── Derive active campaign & approval ──────────────────────────────────────
+  // Priority: orchestratorData (freshly created) > matching in-flight campaign from DB
+  const activeCampaign = (() => {
+    if (orchestratorData?.campaign) return orchestratorData.campaign;
+    if (!campaigns || !opportunity) return null;
+
+    const prodName = (opportunity.productName || "").trim().toLowerCase();
+    const prodId = opportunity.productId;
+
+    return campaigns.find((c) => {
+      const cName = (c.name || "").toLowerCase();
+      const matchesName = prodName && (cName.includes(prodName) || prodName.includes(cName));
+      const matchesId = prodId != null && (cName.includes(`product ${prodId}`) || cName.includes(`pid-${prodId}`));
+      const isInFlight = ["pending_approval", "approved", "running"].includes(c.status);
+      return (matchesName || matchesId) && isInFlight;
+    }) || null;
+  })();
+
   const activeApproval =
     orchestratorData?.approvalRequest ||
     activeCampaign?.approvalRequests?.[0] ||
+    null;
+
+  // currentStatus: orchestratorData is always freshest (updated optimistically on approve/reject/execute)
+  const currentStatus =
+    orchestratorData?.campaign?.status ||
+    activeCampaign?.status ||
     null;
 
   const orchestrate = useMutation({
@@ -272,8 +295,6 @@ export default function OpportunityDetailPage() {
     approve.error?.response?.data?.message ||
     reject.error?.response?.data?.message ||
     execute.error?.response?.data?.message;
-
-  const currentStatus = activeCampaign?.status || (orchestrate.data ? "pending_approval" : null);
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
