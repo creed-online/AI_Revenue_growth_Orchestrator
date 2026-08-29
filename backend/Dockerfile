@@ -10,7 +10,7 @@ RUN apk add --no-cache openssl libc6-compat
 COPY backend/package*.json ./
 COPY prisma ./prisma/
 
-# Install all dependencies (including tsx for running server)
+# Install dependencies
 RUN npm ci
 
 # Copy backend source
@@ -24,4 +24,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV NODE_ENV=production
 
-CMD ["npm", "start"]
+CMD ["node", "src/index.js"]
