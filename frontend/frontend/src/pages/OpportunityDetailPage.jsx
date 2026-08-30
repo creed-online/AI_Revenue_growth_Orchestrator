@@ -5,21 +5,32 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertCircle,
   ArrowLeft,
+  ArrowRight,
+  BarChart3,
   Check,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Layers,
+  Percent,
   Play,
   RefreshCw,
-  ShieldCheck,
-  Sparkles,
+  ShoppingBag,
+  TrendingUp,
+  Users,
   X,
-  ExternalLink,
+  XCircle,
   ClipboardList,
-  CheckCircle2,
-  AlertTriangle,
-  Terminal,
+  Shield,
   Activity,
   Send,
   Mail,
+  Terminal,
+  Settings,
+  SlidersHorizontal,
+  Key,
 } from "lucide-react";
+import ArgoLogo from "../components/ArgoLogo";
 import {
   Bar,
   BarChart,
@@ -41,6 +52,7 @@ import {
   simulateCampaign,
 } from "../api/client";
 import CampaignEmailSimulatorModal from "../components/CampaignEmailSimulatorModal";
+import IntegrationWizardModal from "../components/IntegrationWizardModal";
 import InteractiveProfitSlider from "../components/InteractiveProfitSlider";
 import AiStrategyStreamer from "../components/AiStrategyStreamer";
 import { fireCelebrationConfetti } from "../utils/confetti";
@@ -86,6 +98,7 @@ export default function OpportunityDetailPage() {
   const queryClient = useQueryClient();
   const [orchestratorData, setOrchestratorData] = useState(null);
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
+  const [isIntegrationModalOpen, setIsIntegrationModalOpen] = useState(false);
 
   // Live Email Dispatch Log State
   const [dispatchLogs, setDispatchLogs] = useState([]);
@@ -121,13 +134,15 @@ export default function OpportunityDetailPage() {
     const prodName = (opportunity.productName || "").trim().toLowerCase();
     const prodId = opportunity.productId;
 
-    return campaigns.find((c) => {
-      const cName = (c.name || "").toLowerCase();
-      const matchesName = prodName && (cName.includes(prodName) || prodName.includes(cName));
-      const matchesId = prodId != null && (cName.includes(`product ${prodId}`) || cName.includes(`pid-${prodId}`));
-      const isInFlight = ["pending_approval", "approved", "running"].includes(c.status);
-      return (matchesName || matchesId) && isInFlight;
-    }) || null;
+    return (
+      campaigns.find((c) => {
+        const cName = (c.name || "").toLowerCase();
+        const matchesName = prodName && (cName.includes(prodName) || prodName.includes(cName));
+        const matchesId = prodId != null && (cName.includes(`product ${prodId}`) || cName.includes(`pid-${prodId}`));
+        const isRelevant = ["pending_approval", "approved", "running", "completed"].includes(c.status);
+        return (matchesName || matchesId) && isRelevant;
+      }) || null
+    );
   })();
 
   const activeApproval =
@@ -209,22 +224,23 @@ export default function OpportunityDetailPage() {
       setDispatchLogs(initialLogs);
 
       let dispatched = 0;
+      const stepSize = Math.max(1, Math.ceil(totalRecipients / 20));
       const interval = setInterval(() => {
-        if (dispatched < totalRecipients && dispatched < (audience.length || 3)) {
-          const cust = audience[dispatched] || { customerName: `Customer #${dispatched + 1}`, customerId: dispatched + 1 };
+        if (dispatched < totalRecipients) {
+          dispatched = Math.min(totalRecipients, dispatched + stepSize);
+          const cust = audience[dispatched - 1] || { customerName: `Recipient #${dispatched}`, customerId: dispatched };
           const now = new Date().toLocaleTimeString();
           const emailText = cust.customerName
-            ? `✉️ Dispatched to ${cust.customerName} → Token: trk_${campaignId}_${cust.customerId || dispatched + 1}_... [DELIVERED]`
-            : `✉️ Dispatched to recipient #${dispatched + 1} [DELIVERED]`;
+            ? `✉️ Dispatched to ${cust.customerName} → Token: trk_${campaignId}_${cust.customerId || dispatched}_... [DELIVERED]`
+            : `✉️ Dispatched batch #${dispatched} / ${totalRecipients} [DELIVERED]`;
 
           setDispatchLogs((prev) => [
             ...prev,
             { time: now, text: emailText, type: "success" },
           ]);
-          dispatched++;
           setDispatchProgress({ current: dispatched, total: totalRecipients });
         }
-      }, 350);
+      }, 70);
 
       try {
         const result = await executeCampaignOrder(campaignId);
@@ -237,28 +253,33 @@ export default function OpportunityDetailPage() {
           { time: finishTime, text: `🎉 100% Dispatched! ${totalRecipients} emails delivered with active tracking tokens & dynamic vouchers.`, type: "complete" },
         ]);
         fireCelebrationConfetti();
+        setIsDispatching(false);
+        setOrchestratorData((prev) => ({
+          ...(prev || {}),
+          campaign: { ...(result?.campaign || prev?.campaign || activeCampaign), status: "running" },
+        }));
         return result;
       } catch (err) {
         clearInterval(interval);
+        setIsDispatching(false);
         setDispatchLogs((prev) => [
           ...prev,
           { time: new Date().toLocaleTimeString(), text: `❌ Dispatch error: ${err.message}`, type: "error" },
         ]);
         throw err;
-      } finally {
-        setIsDispatching(false);
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       fireCelebrationConfetti();
-      if (activeCampaign) {
-        setOrchestratorData((prev) => ({
-          ...(prev || {}),
-          campaign: { ...(prev?.campaign || activeCampaign), status: "running" },
-        }));
-      }
+      setIsDispatching(false);
+      const updated = data?.campaign || activeCampaign;
+      setOrchestratorData((prev) => ({
+        ...(prev || {}),
+        campaign: { ...(prev?.campaign || updated), status: "running" },
+      }));
       queryClient.invalidateQueries({ queryKey: ["campaigns", merchantId] });
       queryClient.invalidateQueries({ queryKey: ["approvals"] });
+      queryClient.invalidateQueries({ queryKey: ["opportunity"] });
     },
   });
 
@@ -375,7 +396,7 @@ export default function OpportunityDetailPage() {
           </div>
           {simulation?.recommendedTier != null && (
             <span className="inline-flex items-center gap-1.5 self-start rounded-full border border-mint/40 bg-mint/15 px-3 py-1 text-xs font-bold text-mint sm:self-auto">
-              <Sparkles className="h-3.5 w-3.5" />
+              <ArgoLogo className="h-3.5 w-3.5" />
               Recommended: {simulation.recommendedTier}% Off
             </span>
           )}
@@ -543,6 +564,33 @@ export default function OpportunityDetailPage() {
           </div>
         )}
 
+        {/* Dispatch Channel & Credentials Banner */}
+        <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[rgba(220,205,185,0.12)] bg-[#181714] p-3.5 text-xs text-[#DDD6CD]">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#7C9A82]/15 text-[#7C9A82] border border-[#7C9A82]/30">
+              <Shield className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="font-bold text-white flex items-center gap-2">
+                <span>Dispatch Mode: Safe High-Throughput Sandbox Simulator</span>
+                <span className="rounded-full bg-[#7C9A82]/20 text-[#7C9A82] px-2 py-0.5 text-[10px] font-semibold border border-[#7C9A82]/30">Active</span>
+              </p>
+              <p className="text-[11px] text-[#9E978E] mt-0.5">
+                Generates 1-click Razorpay links, collision-resistant tracking tokens & 1x1 open pixels without requiring personal SMTP/WhatsApp credentials.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsIntegrationModalOpen(true)}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[rgba(220,205,185,0.2)] bg-[#201E1A] px-3.5 py-2 text-xs font-semibold text-[#DDD6CD] hover:border-[#D97757] hover:text-[#D97757] transition shadow-sm"
+          >
+            <Key className="h-3.5 w-3.5 text-[#E5A93C]" />
+            <span>Configure SMTP & WhatsApp Keys</span>
+          </button>
+        </div>
+
         {/* Action Controls */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
           {/* 1. Propose Button */}
@@ -560,7 +608,7 @@ export default function OpportunityDetailPage() {
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4" />
+                  <ArgoLogo className="h-4 w-4" />
                   Ask AI to Propose Campaign
                 </>
               )}
@@ -628,27 +676,27 @@ export default function OpportunityDetailPage() {
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-mint">
                 <CheckCircle2 className="h-4 w-4" /> Campaign Executed & Live
               </span>
-              <button
-                type="button"
-                onClick={() => setIsSimulatorOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/40 bg-teal-500/10 px-4 py-2.5 text-xs font-bold text-teal-300 hover:bg-teal-500/20 transition shadow-sm"
-              >
-                <span>✉️</span> Interactive Email & Tracking Lab
-              </button>
               <Link
-                to={`/campaigns/${activeCampaign.id}/results`}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-mint/30 bg-mint/10 px-4 py-2.5 text-xs font-bold text-mint hover:bg-mint/20 transition"
+                to={activeCampaign?.id ? `/campaigns/${activeCampaign.id}/results` : "/campaigns"}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#D97757] to-[#C96442] px-4 py-2.5 text-xs font-bold text-[#181714] shadow-md hover:brightness-110 transition"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 View Campaign Results
               </Link>
               <Link
-                to={`/campaigns/${activeCampaign.id}/audit`}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-sky/30 bg-sky/10 px-4 py-2.5 text-xs font-bold text-sky hover:bg-sky/20 transition"
+                to={activeCampaign?.id ? `/campaigns/${activeCampaign.id}/audit` : "/campaigns"}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[rgba(220,205,185,0.25)] bg-[#201E1A] px-4 py-2.5 text-xs font-bold text-[#DDD6CD] hover:text-white hover:border-white transition"
               >
-                <ClipboardList className="h-3.5 w-3.5" />
-                View Audit Trail
+                <ClipboardList className="h-3.5 w-3.5 text-[#53BDEB]" />
+                Check Audit Trail
               </Link>
+              <button
+                type="button"
+                onClick={() => setIsSimulatorOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/40 bg-teal-500/10 px-4 py-2.5 text-xs font-bold text-teal-300 hover:bg-teal-500/20 transition shadow-sm"
+              >
+                <span>✉️</span> Interactive Email Lab
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -659,7 +707,7 @@ export default function OpportunityDetailPage() {
                 disabled={orchestrate.isPending}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-ink-border bg-ink/40 px-3.5 py-2.5 text-xs font-semibold text-ink-soft hover:text-white transition"
               >
-                <Sparkles className="h-3.5 w-3.5 text-mint" />
+                <ArgoLogo className="h-3.5 w-3.5" />
                 Re-Propose New Campaign
               </button>
             </div>
@@ -735,18 +783,39 @@ export default function OpportunityDetailPage() {
               </div>
 
               {/* Completed Quick-Action Footer */}
-              {!isDispatching && currentStatus === "running" && (
-                <div className="border-t border-slate-800/80 bg-slate-900/40 px-4 py-2.5 flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-mint" /> All campaign tokens generated & active.
+              {!isDispatching && (currentStatus === "running" || currentStatus === "completed") && (
+                <div className="border-t border-slate-800/80 bg-slate-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <span className="text-xs font-medium text-slate-300 flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-[#7C9A82]" />
+                    <span>All campaign tokens generated, dispatched & active.</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsSimulatorOpen(true)}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-mint px-3 py-1.5 text-xs font-bold text-ink shadow hover:brightness-110 transition"
-                  >
-                    <span>✉️</span> Open Interactive Email Lab
-                  </button>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      to={activeCampaign?.id ? `/campaigns/${activeCampaign.id}/results` : "/campaigns"}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#D97757] to-[#C96442] px-4 py-2 text-xs font-bold text-[#181714] shadow-md hover:brightness-110 transition"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      <span>View Campaign Results</span>
+                    </Link>
+
+                    <Link
+                      to={activeCampaign?.id ? `/campaigns/${activeCampaign.id}/audit` : "/campaigns"}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-[rgba(220,205,185,0.25)] bg-[#201E1A] px-3.5 py-2 text-xs font-bold text-[#DDD6CD] hover:text-white hover:border-white transition"
+                    >
+                      <ClipboardList className="h-3.5 w-3.5 text-[#53BDEB]" />
+                      <span>Check Audit Trail</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsSimulatorOpen(true)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-[#7C9A82]/40 bg-[#7C9A82]/10 px-3.5 py-2 text-xs font-bold text-[#7C9A82] hover:bg-[#7C9A82]/20 transition"
+                    >
+                      <span>✉️</span>
+                      <span>Email Lab</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </motion.div>
@@ -768,6 +837,16 @@ export default function OpportunityDetailPage() {
           }}
         />
       )}
+
+      {/* Integration & Credentials Wizard Modal */}
+      <IntegrationWizardModal
+        isOpen={isIntegrationModalOpen}
+        onClose={() => setIsIntegrationModalOpen(false)}
+        onUpdated={() => {
+          queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+          queryClient.invalidateQueries({ queryKey: ["opportunity"] });
+        }}
+      />
     </main>
   );
 }

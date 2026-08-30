@@ -17,6 +17,8 @@ import importRoute from "./routes/import-route.js";
 import schemaRoute from "./routes/schema-route.js";
 import trackingRoute from "./routes/tracking-route.js";
 import notificationPrefsRoute from "./routes/notificationPrefsRoute.js";
+import integrationRoute from "./routes/integrationRoute.js";
+import exportRoute from "./routes/exportRoute.js";
 import { optionalAuth } from "./middleware/auth.js";
 import { ensureDemoMerchantCredentials } from "./services/authService.js";
 
@@ -25,13 +27,14 @@ const port = process.env.PORT || 3000;
 
 app.set("trust proxy", 1);
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Rate limiting
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
-app.use("/api/auth/login", rateLimit({ windowMs: 15 * 60 * 1000, max: 10 }));
-app.use("/api/auth/register", rateLimit({ windowMs: 60 * 60 * 1000, max: 5 }));
-app.use("/api/import", rateLimit({ windowMs: 60 * 60 * 1000, max: 20 }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 500 }));
+app.use("/api/auth/login", rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }));
+app.use("/api/auth/register", rateLimit({ windowMs: 60 * 60 * 1000, max: 20 }));
+app.use("/api/import", rateLimit({ windowMs: 60 * 60 * 1000, max: 500 }));
 
 app.use(optionalAuth);
 
@@ -47,6 +50,8 @@ app.use("/api/campaigns", campaignsRoute);
 app.use("/api/import", importRoute);
 app.use("/api/schema", schemaRoute);
 app.use("/api/track", trackingRoute);
+app.use("/api/integrations", integrationRoute);
+app.use("/api/export", exportRoute);
 
 async function verifyDatabaseConnection(retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -83,8 +88,8 @@ async function start() {
     console.warn("⚠ Could not bootstrap demo credentials:", error.message);
   }
 
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`Server running on port ${port} (0.0.0.0)`);
   });
 }
 

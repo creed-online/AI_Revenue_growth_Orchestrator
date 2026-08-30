@@ -10,6 +10,7 @@ import {
   Percent,
   Coins,
 } from "lucide-react";
+import ArgoLogo from "./ArgoLogo";
 
 function money(n) {
   return `₹${Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
@@ -90,8 +91,9 @@ export default function InteractiveProfitSlider({
         {/* Selected Tier Badge */}
         <div className="flex items-center gap-2">
           {calculations.isRecommended && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-mint/40 bg-mint/15 px-3 py-1 text-xs font-bold text-mint shadow">
-              <Sparkles className="h-3.5 w-3.5" /> AI Recommended Tier
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D97757]/40 bg-[#D97757]/15 px-3 py-1 text-xs font-bold text-[#D97757] shadow">
+              <ArgoLogo className="h-3.5 w-3.5" />
+              <span>AI Recommended Tier</span>
             </span>
           )}
           {calculations.isPolicyViolation && (

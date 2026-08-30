@@ -158,7 +158,6 @@ router.post("/process", async (req, res) => {
                 break;
               case "firstPurchaseDate":
                 item.firstPurchaseDate = rawStr ? new Date(rawStr) : null;
-                break;
               case "isVip":
                 item.isVip = rawStr === "true" || rawStr === "1" || /^yes$/i.test(rawStr);
                 break;
@@ -186,6 +185,24 @@ router.post("/process", async (req, res) => {
 
         return item;
       });
+
+      // Overwrite previous customer records with the latest uploaded dataset
+      try {
+        const existingCusts = await prisma.customer.findMany({ where: { merchantId }, select: { id: true } });
+        const custIds = existingCusts.map((c) => c.id);
+        if (custIds.length > 0) {
+          const existingOrders = await prisma.order.findMany({ where: { customerId: { in: custIds } }, select: { id: true } });
+          const ordIds = existingOrders.map((o) => o.id);
+          if (ordIds.length > 0) {
+            await prisma.orderItem.deleteMany({ where: { orderId: { in: ordIds } } });
+            await prisma.order.deleteMany({ where: { id: { in: ordIds } } });
+          }
+          await prisma.notificationSend.deleteMany({ where: { customerId: { in: custIds } } });
+          await prisma.customer.deleteMany({ where: { id: { in: custIds } } });
+        }
+      } catch (delErr) {
+        console.warn("[Import] Clean customer replace warning:", delErr.message);
+      }
 
       const result = await prisma.customer.createMany({
         data: customersToInsert,
@@ -224,72 +241,215 @@ router.post("/process", async (req, res) => {
         return item;
       });
 
+      // Overwrite previous products with the latest uploaded catalog
+      try {
+        const existingProds = await prisma.product.findMany({ where: { merchantId }, select: { id: true } });
+        const prodIds = existingProds.map((p) => p.id);
+        if (prodIds.length > 0) {
+          await prisma.orderItem.deleteMany({ where: { productId: { in: prodIds } } });
+          await prisma.product.deleteMany({ where: { id: { in: prodIds } } });
+        }
+      } catch (delErr) {
+        console.warn("[Import] Clean product replace warning:", delErr.message);
+      }
+
       const result = await prisma.product.createMany({
         data: productsToInsert,
         skipDuplicates: true,
       });
       insertedCount = result.count;
     } else if (entityType === "Order") {
+      // Overwrite previous orders with the latest uploaded order dataset
+      try {
+        const existingCusts = await prisma.customer.findMany({ where: { merchantId }, select: { id: true } });
+        const custIds = existingCusts.map((c) => c.id);
+        if (custIds.length > 0) {
+          const existingOrders = await prisma.order.findMany({ where: { customerId: { in: custIds } }, select: { id: true } });
+          const ordIds = existingOrders.map((o) => o.id);
+          if (ordIds.length > 0) {
+            await prisma.orderItem.deleteMany({ where: { orderId: { in: ordIds } } });
+            await prisma.order.deleteMany({ where: { id: { in: ordIds } } });
+          }
+        }
+      } catch (delErr) {
+        console.warn("[Import] Clean order replace warning:", delErr.message);
+      }
+
+      // 1. Fetch all existing customers and products for this merchant in 2 fast queries
+      const [existingCustomers, existingProducts] = await Promise.all([
+        prisma.customer.findMany({ where: { merchantId } }),
+        prisma.product.findMany({ where: { merchantId } }),
+      ]);
+
+      const customerMap = new Map(existingCustomers.map((c) => [c.email?.toLowerCase(), c]));
+      const productMap = new Map(existingProducts.map((p) => [p.name?.trim().toLowerCase(), p]));
+
+      // 2. Identify missing customers and products to create in bulk
+      const missingCustomers = [];
+      const missingCustomerEmails = new Set();
+      const missingProducts = [];
+      const missingProductNames = new Set();
+
       for (const row of records) {
-        const emailCol = Object.keys(row).find(k => mappingMap[k] === "customerEmail" || mappingMap[k] === "email" || /email|shopper|customer/i.test(k));
-        const email = emailCol ? row[emailCol] : (row.customerEmail || row.email || row.shopper_email);
+        const emailCol = Object.keys(row).find((k) => mappingMap[k] === "customerEmail" || mappingMap[k] === "email" || /email|shopper|customer/i.test(k));
+        const email = String(emailCol ? row[emailCol] : (row.customerEmail || row.email || row.shopper_email) || "").trim().toLowerCase();
 
-        const productCol = Object.keys(row).find(k => mappingMap[k] === "productName" || mappingMap[k] === "name" || /product|item|title/i.test(k));
-        const productName = productCol ? row[productCol] : (row.productName || row.product || row.item_title);
+        const productCol = Object.keys(row).find((k) => mappingMap[k] === "productName" || mappingMap[k] === "name" || /product|item|title/i.test(k));
+        const productName = String(productCol ? row[productCol] : (row.productName || row.product || row.item_title) || "").trim();
 
-        const qtyCol = Object.keys(row).find(k => mappingMap[k] === "quantity" || /qty|quantity|count/i.test(k));
-        const quantity = parseInt(qtyCol ? row[qtyCol] : (row.quantity || 1)) || 1;
-
-        const priceCol = Object.keys(row).find(k => mappingMap[k] === "price" || /price|amount|cost/i.test(k));
-        const price = parseFloat(String(priceCol ? row[priceCol] : (row.price || row.unit_price || 999)).replace(/[$,₹]/g, "")) || 999;
-
-        const dateCol = Object.keys(row).find(k => mappingMap[k] === "createdAt" || /timestamp|date|time|created/i.test(k));
-        const rawDate = dateCol ? row[dateCol] : (row.createdAt || row.order_timestamp);
-        const createdAt = rawDate ? new Date(rawDate) : new Date();
-
-        if (email && productName) {
-          let customer = await prisma.customer.findFirst({ where: { merchantId, email: String(email).trim().toLowerCase() } });
-          if (!customer) {
-            customer = await prisma.customer.create({
-              data: { merchantId, name: String(email).split("@")[0], email: String(email).trim().toLowerCase(), totalOrders: 1, totalSpend: price * quantity, avgOrderValue: price * quantity }
-            });
-          } else {
-            await prisma.customer.update({
-              where: { id: customer.id },
-              data: {
-                totalOrders: { increment: 1 },
-                totalSpend: { increment: price * quantity },
-                lastPurchaseDate: createdAt
-              }
-            });
-          }
-
-          let product = await prisma.product.findFirst({ where: { merchantId, name: String(productName).trim() } });
-          if (!product) {
-            product = await prisma.product.create({
-              data: { merchantId, name: String(productName).trim(), price, isReplenishable: true, avgCycleDays: 30 }
-            });
-          }
-
-          const order = await prisma.order.create({
-            data: { customerId: customer.id, totalAmount: price * quantity, status: "completed", createdAt }
+        if (email && !customerMap.has(email) && !missingCustomerEmails.has(email)) {
+          missingCustomerEmails.add(email);
+          missingCustomers.push({
+            merchantId,
+            name: email.split("@")[0],
+            email,
+            totalOrders: 0,
+            totalSpend: 0,
+            avgOrderValue: 0,
           });
+        }
 
-          await prisma.orderItem.create({
-            data: { orderId: order.id, productId: product.id, quantity, price }
+        if (productName && !productMap.has(productName.toLowerCase()) && !missingProductNames.has(productName.toLowerCase())) {
+          missingProductNames.add(productName.toLowerCase());
+          missingProducts.push({
+            merchantId,
+            name: productName,
+            price: 999,
+            isReplenishable: true,
+            avgCycleDays: 30,
           });
-
-          insertedCount++;
         }
       }
 
-      // Automatically run time-window campaign attribution on newly imported orders
-      try {
-        const { attributeUnattributedOrders } = await import("../services/attributionService.js");
-        await attributeUnattributedOrders(merchantId);
-      } catch (attrErr) {
-        console.warn("[Import] Attribution hook failed:", attrErr.message);
+      if (missingCustomers.length > 0) {
+        await prisma.customer.createMany({ data: missingCustomers, skipDuplicates: true });
+        const refreshedCustomers = await prisma.customer.findMany({ where: { merchantId } });
+        refreshedCustomers.forEach((c) => customerMap.set(c.email?.toLowerCase(), c));
       }
+
+      if (missingProducts.length > 0) {
+        await prisma.product.createMany({ data: missingProducts, skipDuplicates: true });
+        const refreshedProducts = await prisma.product.findMany({ where: { merchantId } });
+        refreshedProducts.forEach((p) => productMap.set(p.name?.trim().toLowerCase(), p));
+      }
+
+      // 3. Prepare bulk orders and order items in memory
+      const ordersToInsert = [];
+      const itemMeta = [];
+      const customerStatsMap = new Map();
+
+      for (const row of records) {
+        const emailCol = Object.keys(row).find((k) => mappingMap[k] === "customerEmail" || mappingMap[k] === "email" || /email|shopper|customer/i.test(k));
+        const email = String(emailCol ? row[emailCol] : (row.customerEmail || row.email || row.shopper_email) || "").trim().toLowerCase();
+
+        const productCol = Object.keys(row).find((k) => mappingMap[k] === "productName" || mappingMap[k] === "name" || /product|item|title/i.test(k));
+        const productName = String(productCol ? row[productCol] : (row.productName || row.product || row.item_title) || "").trim();
+
+        const qtyCol = Object.keys(row).find((k) => mappingMap[k] === "quantity" || /qty|quantity|count/i.test(k));
+        const quantity = parseInt(qtyCol ? row[qtyCol] : (row.quantity || 1)) || 1;
+
+        const priceCol = Object.keys(row).find((k) => mappingMap[k] === "price" || /price|amount|cost/i.test(k));
+        const price = parseFloat(String(priceCol ? row[priceCol] : (row.price || row.unit_price || 999)).replace(/[$,₹]/g, "")) || 999;
+
+        const dateCol = Object.keys(row).find((k) => mappingMap[k] === "createdAt" || /timestamp|date|time|created/i.test(k));
+        const rawDate = dateCol ? row[dateCol] : (row.createdAt || row.order_timestamp);
+        const createdAt = rawDate ? new Date(rawDate) : new Date();
+
+        const customer = customerMap.get(email);
+        const product = productMap.get(productName.toLowerCase());
+
+        if (customer && product) {
+          const totalAmount = price * quantity;
+          ordersToInsert.push({
+            customerId: customer.id,
+            totalAmount,
+            status: "completed",
+            createdAt,
+          });
+          itemMeta.push({ productId: product.id, quantity, price });
+
+          // Accumulate customer lifetime stats in memory
+          if (!customerStatsMap.has(customer.id)) {
+            customerStatsMap.set(customer.id, {
+              id: customer.id,
+              totalOrders: 0,
+              totalSpend: 0,
+              lastPurchaseDate: createdAt,
+              firstPurchaseDate: createdAt,
+            });
+          }
+          const cStats = customerStatsMap.get(customer.id);
+          cStats.totalOrders += 1;
+          cStats.totalSpend += totalAmount;
+          if (createdAt > cStats.lastPurchaseDate) cStats.lastPurchaseDate = createdAt;
+          if (createdAt < cStats.firstPurchaseDate) cStats.firstPurchaseDate = createdAt;
+        }
+      }
+
+      // 4. Execute high-throughput bulk insertions in chunks of 2,000
+      const chunkSize = 2000;
+      for (let i = 0; i < ordersToInsert.length; i += chunkSize) {
+        const orderChunk = ordersToInsert.slice(i, i + chunkSize);
+        const metaChunk = itemMeta.slice(i, i + chunkSize);
+
+        const createdOrders = await prisma.order.createManyAndReturn({
+          data: orderChunk,
+          select: { id: true },
+        });
+
+        const itemsToInsert = createdOrders.map((order, idx) => ({
+          orderId: order.id,
+          productId: metaChunk[idx].productId,
+          quantity: metaChunk[idx].quantity,
+          price: metaChunk[idx].price,
+        }));
+
+        await prisma.orderItem.createMany({
+          data: itemsToInsert,
+        });
+
+        insertedCount += createdOrders.length;
+      }
+
+      // 5. Bulk update customer aggregated behavioral metrics
+      const customerUpdateBatches = Array.from(customerStatsMap.values());
+      const updateChunkSize = 50;
+      for (let i = 0; i < customerUpdateBatches.length; i += updateChunkSize) {
+        const uChunk = customerUpdateBatches.slice(i, i + updateChunkSize);
+        await Promise.all(
+          uChunk.map((cs) => {
+            const avgOrderValue = cs.totalOrders > 0 ? Math.round((cs.totalSpend / cs.totalOrders) * 100) / 100 : 0;
+            const daysSinceLast = (Date.now() - new Date(cs.lastPurchaseDate).getTime()) / (1000 * 60 * 60 * 24);
+            const isVip = cs.totalSpend >= 10000 || cs.totalOrders >= 4;
+            const isDormant = daysSinceLast >= 45;
+
+            return prisma.customer.update({
+              where: { id: cs.id },
+              data: {
+                totalOrders: cs.totalOrders,
+                totalSpend: cs.totalSpend,
+                avgOrderValue,
+                lastPurchaseDate: cs.lastPurchaseDate,
+                firstPurchaseDate: cs.firstPurchaseDate,
+                isVip,
+                isDormant,
+                upsellScore: isVip ? 0.92 : 0.4,
+                reactivationScore: isDormant ? 0.88 : 0.2,
+              },
+            });
+          })
+        );
+      }
+
+      // Automatically run time-window campaign attribution asynchronously in the background
+      setImmediate(async () => {
+        try {
+          const { attributeUnattributedOrders } = await import("../services/attributionService.js");
+          await attributeUnattributedOrders(merchantId, 14, 50);
+        } catch (attrErr) {
+          console.warn("[Import] Background attribution hook failed:", attrErr.message);
+        }
+      });
     }
 
     // Trigger Opportunity Engine & Post-Import Processing

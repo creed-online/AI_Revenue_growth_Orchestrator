@@ -7,6 +7,7 @@ const MERCHANT_KEY = "argo_merchant";
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
+  timeout: 120000,
 });
 
 api.interceptors.request.use((config) => {
@@ -198,6 +199,42 @@ export const verifyCheckoutPayment = async (payload) => {
 export const simulatePurchase = async (payload) => {
   const response = await api.post("/track/simulate-purchase", payload);
   return response.data;
+};
+
+// Integration Gateway APIs
+export const fetchIntegrations = async () => {
+  const response = await api.get("/integrations");
+  return response.data;
+};
+
+export const updateIntegrations = async (data) => {
+  const response = await api.post("/integrations", data);
+  return response.data;
+};
+
+export const testSmtpIntegration = async (data) => {
+  const response = await api.post("/integrations/test-email", data);
+  return response.data;
+};
+
+export const testWhatsAppIntegration = async (data) => {
+  const response = await api.post("/integrations/test-whatsapp", data);
+  return response.data;
+};
+
+export const fetchWhatsAppTemplates = async () => {
+  const response = await api.get("/integrations/templates");
+  return response.data;
+};
+
+// Executive Export APIs
+export const fetchExportSummary = async () => {
+  const response = await api.get("/export/summary");
+  return response.data;
+};
+
+export const getExportCsvUrl = () => {
+  return `${API_BASE_URL}/export/csv`;
 };
 
 export default api;

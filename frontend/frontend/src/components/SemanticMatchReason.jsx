@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Brain, Cpu, Database, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Brain, Cpu, Database, ChevronDown, ChevronUp, Check } from "lucide-react";
 
 export default function SemanticMatchReason({ mapping, sourceColumn, targetEntity }) {
   const [isOpen, setIsOpen] = useState(false);

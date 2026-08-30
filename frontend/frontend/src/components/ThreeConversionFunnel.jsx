@@ -15,56 +15,56 @@ import {
   Percent,
 } from "lucide-react";
 
-// Stage definitions for the 5-stage funnel
+// Claude Warmth 5-Stage Funnel Palette
 const FUNNEL_STAGES = [
   {
     key: "audience",
     label: "Audience Target",
     y: 1.8,
     radius: 2.2,
-    color: "#64748b",
+    color: "#B8A898", // Warm Sandstone
     icon: Users,
     desc: "Total identified customer cohort size",
   },
   {
     key: "delivered",
-    label: "Email Delivered",
+    label: "Delivered (WhatsApp / SMTP)",
     y: 0.9,
     radius: 1.75,
-    color: "#38bdf8",
+    color: "#C97A56", // Warm Copper
     icon: Mail,
-    desc: "Universal SMTP delivery confirmations",
+    desc: "Direct-to-consumer delivery confirmations",
   },
   {
     key: "opened",
-    label: "Opened (Pixel)",
+    label: "Opened (Read Receipt)",
     y: 0.0,
     radius: 1.35,
-    color: "#818cf8",
+    color: "#D97757", // Warm Terracotta
     icon: Eye,
-    desc: "1x1 transparent open-tracking pixel triggers",
+    desc: "Message read receipt & tracking pixel triggers",
   },
   {
     key: "clicked",
-    label: "Clicked (CTA)",
+    label: "Clicked (1-Tap Link)",
     y: -0.9,
     radius: 0.95,
-    color: "#14b8a6",
+    color: "#E5A93C", // Rich Amber
     icon: MousePointer,
-    desc: "Storefront destination link redirect tokens",
+    desc: "Personalized Razorpay checkout destination clicks",
   },
   {
     key: "purchased",
     label: "Orders Attributed",
     y: -1.8,
     radius: 0.55,
-    color: "#2dd4a8",
+    color: "#7C9A82", // Sage Green / Gold
     icon: ShoppingBag,
     desc: "Razorpay checkouts & 14-day window conversions",
   },
 ];
 
-// Particle stream cascading through the 5 funnel tiers
+// Warm particle stream cascading through 5 funnel tiers
 function CascadingParticles({ count = 160 }) {
   const pointsRef = useRef();
 
@@ -73,9 +73,10 @@ function CascadingParticles({ count = 160 }) {
     const cols = new Float32Array(count * 3);
     const spd = new Float32Array(count);
 
-    const mint = new THREE.Color("#2dd4a8");
-    const sky = new THREE.Color("#38bdf8");
-    const gold = new THREE.Color("#fbbf24");
+    const terracotta = new THREE.Color("#D97757");
+    const amber = new THREE.Color("#E5A93C");
+    const champagne = new THREE.Color("#E8C59D");
+    const sage = new THREE.Color("#7C9A82");
 
     for (let i = 0; i < count; i++) {
       const y = (Math.random() - 0.5) * 4.2;
@@ -88,7 +89,7 @@ function CascadingParticles({ count = 160 }) {
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = r * Math.sin(theta);
 
-      const col = progress > 0.8 ? gold : progress > 0.4 ? mint : sky;
+      const col = progress > 0.8 ? sage : progress > 0.4 ? amber : progress > 0.2 ? terracotta : champagne;
       cols[i * 3] = col.r;
       cols[i * 3 + 1] = col.g;
       cols[i * 3 + 2] = col.b;
@@ -127,7 +128,7 @@ function CascadingParticles({ count = 160 }) {
         size={0.05}
         vertexColors
         transparent
-        opacity={0.8}
+        opacity={0.85}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -205,8 +206,8 @@ function FunnelGlassTier({
         <div
           className={`px-2.5 py-1 rounded-xl border backdrop-blur-md transition-all select-none whitespace-nowrap shadow-xl ${
             isHovered
-              ? "bg-[#070e1c]/95 border-mint text-white scale-105"
-              : "bg-[#0b1120]/75 border-slate-800 text-slate-300"
+              ? "bg-[#201E1A]/95 border-[#D97757] text-white scale-105"
+              : "bg-[#181714]/85 border-[rgba(220,205,185,0.12)] text-[#DDD6CD]"
           }`}
         >
           <div className="flex items-center gap-1.5">
@@ -239,7 +240,7 @@ function FunnelGlassCone() {
       <mesh position={[0, 0, 0]}>
         <cylinderGeometry args={[2.3, 0.4, 3.8, 32, 4, true]} />
         <meshBasicMaterial
-          color="#2dd4a8"
+          color="#D97757"
           wireframe
           transparent
           opacity={0.12}
@@ -280,48 +281,47 @@ export default function ThreeConversionFunnel({
       : "0.0";
 
   return (
-    <section className="mb-8 rounded-3xl border border-ink-border bg-gradient-to-b from-[#080d1a] to-[#040711] p-5 sm:p-7 shadow-2xl overflow-hidden relative">
+    <section className="mb-8 rounded-3xl border border-[rgba(220,205,185,0.14)] bg-gradient-to-b from-[#201E1A] to-[#181714] p-5 sm:p-7 shadow-[0_16px_40px_rgba(0,0,0,0.5)] overflow-hidden relative">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 z-10 relative">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-sky text-ink shadow-[0_0_20px_-4px_rgba(45,212,168,0.5)]">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#D97757]/15 border border-[#D97757]/30 text-[#D97757] shadow-[0_0_20px_-4px_rgba(217,119,87,0.4)]">
             <Layers className="h-5 w-5" />
           </div>
           <div>
             <h2 className="font-display text-base font-bold text-white flex items-center gap-2">
-              Isometric 3D Conversion Funnel
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-mint border border-mint/30 bg-mint/10 px-2 py-0.5 rounded-full">
+              Isometric 3D Conversion Vortex
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#7C9A82] border border-[#7C9A82]/30 bg-[#7C9A82]/10 px-2 py-0.5 rounded-full">
                 {overallConversionPct}% Net Conversion
               </span>
             </h2>
-            <p className="text-xs text-ink-muted mt-0.5">
+            <p className="text-xs text-[#9E978E] mt-0.5">
               Translucent 3D tiered fluid funnel. Inspect stage-by-stage drop-off and conversion rates.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-teal-300 bg-teal-950/40 border border-teal-500/30 px-3 py-1.5 rounded-xl">
-          <TrendingUp className="h-3.5 w-3.5 text-mint" />
-          <span>{stageCounts.purchased} Buyers Captured</span>
+        <div className="flex items-center gap-2 text-xs font-mono text-[#DDD6CD] bg-[#181714] border border-[rgba(220,205,185,0.14)] px-3 py-1.5 rounded-xl">
+          <TrendingUp className="h-3.5 w-3.5 text-[#7C9A82]" />
+          <span>{stageCounts.purchased} Orders Attributed</span>
         </div>
       </div>
 
       {/* 3D Funnel Canvas Viewport */}
-      <div className="relative h-[380px] sm:h-[430px] w-full rounded-2xl overflow-hidden border border-slate-800/80 bg-[#050813]/95">
+      <div className="relative h-[380px] sm:h-[430px] w-full rounded-2xl overflow-hidden border border-[rgba(220,205,185,0.1)] bg-[#181714]">
         <Canvas
           camera={{ position: [2.8, 1.8, 4.8], fov: 46 }}
           dpr={[1, 1.75]}
           gl={{ antialias: true, alpha: true }}
         >
           <ambientLight intensity={0.7} />
-          <pointLight position={[5, 5, 4]} intensity={1.3} color="#2dd4a8" />
-          <pointLight position={[-5, -4, 3]} intensity={0.9} color="#38bdf8" />
-          <pointLight position={[0, -4, -3]} intensity={0.8} color="#fbbf24" />
+          <pointLight position={[5, 5, 4]} intensity={1.3} color="#D97757" />
+          <pointLight position={[-5, -4, 3]} intensity={0.9} color="#E5A93C" />
+          <pointLight position={[0, -4, -3]} intensity={0.8} color="#E8C59D" />
 
           <FunnelGlassCone />
           <CascadingParticles count={160} />
 
-          {/* Render 5 Glass Tier Plates */}
           {FUNNEL_STAGES.map((stage) => {
             const isHovered = hoveredStage === stage.key;
             const isDimmed = hoveredStage !== null && !isHovered;
@@ -356,7 +356,7 @@ export default function ThreeConversionFunnel({
               initial={{ opacity: 0, y: 8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
-              className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-xs rounded-2xl border border-ink-border bg-[#070e1c]/95 p-3.5 shadow-2xl backdrop-blur-2xl z-20"
+              className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-xs rounded-2xl border bg-[#201E1A]/95 p-3.5 shadow-2xl backdrop-blur-2xl z-20"
               style={{ borderColor: `${activeStageConfig.color}60` }}
             >
               <div className="flex items-center justify-between">
@@ -370,18 +370,18 @@ export default function ThreeConversionFunnel({
                   />
                   {activeStageConfig.label}
                 </span>
-                <span className="text-[10px] font-mono text-white bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                <span className="text-[10px] font-mono text-white bg-[#181714] px-2 py-0.5 rounded border border-[rgba(220,205,185,0.12)]">
                   {stageCounts[activeStageConfig.key]} Recipients
                 </span>
               </div>
 
-              <p className="text-[11px] text-slate-300 mt-2 leading-relaxed">
+              <p className="text-[11px] text-[#DDD6CD] mt-2 leading-relaxed">
                 {activeStageConfig.desc}
               </p>
 
-              <div className="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Conversion from Target:</span>
-                <span className="font-bold text-mint font-mono">
+              <div className="mt-2.5 pt-2 border-t border-[rgba(220,205,185,0.1)] flex items-center justify-between text-[11px]">
+                <span className="text-[#9E978E]">Conversion from Target:</span>
+                <span className="font-bold text-[#7C9A82] font-mono">
                   {stageCounts.audience > 0
                     ? Math.round((stageCounts[activeStageConfig.key] / stageCounts.audience) * 100)
                     : 0}%
@@ -394,4 +394,3 @@ export default function ThreeConversionFunnel({
     </section>
   );
 }
-

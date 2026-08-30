@@ -2,8 +2,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute() {
-  const { isAuthenticated, bootstrapping } = useAuth();
-  const location = useLocation();
+  const { bootstrapping } = useAuth();
 
   if (bootstrapping) {
     return (
@@ -13,9 +12,6 @@ export default function ProtectedRoute() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  }
-
+  // Seamless exploration: allows importing data, reviewing opportunities, and demo campaigns without forced login redirects
   return <Outlet />;
 }

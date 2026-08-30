@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ArrowRight, Check, AlertCircle, Database, FileSpreadsheet, Layers, ShieldAlert, Sparkles } from "lucide-react";
+import { ArrowRight, Check, AlertCircle, Database, FileSpreadsheet, Layers, ShieldAlert } from "lucide-react";
+import ArgoLogo from "./ArgoLogo";
 
 export default function SchemaDiffViewer({
   sourceColumns = [],
@@ -19,22 +20,22 @@ export default function SchemaDiffViewer({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h3 className="font-display text-lg font-bold text-white flex items-center gap-2">
-            <Layers className="h-5 w-5 text-mint" />
+            <Layers className="h-5 w-5 text-[#D97757]" />
             Schema Topology & Difference Graph
           </h3>
-          <p className="text-xs text-ink-muted mt-0.5">
+          <p className="text-xs text-[#9E978E] mt-0.5">
             Visual structural comparison between uploaded dataset and database target.
           </p>
         </div>
 
         {/* Stats Pills */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-mint/10 text-mint border border-mint/20">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#7C9A82]/10 text-[#7C9A82] border border-[#7C9A82]/20">
             <Check className="h-3 w-3" /> {mappedCount} Mapped Fields
           </span>
           {addedCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky/10 text-sky border border-sky/20">
-              <Sparkles className="h-3 w-3" /> {addedCount} Custom Extensions
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E5A93C]/10 text-[#E5A93C] border border-[#E5A93C]/20">
+              <ArgoLogo className="h-3 w-3" /> {addedCount} Custom Extensions
             </span>
           )}
           {removedCount > 0 && (

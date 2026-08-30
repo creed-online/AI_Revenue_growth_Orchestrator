@@ -17,12 +17,12 @@ import {
   Minimize2,
 } from "lucide-react";
 
-// Vibrant, high-contrast cohort definitions
+// Claude Editorial Warm Cohort Definitions
 const COHORT_CONFIG = {
   vip: {
     label: "VIP Whales",
-    color: "#facc15", // Ultra-bright Solar Gold
-    emissive: "#fef08a",
+    color: "#E5A93C", // Toasted Gold
+    emissive: "#E8C59D", // Champagne
     icon: Crown,
     count: 32,
     aov: "₹6,450",
@@ -33,8 +33,8 @@ const COHORT_CONFIG = {
   },
   replenishing: {
     label: "Replenishing Due",
-    color: "#10b981", // Vivid Emerald Mint
-    emissive: "#34d399",
+    color: "#D97757", // Terracotta
+    emissive: "#E58D70",
     icon: Repeat,
     count: 48,
     aov: "₹3,200",
@@ -45,8 +45,8 @@ const COHORT_CONFIG = {
   },
   discount: {
     label: "Price Sensitive",
-    color: "#06b6d4", // Electric Cyan
-    emissive: "#38bdf8",
+    color: "#C8A97E", // Warm Sandstone
+    emissive: "#DFD1BC",
     icon: Percent,
     count: 56,
     aov: "₹2,100",
@@ -57,8 +57,8 @@ const COHORT_CONFIG = {
   },
   dormant: {
     label: "Dormant / At-Risk",
-    color: "#f43f5e", // Radiant Coral Rose
-    emissive: "#fb7185",
+    color: "#D97070", // Dusty Brick / Rose
+    emissive: "#F0A0A0",
     icon: Clock,
     count: 24,
     aov: "₹2,800",
@@ -75,10 +75,9 @@ function generateBandPoints(cohortKey, count, yPos, radius) {
   const step = (Math.PI * 2) / count;
 
   for (let i = 0; i < count; i++) {
-    // Distribute around ring with subtle organic wave offset
     const angle = i * step;
     const wave = Math.sin(angle * 3) * 0.12;
-    const r = radius + (Math.sin(i * 5) * 0.08);
+    const r = radius + Math.sin(i * 5) * 0.08;
     const x = r * Math.cos(angle);
     const z = r * Math.sin(angle);
     const y = yPos + wave;
@@ -93,22 +92,24 @@ function generateBandPoints(cohortKey, count, yPos, radius) {
   return points;
 }
 
-// Clean neutral space starfield
-function NeutralStarfield({ count = 150 }) {
+// Warm ambient starfield particles (Champagne & Terracotta dust)
+function WarmStarfield({ count = 160 }) {
   const pointsRef = useRef();
 
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const cols = new Float32Array(count * 3);
-    const white = new THREE.Color("#e2e8f0");
-    const cyan = new THREE.Color("#38bdf8");
+    const champagne = new THREE.Color("#E8C59D");
+    const terracotta = new THREE.Color("#D97757");
+    const amber = new THREE.Color("#E5A93C");
 
     for (let i = 0; i < count; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 18;
       pos[i * 3 + 1] = (Math.random() - 0.5) * 14;
       pos[i * 3 + 2] = (Math.random() - 0.5) * 12 - 3;
 
-      const col = Math.random() > 0.4 ? white : cyan;
+      const pick = Math.random();
+      const col = pick > 0.6 ? champagne : pick > 0.3 ? terracotta : amber;
       cols[i * 3] = col.r;
       cols[i * 3 + 1] = col.g;
       cols[i * 3 + 2] = col.b;
@@ -118,7 +119,7 @@ function NeutralStarfield({ count = 150 }) {
 
   useFrame((_, delta) => {
     if (!pointsRef.current) return;
-    pointsRef.current.rotation.y += delta * 0.015;
+    pointsRef.current.rotation.y += delta * 0.012;
   });
 
   return (
@@ -128,10 +129,10 @@ function NeutralStarfield({ count = 150 }) {
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.03}
+        size={0.035}
         vertexColors
         transparent
-        opacity={0.4}
+        opacity={0.45}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -140,7 +141,7 @@ function NeutralStarfield({ count = 150 }) {
   );
 }
 
-// Minimalistic glowing celestial core
+// Warm glowing celestial obsidian core
 function CelestialCore() {
   const coreRef = useRef();
   const wireRef = useRef();
@@ -156,29 +157,29 @@ function CelestialCore() {
       <mesh ref={coreRef}>
         <sphereGeometry args={[2.3, 32, 32]} />
         <meshStandardMaterial
-          color="#060b18"
-          roughness={0.8}
-          metalness={0.2}
+          color="#181714"
+          roughness={0.85}
+          metalness={0.15}
           transparent
-          opacity={0.85}
+          opacity={0.92}
         />
       </mesh>
 
-      {/* Clean Latitude Grid Wireframe */}
+      {/* Warm Latitude Grid Wireframe */}
       <mesh ref={wireRef}>
         <sphereGeometry args={[2.32, 16, 12]} />
         <meshBasicMaterial
-          color="#1e293b"
+          color="#36322C"
           wireframe
           transparent
-          opacity={0.2}
+          opacity={0.25}
         />
       </mesh>
     </group>
   );
 }
 
-// Single Cohort Band (Rings + Customer Nodes + 3D Marker)
+// Single Cohort Band
 function CohortBand({
   cohortKey,
   config,
@@ -189,7 +190,6 @@ function CohortBand({
   onUnhover,
 }) {
   const groupRef = useRef();
-  const ringRef = useRef();
 
   const isSelected = activeFilter === "all" || activeFilter === cohortKey;
   const isHovered = hoveredCohort === cohortKey;
@@ -202,13 +202,13 @@ function CohortBand({
   const nodeColor = new THREE.Color(config.color);
   const emissiveColor = new THREE.Color(config.emissive);
   const opacity = isHovered ? 1.0 : isSelected ? 0.95 : 0.2;
-  const ringOpacity = isHovered ? 0.65 : isSelected ? 0.35 : 0.08;
+  const ringOpacity = isHovered ? 0.7 : isSelected ? 0.35 : 0.08;
 
   return (
     <group ref={groupRef}>
       {/* Orbital Ring Guide */}
       <mesh position={[0, config.bandY, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[config.bandRadius, 0.012, 8, 64]} />
+        <torusGeometry args={[config.bandRadius, 0.014, 8, 64]} />
         <meshBasicMaterial
           color={nodeColor}
           transparent
@@ -235,9 +235,9 @@ function CohortBand({
           <meshStandardMaterial
             color={nodeColor}
             emissive={emissiveColor}
-            emissiveIntensity={isHovered ? 2.2 : isSelected ? 1.2 : 0.3}
-            roughness={0.1}
-            metalness={0.9}
+            emissiveIntensity={isHovered ? 2.0 : isSelected ? 1.1 : 0.25}
+            roughness={0.15}
+            metalness={0.85}
             transparent
             opacity={opacity}
           />
@@ -252,7 +252,6 @@ export default function ThreeCustomerGlobe() {
   const [hoveredCohort, setHoveredCohort] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Generate clean, high-visibility orbital bands
   const bandPoints = useMemo(() => {
     return {
       vip: generateBandPoints("vip", COHORT_CONFIG.vip.count, COHORT_CONFIG.vip.bandY, COHORT_CONFIG.vip.bandRadius),
@@ -273,37 +272,35 @@ export default function ThreeCustomerGlobe() {
     : null;
 
   return (
-    <section className="mt-8 rounded-3xl border border-ink-border bg-gradient-to-b from-[#080d1a] to-[#040711] p-5 sm:p-7 shadow-2xl overflow-hidden relative">
-      {/* Top Header Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 z-10 relative">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-sky text-ink shadow-[0_0_20px_-4px_rgba(45,212,168,0.5)]">
-              <Globe className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="font-display text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                3D Customer Retention Galaxy
-                <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-mint border border-mint/30 bg-mint/10 px-2.5 py-0.5 rounded-full">
-                  {totalCustomers} Tracked Shoppers
-                </span>
-              </h2>
-              <p className="text-xs text-ink-muted mt-0.5">
-                Spatial customer retention universe. Structured by high-spend VIPs, replenishment windows, and dormant cohorts.
-              </p>
-            </div>
+    <section className="mt-6 rounded-3xl border border-[rgba(220,205,185,0.14)] bg-gradient-to-b from-[#201E1A] to-[#181714] p-5 sm:p-7 shadow-[0_16px_40px_rgba(0,0,0,0.5)] overflow-hidden relative">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 z-10 relative">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#D97757]/15 border border-[#D97757]/30 text-[#D97757] shadow-[0_0_20px_-4px_rgba(217,119,87,0.4)]">
+            <Globe className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="font-display text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              3D Customer Retention Galaxy
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#D97757] border border-[#D97757]/30 bg-[#D97757]/10 px-2.5 py-0.5 rounded-full">
+                {totalCustomers} Tracked Shoppers
+              </span>
+            </h2>
+            <p className="text-xs text-[#9E978E] mt-0.5">
+              Spatial retention universe. Structured by high-spend VIPs, replenishment windows, and dormant cohorts.
+            </p>
           </div>
         </div>
 
-        {/* Cohort Filter Buttons */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-ink/60 border border-ink-border p-1.5 rounded-2xl backdrop-blur-md">
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-1.5 bg-[#181714]/80 border border-[rgba(220,205,185,0.12)] p-1.5 rounded-2xl backdrop-blur-md">
           <button
             type="button"
             onClick={() => setActiveFilter("all")}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
               activeFilter === "all"
-                ? "bg-mint text-ink font-bold shadow"
-                : "text-ink-muted hover:text-white hover:bg-white/5"
+                ? "bg-[#D97757] text-[#181714] font-bold shadow"
+                : "text-[#9E978E] hover:text-white hover:bg-white/5"
             }`}
           >
             All Cohorts ({totalCustomers})
@@ -319,7 +316,7 @@ export default function ThreeCustomerGlobe() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
                   isCurrent
                     ? "bg-white/10 text-white border border-white/20 shadow"
-                    : "text-ink-muted hover:text-white hover:bg-white/5"
+                    : "text-[#9E978E] hover:text-white hover:bg-white/5"
                 }`}
                 style={{ color: isCurrent ? cfg.color : undefined }}
               >
@@ -338,7 +335,7 @@ export default function ThreeCustomerGlobe() {
 
       {/* 3D Canvas Container */}
       <div
-        className={`relative w-full rounded-2xl overflow-hidden border border-slate-800/80 bg-[#050813]/95 transition-all duration-300 ${
+        className={`relative w-full rounded-2xl overflow-hidden border border-[rgba(220,205,185,0.1)] bg-[#181714] transition-all duration-300 ${
           isExpanded ? "h-[560px]" : "h-[360px] sm:h-[420px]"
         }`}
       >
@@ -348,13 +345,12 @@ export default function ThreeCustomerGlobe() {
           gl={{ antialias: true, alpha: true }}
         >
           <ambientLight intensity={0.8} />
-          <pointLight position={[6, 5, 4]} intensity={1.5} color="#ffffff" />
-          <pointLight position={[-6, -4, 3]} intensity={1.0} color="#38bdf8" />
+          <pointLight position={[6, 5, 4]} intensity={1.5} color="#E8C59D" />
+          <pointLight position={[-6, -4, 3]} intensity={1.0} color="#D97757" />
 
-          <NeutralStarfield count={150} />
+          <WarmStarfield count={160} />
           <CelestialCore />
 
-          {/* Render 4 Clean Cohort Bands */}
           {Object.entries(COHORT_CONFIG).map(([key, cfg]) => (
             <CohortBand
               key={key}
@@ -377,24 +373,24 @@ export default function ThreeCustomerGlobe() {
           />
         </Canvas>
 
-        {/* Top-Right Expand Toggle */}
+        {/* Expand Toggle */}
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-xl border border-slate-800 bg-ink/70 text-slate-400 hover:text-white transition backdrop-blur-md z-20"
+          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-xl border border-[rgba(220,205,185,0.15)] bg-[#201E1A]/80 text-[#9E978E] hover:text-white transition backdrop-blur-md z-20"
           title={isExpanded ? "Collapse View" : "Expand 3D Canvas"}
         >
           {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </button>
 
-        {/* Floating Interactive Cohort Intelligence HUD */}
+        {/* Hover HUD Card */}
         <AnimatePresence>
           {activeCohortData && (
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.96 }}
-              className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm rounded-2xl border border-ink-border bg-[#070e1c]/95 p-4 shadow-2xl backdrop-blur-2xl z-20"
+              className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm rounded-2xl border bg-[#201E1A]/95 p-4 shadow-2xl backdrop-blur-2xl z-20"
               style={{ borderColor: `${activeCohortData.color}80` }}
             >
               <div className="flex items-center justify-between">
@@ -408,30 +404,30 @@ export default function ThreeCustomerGlobe() {
                   />
                   {activeCohortData.label}
                 </span>
-                <span className="text-[10px] font-mono text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">
+                <span className="text-[10px] font-mono text-[#DDD6CD] bg-[#181714] px-2 py-0.5 rounded border border-[rgba(220,205,185,0.15)]">
                   {activeCohortData.count} Shoppers ({Math.round((activeCohortData.count / totalCustomers) * 100)}%)
                 </span>
               </div>
 
               <div className="mt-2.5 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-xl border border-slate-800 bg-ink/40 p-2">
-                  <p className="text-[10px] text-slate-400">Cohort Avg Spend</p>
-                  <p className="font-bold text-white mt-0.5">{activeCohortData.aov}</p>
+                <div className="rounded-xl border border-[rgba(220,205,185,0.1)] bg-[#181714] p-2">
+                  <p className="text-[10px] text-[#9E978E]">Cohort Avg Spend</p>
+                  <p className="font-serif font-bold text-white mt-0.5">{activeCohortData.aov}</p>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-ink/40 p-2">
-                  <p className="text-[10px] text-slate-400">Retention Status</p>
-                  <p className="font-bold text-mint mt-0.5">High Value</p>
+                <div className="rounded-xl border border-[rgba(220,205,185,0.1)] bg-[#181714] p-2">
+                  <p className="text-[10px] text-[#9E978E]">Retention Status</p>
+                  <p className="font-bold text-[#7C9A82] mt-0.5">High Potential</p>
                 </div>
               </div>
 
-              <p className="text-[11px] text-slate-300 mt-2.5 leading-relaxed">
+              <p className="text-[11px] text-[#DDD6CD] mt-2.5 leading-relaxed">
                 {activeCohortData.desc}
               </p>
 
-              <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Recommended Action:</span>
+              <div className="mt-3 pt-2.5 border-t border-[rgba(220,205,185,0.1)] flex items-center justify-between text-[11px]">
+                <span className="text-[#9E978E]">Recommended Action:</span>
                 <span className="font-semibold text-white flex items-center gap-1">
-                  <Zap className="h-3 w-3 text-mint" />
+                  <Zap className="h-3 w-3 text-[#D97757]" />
                   {activeCohortData.action.split(" ")[0]}...
                 </span>
               </div>

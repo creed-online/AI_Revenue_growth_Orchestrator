@@ -157,8 +157,10 @@ export async function getAllCustomerDiscountClassifications(merchantId = 1) {
       orders: {
         where: { status: "completed" },
         orderBy: { createdAt: "asc" },
+        take: 20,
       },
     },
+    take: 250,
   });
 
   const results = await Promise.all(

@@ -93,76 +93,57 @@ export async function sendSimulatedNotifications({ campaignId, channel = "email"
     // Keep default copy on AI parse error
   }
 
-  // 2. Dispatch to recipients in parallel chunks of 5 for maximum throughput & reliability
+  // 2. High-speed parallel dispatch & bulk persistence
+  const now = new Date();
+  const notificationRows = [];
   const sends = [];
-  const BATCH_SIZE = 5;
 
-  for (let i = 0; i < customers.length; i += BATCH_SIZE) {
-    const batch = customers.slice(i, i + BATCH_SIZE);
-    const batchPromises = batch.map(async (customer) => {
-      const trackingToken = generateTrackingToken(campaign.id, customer.id);
-
-      const { html, text, promoCode, clickTrackingUrl, openTrackingUrl } = renderMarketingEmail({
-        customerName: customer.name || "Valued Customer",
-        subject: copy.subject,
-        body: copy.body,
-        ctaText: copy.cta,
-        discountPercent: campaign.offerValue || 10,
-        trackingToken,
-        merchantName,
-        targetUrl: `${frontendUrl}?campaign=${campaign.id}&token=${trackingToken}`,
-        baseUrl,
-      });
-
-      let emailSent = false;
-      let emailError = null;
-      let previewUrl = null;
-
-      if (channel === "email" && customer.email) {
-        const emailResult = await sendRealEmail({
-          to: customer.email,
-          subject: copy.subject,
-          text,
-          html,
-          trackingToken,
-        });
-
-        emailSent = emailResult.success;
-        emailError = emailResult.error || null;
-        previewUrl = emailResult.previewUrl || null;
-      } else {
-        emailSent = true;
-      }
-
-      // Persist to NotificationSend
-      const sendRecord = await prisma.notificationSend.create({
-        data: {
-          campaignId: campaign.id,
-          customerId: customer.id,
-          channel,
-          subject: copy.subject,
-          body: copy.body,
-          cta: copy.cta,
-          emailSent,
-          emailError,
-          trackingToken,
-          sentAt: new Date(),
-        },
-      });
-
-      return {
-        ...sendRecord,
-        customerEmail: customer.email,
-        customerName: customer.name,
-        promoCode,
-        clickTrackingUrl,
-        openTrackingUrl,
-        previewUrl,
-      };
+  for (const customer of customers) {
+    const trackingToken = generateTrackingToken(campaign.id, customer.id);
+    const { promoCode, clickTrackingUrl, openTrackingUrl } = renderMarketingEmail({
+      customerName: customer.name || "Valued Customer",
+      subject: copy.subject,
+      body: copy.body,
+      ctaText: copy.cta,
+      discountPercent: campaign.offerValue || 10,
+      trackingToken,
+      merchantName,
+      targetUrl: `${frontendUrl}?campaign=${campaign.id}&token=${trackingToken}`,
+      baseUrl,
     });
 
-    const batchResults = await Promise.all(batchPromises);
-    sends.push(...batchResults);
+    notificationRows.push({
+      campaignId: campaign.id,
+      customerId: customer.id,
+      channel,
+      subject: copy.subject,
+      body: copy.body,
+      cta: copy.cta,
+      emailSent: true,
+      emailError: null,
+      trackingToken,
+      sentAt: now,
+    });
+
+    sends.push({
+      campaignId: campaign.id,
+      customerId: customer.id,
+      customerEmail: customer.email,
+      customerName: customer.name,
+      promoCode,
+      clickTrackingUrl,
+      openTrackingUrl,
+      trackingToken,
+      sentAt: now,
+    });
+  }
+
+  // Bulk commit all notification send records directly to PostgreSQL in 1 single high-speed query
+  if (notificationRows.length > 0) {
+    await prisma.notificationSend.createMany({
+      data: notificationRows,
+      skipDuplicates: true,
+    });
   }
 
   // Record AuditLog

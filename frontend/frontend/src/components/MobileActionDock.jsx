@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Sparkles, Send, UploadCloud, Bell } from "lucide-react";
+import { LayoutDashboard, Send, UploadCloud, Bell, Zap } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import ArgoLogo from "./ArgoLogo";
 
 export default function MobileActionDock() {
   const location = useLocation();
@@ -9,14 +10,14 @@ export default function MobileActionDock() {
 
   const navItems = [
     { label: "Dashboard", path: "/", icon: LayoutDashboard },
-    { label: "Opportunities", path: "/opportunities", icon: Sparkles },
+    { label: "Opportunities", path: "/opportunities", isLogo: true },
     { label: "Campaigns", path: "/campaigns", icon: Send },
-    { label: "Import", path: "/import", icon: UploadCloud },
-    { label: "Alerts", path: "/notifications", icon: Bell },
+    { label: "Data Pipeline", path: "/import", icon: UploadCloud },
+    { label: "Dispatches", path: "/notifications", icon: Bell },
   ];
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 block sm:hidden bg-[#070e1c]/90 backdrop-blur-2xl border-t border-ink-border/80 px-2 py-1.5 shadow-[0_-8px_24px_rgba(0,0,0,0.5)]">
+    <div className="fixed bottom-0 inset-x-0 z-40 block md:hidden bg-[#181714]/90 backdrop-blur-2xl border-t border-[rgba(220,205,185,0.14)] px-2 py-2 shadow-[0_-8px_30px_rgba(0,0,0,0.7)]">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -27,14 +28,18 @@ export default function MobileActionDock() {
               key={item.path}
               type="button"
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition ${
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
                 isActive
-                  ? "text-mint font-bold"
-                  : "text-ink-muted hover:text-white"
+                  ? "text-[#D97757] font-bold"
+                  : "text-[#9E978E] hover:text-[#DDD6CD]"
               }`}
             >
-              <div className={`p-1 rounded-lg ${isActive ? "bg-mint/15" : ""}`}>
-                <Icon className={`h-4 w-4 ${isActive ? "text-mint" : "text-ink-muted"}`} />
+              <div className={`p-1.5 rounded-xl transition ${isActive ? "bg-[#D97757]/15 border border-[#D97757]/30 shadow-sm" : ""}`}>
+                {item.isLogo ? (
+                  <ArgoLogo className="h-4 w-4" />
+                ) : (
+                  <Icon className={`h-4 w-4 ${isActive ? "text-[#D97757]" : "text-[#9E978E]"}`} />
+                )}
               </div>
               <span className="text-[10px] mt-0.5 tracking-tight">{item.label}</span>
             </button>
@@ -44,4 +49,3 @@ export default function MobileActionDock() {
     </div>
   );
 }
-

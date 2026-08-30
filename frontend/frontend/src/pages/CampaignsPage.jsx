@@ -12,6 +12,7 @@ import {
   Sparkles,
   RefreshCw,
 } from "lucide-react";
+import ArgoLogo from "../components/ArgoLogo";
 import { clearAllCampaigns, deleteCampaign, fetchCampaigns } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
@@ -145,11 +146,11 @@ export default function CampaignsPage() {
             Launch an AI-generated win-back, VIP loyalty, or replenishment opportunity from your live feed to track its execution and revenue here.
           </p>
           <Link
-            to="/dashboard"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-5 py-2.5 text-xs font-bold text-ink transition hover:brightness-110"
+            to="/"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#D97757] to-[#C96442] px-5 py-2.5 text-xs font-bold text-[#181714] transition hover:brightness-110"
           >
-            <Sparkles className="h-4 w-4" />
-            Explore Opportunity Feed →
+            <ArgoLogo className="h-4 w-4" />
+            <span>Explore Opportunity Feed →</span>
           </Link>
         </motion.div>
       )}

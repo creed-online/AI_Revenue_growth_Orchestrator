@@ -4,6 +4,20 @@ import { simulateCampaign } from "./campaignSimulator.js";
 import { validateCampaignPolicy } from "./policyEngine.js";
 import { createCampaignWithApproval } from "./approvalService.js"; // ← updated name
 
+function compactOpportunityForAI(opp) {
+  if (!opp) return opp;
+  const { customers = [], ...rest } = opp;
+  return {
+    ...rest,
+    customerCount: opp.customerCount || customers.length,
+    sampleAudience: customers.slice(0, 3).map((c) => ({
+      customerId: c.customerId || c.id,
+      customerName: c.customerName || c.name,
+      potentialRevenue: c.potentialRevenue,
+    })),
+  };
+}
+
 /**
  * Orchestrates an AI-driven campaign proposal for a merchant.
  * Steps:
@@ -46,13 +60,12 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
     {
       name: "create_campaign_draft",
       description:
-        "Call this ONCE you've compared tiers and decided the final offer. Provide { discountPercent, audienceSize, customerIds, budget }. If policy REJECTS your draft, you will get the rejection reason back — call this tool again with a revised, compliant proposal.",
+        "Call this ONCE you've compared tiers and decided the final offer. Provide { discountPercent, audienceSize, budget }. If policy REJECTS your draft, you will get the rejection reason back — call this tool again with a revised, compliant proposal.",
       input_schema: {
         type: "object",
         properties: {
           discountPercent: { type: "number" },
           audienceSize: { type: "number" },
-          customerIds: { type: "array", items: { type: "number" } },
           budget: { type: "number" },
         },
         required: ["discountPercent", "audienceSize"],
@@ -68,13 +81,13 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
 
   const system = `You are an AI campaign strategist. Use the provided tools to evaluate offers and return a campaign draft by calling create_campaign_draft. Always prefer higher net revenue but respect merchant safety. You MUST call simulate_campaign exactly once before calling create_campaign_draft. Do NOT finish until create_campaign_draft has been called and its result shows policy approval. If a draft is rejected by policy, revise it to be compliant and call create_campaign_draft again with corrected values.${breachNudge}`;
 
-  const user = `Given the opportunity: ${opportunity.productName} (productId=${opportunity.productId}) with ${opportunity.customerCount} customers and potentialRevenue=${opportunity.potentialRevenue}, evaluate discount offers and propose a campaign.`;
+  const user = `Given the opportunity: "${opportunity.productName}" (type=${opportunity.opportunityType || "replenishment"}, productId=${opportunity.productId}) with ${opportunity.customerCount} customers and potentialRevenue=₹${opportunity.potentialRevenue}, evaluate discount offers and propose a campaign.`;
 
   const messages = [{ role: "user", content: user }];
 
   const executed = [];
   let finalDraftResult = null;
-  let simulatedScenarios = null; // ← new: captures tier comparison for CampaignVariant rows
+  let simulatedScenarios = null; // ← captures tier comparison for CampaignVariant rows
   let lastAiText = "";
   let revisionCount = 0;
   const MAX_TURNS = 8;
@@ -104,47 +117,57 @@ export async function orchestrateCampaign({ merchantId = 1, opportunityIndex = 0
 
       if (tc.name === "get_opportunity") {
         const input = tc.input || {};
+        let found = opportunity;
         if (input.productId) {
-          const found = opportunities.find((o) => o.productId === input.productId);
-          result = found || { error: "not_found", message: `no opportunity for productId ${input.productId}` };
+          found = opportunities.find((o) => o.productId === input.productId) || opportunity;
         } else if (input.customerId) {
-          const found = opportunities.find((o) => (o.customers || []).some((c) => c.customerId === input.customerId));
-          result = found || { error: "not_found", message: `no opportunity for customerId ${input.customerId}` };
-        } else {
-          result = opportunity;
+          found = opportunities.find((o) => (o.customers || []).some((c) => c.customerId === input.customerId)) || opportunity;
         }
+        result = compactOpportunityForAI(found);
       } else if (tc.name === "simulate_campaign") {
         const args = tc.input || {};
-        result = simulateCampaign({
+        const simResult = simulateCampaign({
           opportunity,
           audience: new Array(opportunity.customerCount).fill({ classification: "unknown" }),
           ...args,
         });
-        // ← new: capture full tier comparison for later persistence
-        if (result?.scenarios) {
-          simulatedScenarios = result.scenarios;
+        if (simResult?.scenarios) {
+          simulatedScenarios = simResult.scenarios;
+          result = {
+            recommendedTier: simResult.recommendedTier,
+            scenarios: simResult.scenarios.map((s) => ({
+              discountPercent: s.discountPercent,
+              expectedConversions: s.conversions,
+              expectedRevenue: s.expectedRevenue,
+              expectedNetMargin: s.expectedNetMargin || s.netMargin,
+              policyCompliant: s.policyCompliant,
+            })),
+          };
+        } else {
+          result = simResult;
         }
       } else if (tc.name === "create_campaign_draft") {
         const draft = tc.input || {};
+        const resolvedCustomerIds = (opportunity.customers || []).map((c) => c.customerId || c.id).filter(Boolean);
         const proposal = {
           merchantId,
           productId: opportunity.productId,
           discountPercent: draft.discountPercent ?? 0,
           audienceSize: draft.audienceSize ?? opportunity.customerCount,
           budget: draft.budget ?? 0,
-          customerIds: draft.customerIds ?? opportunity.customers?.map((c) => c.customerId) ?? [],
+          customerIds: draft.customerIds && draft.customerIds.length > 0 ? draft.customerIds : resolvedCustomerIds,
         };
 
         const policy = await validateCampaignPolicy(proposal);
-        result = { proposal, policy };
+        result = { proposal: { ...proposal, customerIdsCount: proposal.customerIds.length }, policy };
 
         if (policy.approved) {
-          finalDraftResult = result;
+          finalDraftResult = { proposal, policy };
           stopLoop = true;
         } else {
           revisionCount++;
           if (revisionCount > MAX_REVISIONS) {
-            finalDraftResult = result;
+            finalDraftResult = { proposal, policy };
             stopLoop = true;
           }
         }

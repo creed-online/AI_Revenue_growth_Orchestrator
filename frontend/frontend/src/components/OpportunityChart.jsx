@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { UploadCloud, Sparkles, TrendingUp } from "lucide-react";
+import { UploadCloud, TrendingUp } from "lucide-react";
+import ArgoLogo from "./ArgoLogo";
 import {
   Bar,
   BarChart,
@@ -98,11 +100,11 @@ export default function OpportunityChart({ opportunities = [] }) {
           Upload your customer or orders CSV dataset to immediately detect dormant win-backs, VIP loyalty upsells, and replenishment cycles.
         </p>
         <Link
-          to="/import-data"
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mint to-mint-deep px-4 py-2.5 text-xs font-bold text-ink transition hover:brightness-110"
+          to="/import"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#D97757] to-[#C96442] px-4 py-2.5 text-xs font-bold text-[#181714] transition hover:brightness-110"
         >
-          <Sparkles className="h-4 w-4" />
-          Import Customer Dataset →
+          <ArgoLogo className="h-4 w-4" />
+          <span>Import Customer Dataset →</span>
         </Link>
       </motion.section>
     );

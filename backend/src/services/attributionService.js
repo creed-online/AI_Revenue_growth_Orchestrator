@@ -120,7 +120,7 @@ export async function attributeSingleOrder(orderId, windowDays = DEFAULT_ATTRIBU
  * Scans all unattributed orders for a merchant and runs time-window attribution.
  * Used after CSV imports or recurring reconciliation cron jobs.
  */
-export async function attributeUnattributedOrders(merchantId = 1, windowDays = DEFAULT_ATTRIBUTION_WINDOW_DAYS) {
+export async function attributeUnattributedOrders(merchantId = 1, windowDays = DEFAULT_ATTRIBUTION_WINDOW_DAYS, limit = 50) {
   const unattributedOrders = await prisma.order.findMany({
     where: {
       campaignId: null,
@@ -128,16 +128,21 @@ export async function attributeUnattributedOrders(merchantId = 1, windowDays = D
     },
     select: { id: true },
     orderBy: { createdAt: "desc" },
+    take: limit,
   });
 
-  console.log(`[Attribution Engine] Scanning ${unattributedOrders.length} unattributed orders for Merchant #${merchantId}...`);
+  console.log(`[Attribution Engine] Scanning ${unattributedOrders.length} recent unattributed orders for Merchant #${merchantId}...`);
 
   const results = [];
-  for (const o of unattributedOrders) {
-    const result = await attributeSingleOrder(o.id, windowDays);
-    if (result.status === "attributed") {
-      results.push(result);
-    }
+  const chunkSize = 10;
+  for (let i = 0; i < unattributedOrders.length; i += chunkSize) {
+    const chunk = unattributedOrders.slice(i, i + chunkSize);
+    const chunkResults = await Promise.all(
+      chunk.map((o) => attributeSingleOrder(o.id, windowDays))
+    );
+    chunkResults.forEach((r) => {
+      if (r && r.status === "attributed") results.push(r);
+    });
   }
 
   console.log(`[Attribution Engine] Successfully attributed ${results.length} orders across active campaigns.`);

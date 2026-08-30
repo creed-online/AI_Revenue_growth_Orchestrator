@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Database,
@@ -10,6 +10,8 @@ import {
   Sparkles,
   Check,
   RotateCcw,
+  FileSpreadsheet,
+  PlusCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -18,6 +20,7 @@ export default function MerchantSwitcher() {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isDemoMode = !isAuthenticated || merchantId === 1 || localStorage.getItem("argo_demo_mode") === "true";
   const customMerchant = isAuthenticated && merchant?.id !== 1 ? merchant : null;
@@ -75,6 +78,16 @@ export default function MerchantSwitcher() {
     }
   };
 
+  const handleUploadAnotherDatabase = () => {
+    setOpen(false);
+    if (location.pathname === "/import") {
+      // Dispatch custom event to reset upload form if already on /import
+      window.dispatchEvent(new CustomEvent("argo-reset-import"));
+    } else {
+      navigate("/import");
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Trigger Button */}
@@ -83,20 +96,20 @@ export default function MerchantSwitcher() {
         onClick={() => setOpen(!open)}
         className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[11px] font-medium transition ${
           isDemoMode
-            ? "border-amber-signal/30 bg-amber-signal/10 hover:border-amber-signal/50 text-amber-signal"
-            : "border-mint/30 bg-mint/10 hover:border-mint/50 text-mint"
+            ? "border-[#E5A93C]/30 bg-[#E5A93C]/10 hover:border-[#E5A93C]/50 text-[#E5A93C]"
+            : "border-[#7C9A82]/30 bg-[#7C9A82]/10 hover:border-[#7C9A82]/50 text-[#7C9A82]"
         }`}
       >
         {isDemoMode ? (
           <>
-            <Database className="h-3.5 w-3.5 text-amber-signal" />
+            <Database className="h-3.5 w-3.5 text-[#E5A93C]" />
             <span className="font-semibold">Demo Database</span>
           </>
         ) : (
           <>
-            <Building2 className="h-3.5 w-3.5 text-mint" />
+            <Building2 className="h-3.5 w-3.5 text-[#7C9A82]" />
             <span className="font-semibold truncate max-w-[130px]">
-              {merchant?.businessName || "My Database"}
+              {merchant?.businessName || "Custom Database"}
             </span>
           </>
         )}
@@ -111,12 +124,12 @@ export default function MerchantSwitcher() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-0 mt-2 w-72 rounded-2xl border border-ink-border bg-ink-elevated/95 p-2.5 shadow-2xl backdrop-blur-2xl z-50"
+            className="absolute right-0 mt-2 w-80 rounded-2xl border border-[rgba(220,205,185,0.18)] bg-[#201E1A] p-3 shadow-2xl backdrop-blur-2xl z-50"
           >
             {/* Header */}
-            <div className="px-2.5 py-1.5 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-ink-muted">
+            <div className="px-2.5 py-1.5 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#9E978E]">
               <span>Active Database Workspace</span>
-              <span className="text-[9px] font-mono text-ink-soft">PostgreSQL</span>
+              <span className="text-[9px] font-mono text-[#7C9A82] bg-[#7C9A82]/10 px-2 py-0.5 rounded-full border border-[#7C9A82]/30">PostgreSQL</span>
             </div>
 
             {/* Option 1: Demo Database */}
@@ -124,26 +137,26 @@ export default function MerchantSwitcher() {
               type="button"
               onClick={handleSwitchToDemo}
               className={`w-full flex items-start gap-3 rounded-xl p-2.5 text-left transition ${
-                isDemoMode ? "bg-amber-signal/10 border border-amber-signal/30" : "hover:bg-white/5"
+                isDemoMode ? "bg-[#E5A93C]/10 border border-[#E5A93C]/30" : "hover:bg-white/5 border border-transparent"
               }`}
             >
               <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                isDemoMode ? "bg-amber-signal/20 text-amber-signal" : "bg-white/5 text-ink-muted"
+                isDemoMode ? "bg-[#E5A93C]/20 text-[#E5A93C]" : "bg-white/5 text-[#9E978E]"
               }`}>
                 <Database className="h-4 w-4" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className={`text-xs font-bold ${isDemoMode ? "text-amber-signal" : "text-white"}`}>
+                  <p className={`text-xs font-bold ${isDemoMode ? "text-[#E5A93C]" : "text-white"}`}>
                     Demo Fitness Store
                   </p>
                   {isDemoMode && (
-                    <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-signal">
+                    <span className="flex items-center gap-1 text-[10px] font-semibold text-[#E5A93C]">
                       <Check className="h-3 w-3" /> Active
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
+                <p className="text-[10px] text-[#9E978E] leading-tight mt-0.5">
                   Pre-loaded supplement orders, customers & cycles
                 </p>
               </div>
@@ -155,26 +168,26 @@ export default function MerchantSwitcher() {
                 type="button"
                 onClick={() => handleSwitchToCustom(customMerchant.id)}
                 className={`w-full flex items-start gap-3 rounded-xl p-2.5 text-left transition mt-1.5 ${
-                  !isDemoMode ? "bg-mint/10 border border-mint/30" : "hover:bg-white/5"
+                  !isDemoMode ? "bg-[#7C9A82]/10 border border-[#7C9A82]/30" : "hover:bg-white/5 border border-transparent"
                 }`}
               >
                 <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                  !isDemoMode ? "bg-mint/20 text-mint" : "bg-white/5 text-ink-muted"
+                  !isDemoMode ? "bg-[#7C9A82]/20 text-[#7C9A82]" : "bg-white/5 text-[#9E978E]"
                 }`}>
                   <Building2 className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className={`text-xs font-bold truncate ${!isDemoMode ? "text-mint" : "text-white"}`}>
+                    <p className={`text-xs font-bold truncate ${!isDemoMode ? "text-[#7C9A82]" : "text-white"}`}>
                       {customMerchant.businessName}
                     </p>
                     {!isDemoMode && (
-                      <span className="flex items-center gap-1 text-[10px] font-semibold text-mint">
+                      <span className="flex items-center gap-1 text-[10px] font-semibold text-[#7C9A82]">
                         <Check className="h-3 w-3" /> Active
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
+                  <p className="text-[10px] text-[#9E978E] leading-tight mt-0.5">
                     Your private merchant catalog & customer data
                   </p>
                 </div>
@@ -182,22 +195,19 @@ export default function MerchantSwitcher() {
             )}
 
             {/* Divider */}
-            <div className="my-2 border-t border-ink-border/80" />
+            <div className="my-2 border-t border-[rgba(220,205,185,0.12)]" />
 
-            {/* Action 1: Import Your Own Database */}
+            {/* Primary Action: Upload Another Database / CSV */}
             <button
               type="button"
-              onClick={() => {
-                setOpen(false);
-                navigate("/import");
-              }}
-              className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs font-bold text-mint hover:bg-mint/10 transition group"
+              onClick={handleUploadAnotherDatabase}
+              className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-bold text-[#D97757] bg-[#D97757]/10 hover:bg-[#D97757]/20 border border-[#D97757]/30 transition group"
             >
-              <UploadCloud className="h-4 w-4 text-mint group-hover:scale-110 transition-transform" />
-              <span>Import Your Own Database / CSV</span>
+              <UploadCloud className="h-4 w-4 text-[#D97757] group-hover:scale-110 transition-transform" />
+              <span>Upload Another Database / CSV</span>
             </button>
 
-            {/* Action 2: Create Account (if not registered) */}
+            {/* Optional Secondary Action: Create Merchant Account */}
             {!customMerchant && (
               <button
                 type="button"
@@ -205,17 +215,17 @@ export default function MerchantSwitcher() {
                   setOpen(false);
                   navigate("/register");
                 }}
-                className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs font-semibold text-sky hover:bg-sky/10 transition group mt-0.5"
+                className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-[#DDD6CD] hover:bg-white/5 transition group mt-1"
               >
-                <UserPlus className="h-4 w-4 text-sky group-hover:scale-110 transition-transform" />
-                <span>Create Merchant Account</span>
+                <UserPlus className="h-3.5 w-3.5 text-[#9E978E] group-hover:text-white transition" />
+                <span>Create Merchant Account (Optional)</span>
               </button>
             )}
 
-            {/* Footer */}
-            <div className="mt-2 rounded-lg bg-ink/40 p-2 text-center text-[10px] text-ink-muted">
+            {/* Footer Notice */}
+            <div className="mt-2 rounded-xl bg-[#181714] p-2 text-center text-[10px] text-[#9E978E] border border-[rgba(220,205,185,0.08)]">
               {isDemoMode
-                ? "💡 In Demo mode. Import a CSV or create an account to run live campaigns."
+                ? "💡 You can upload multiple CSV databases without logging in."
                 : `Working in ${merchant?.businessName || "your workspace"}.`}
             </div>
           </motion.div>

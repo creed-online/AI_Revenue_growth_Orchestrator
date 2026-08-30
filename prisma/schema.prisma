@@ -24,6 +24,7 @@ model Merchant {
   users        User[]
   fewShotExamples FewShotExample[]
   schemaExtensions MerchantSchemaExtension[]
+  integration     MerchantIntegration?
 }
 
 model User {
@@ -50,6 +51,8 @@ model Customer {
 
   name             String
   email            String?
+  phone            String?
+  notificationCount Int      @default(0)
   totalOrders      Int       @default(0)
   totalSpend       Float     @default(0)
   avgOrderValue    Float     @default(0)
@@ -288,3 +291,40 @@ model MerchantSchemaExtension {
 
   @@unique([merchantId, entityName])
 }
+
+model MerchantIntegration {
+  id                      Int      @id @default(autoincrement())
+  merchantId              Int      @unique
+  merchant                Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  // SMTP Settings
+  emailProvider           String?  @default("smtp")
+  smtpHost                String?
+  smtpPort                Int?     @default(587)
+  smtpUser                String?
+  smtpPassEncrypted       String?
+  senderEmail             String?
+  senderName              String?
+  emailVerified           Boolean  @default(false)
+
+  // WhatsApp Business Settings
+  whatsappProvider        String?  @default("meta")
+  whatsappPhoneNumberId   String?
+  whatsappWabaId          String?
+  whatsappTokenEncrypted  String?
+  merchantTestPhone       String?
+  whatsappVerified        Boolean  @default(false)
+
+  // Razorpay Gateway Settings
+  razorpayKeyId           String?
+  razorpaySecretEncrypted String?
+  razorpayVerified        Boolean  @default(false)
+
+  // Tone & Template Preferences
+  defaultTone             String   @default("conversational_d2c")
+  selectedTemplate        String   @default("replenishment_v1")
+  isSandboxMode           Boolean  @default(true)
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}

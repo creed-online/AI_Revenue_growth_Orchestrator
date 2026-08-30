@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, Database, Upload, ArrowRight } from "lucide-react";
+import { Database, Upload, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import ArgoLogo from "../components/ArgoLogo";
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -12,14 +13,14 @@ export default function OnboardingPage() {
   const handleContinue = () => {
     if (choice === "demo") {
       localStorage.setItem("argo_demo_mode", "true");
-      navigate("/dashboard");
+      navigate("/");
     } else {
-      navigate("/import-data");
+      navigate("/import");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#181714] p-4">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
@@ -27,11 +28,11 @@ export default function OnboardingPage() {
         className="w-full max-w-2xl"
       >
         <div className="text-center mb-10">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-sky text-ink shadow-[0_0_24px_-6px_rgba(45,212,168,0.55)]">
-            <Sparkles className="h-7 w-7" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#D97757] to-[#E5A93C] text-[#181714] shadow-[0_0_24px_-6px_rgba(217,119,87,0.55)] p-2.5">
+            <ArgoLogo className="h-8 w-8" />
           </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold">Welcome, {merchant?.businessName}!</h1>
-          <p className="mt-2 text-ink-muted">Choose how you'd like to start</p>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-white">Welcome, {merchant?.businessName || "Merchant"}!</h1>
+          <p className="mt-2 text-[#9E978E]">Choose how you'd like to start</p>
         </div>
 
         <div className="grid gap-4">

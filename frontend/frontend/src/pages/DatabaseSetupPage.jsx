@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Database, Upload, CheckCircle2, AlertCircle, Loader2, Users, Package, ShoppingCart, ArrowRight, ChevronLeft, Download, FileText, X } from "lucide-react";
+import ArgoLogo from "../components/ArgoLogo";
 import { api } from "../api/client";
 
 const IMPORT_STEPS = [
@@ -315,8 +316,8 @@ export default function DatabaseSetupPage() {
         className="max-w-4xl mx-auto p-6"
       >
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-sky text-ink shadow-[0_0_24px_-6px_rgba(45,212,168,0.55)]">
-            <Sparkles className="h-7 w-7" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#D97757] to-[#E5A93C] text-[#181714] shadow-[0_0_24px_-6px_rgba(217,119,87,0.55)] p-2.5">
+            <ArgoLogo className="h-8 w-8" />
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-bold">Import Your Business Data</h1>
           <p className="mt-2 text-ink-muted">We'll guide you through importing Customers, Products, and Orders — in that order.</p>
