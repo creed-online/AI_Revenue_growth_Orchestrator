@@ -1,0 +1,819 @@
+{
+	"info": {
+		"_postman_id": "a8f3b2c1-d4e5-4a6b-9c7d-1e2f3a4b5c6d",
+		"name": "ARGOES - Autonomous Revenue Growth Orchestrator API",
+		"description": "Complete API Collection for ARGOES (Autonomous Revenue Growth Orchestrator for E-Commerce & Subscription). Includes all 12 route groups, pre-configured authorization headers, variables, and request schemas for Postman & Postman AI (Postbot).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "merchantId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication & Workspaces",
+			"item": [
+				{
+					"name": "Merchant Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"demo@rakshfit.com\",\n  \"password\": \"demo1234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Logs in the merchant and returns JWT token."
+					}
+				},
+				{
+					"name": "Merchant Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"founder@brand.com\",\n  \"password\": \"securePassword123\",\n  \"businessName\": \"Apex Nutrition D2C\",\n  \"industry\": \"Health & Wellness\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Get Current Merchant Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Switch Merchant Workspace",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"targetMerchantId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/switch-merchant",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "switch-merchant"]
+						}
+					}
+				},
+				{
+					"name": "Instant Demo Session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/demo-session",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "demo-session"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Ingestion & CSV Pipeline",
+			"item": [
+				{
+					"name": "Detect Schema from CSV Sample",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"csvSample\": \"Order_ID,Customer_Name,Customer_Email,Product_Title,Total_Amount,Order_Date\\nORD-1001,Aarav Sharma,aarav@gmail.com,Whey Protein 1kg,1499.00,2026-08-01\\nORD-1002,Priya Patel,priya@gmail.com,Creatine Monohydrate,699.00,2026-08-05\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/import/detect-schema",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "import", "detect-schema"]
+						}
+					}
+				},
+				{
+					"name": "Preview Column Mapping",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"columns\": [\"Order_ID\", \"Customer_Name\", \"Customer_Email\", \"Product_Title\", \"Total_Amount\", \"Order_Date\"],\n  \"sampleRows\": [\n    {\"Order_ID\": \"ORD-1001\", \"Customer_Name\": \"Aarav Sharma\", \"Product_Title\": \"Whey Protein 1kg\", \"Total_Amount\": \"1499.00\"}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/import/preview-mapping",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "import", "preview-mapping"]
+						}
+					}
+				},
+				{
+					"name": "Process Ingestion Job (Bulk Pipeline)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"entityType\": \"Order\",\n  \"mapping\": {\n    \"Order_ID\": \"orderNumber\",\n    \"Customer_Email\": \"customerEmail\",\n    \"Product_Title\": \"productName\",\n    \"Total_Amount\": \"totalPrice\",\n    \"Order_Date\": \"createdAt\"\n  },\n  \"rows\": [\n    {\"Order_ID\": \"ORD-1001\", \"Customer_Email\": \"aarav@gmail.com\", \"Product_Title\": \"Whey Protein 1kg\", \"Total_Amount\": 1499.00, \"Order_Date\": \"2026-08-01\"}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/import/process-job",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "import", "process-job"]
+						}
+					}
+				},
+				{
+					"name": "Get Job Status",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/import/job-status/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "import", "job-status", "1"]
+						}
+					}
+				},
+				{
+					"name": "Download Demo Dataset CSV",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/import/demo-dataset/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "import", "demo-dataset", "orders"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Semantic Schema Registry",
+			"item": [
+				{
+					"name": "Get Target Schema",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/schema/target",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "schema", "target"]
+						}
+					}
+				},
+				{
+					"name": "Get Field Registry",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/schema/registry",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "schema", "registry"]
+						}
+					}
+				},
+				{
+					"name": "Match Columns (3-Tier Vector)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"columns\": [\"user_email\", \"billing_cost\", \"item_sku\"],\n  \"sampleRows\": [{\"user_email\": \"test@user.com\", \"billing_cost\": \"499.00\", \"item_sku\": \"CREATINE-300G\"}]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/schema/match-columns",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "schema", "match-columns"]
+						}
+					}
+				},
+				{
+					"name": "Search Vector Similar Fields",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"queryText\": \"buyer telephone number\",\n  \"topK\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/schema/search-similar",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "schema", "search-similar"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Opportunities & Cohort Discovery",
+			"item": [
+				{
+					"name": "List Replenishment Opportunities",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/opportunities?type=ALL&priority=ALL",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "opportunities"],
+							"query": [
+								{ "key": "type", "value": "ALL" },
+								{ "key": "priority", "value": "ALL" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Opportunity Detail by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/opportunities/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "opportunities", "1"]
+						}
+					}
+				},
+				{
+					"name": "Simulate Opportunity Discount Tiers",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/opportunities/1/simulate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "opportunities", "1", "simulate"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. AI Orchestrator & Agents",
+			"item": [
+				{
+					"name": "Run Orchestrator Agent Proposal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"opportunityId\": 1,\n  \"prompt\": \"Analyze the 28-day protein repurchase cycle, verify minimum 30% margin guardrail, and generate high-converting WhatsApp copy.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orchestrator",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orchestrator"]
+						}
+					}
+				},
+				{
+					"name": "Simulate Campaign Profitability",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"opportunity\": {\n    \"productName\": \"Whey Protein Isolate 1kg\",\n    \"potentialRevenue\": 45000,\n    \"customers\": [{\"id\": 1, \"name\": \"Varun\", \"email\": \"varun@example.com\"}]\n  },\n  \"audience\": [{\"id\": 1, \"name\": \"Varun\", \"email\": \"varun@example.com\"}]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/simulate-campaign",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "simulate-campaign"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Policy & Margin Guardrails",
+			"item": [
+				{
+					"name": "Validate Campaign Policy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"proposal\": {\n    \"discountPercent\": 10,\n    \"audienceSize\": 188,\n    \"budget\": 15000,\n    \"expectedRevenue\": 45000\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/policy-check",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "policy-check"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Campaign Governance & Approvals",
+			"item": [
+				{
+					"name": "List Approval Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/approvals?status=pending",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "approvals"],
+							"query": [{ "key": "status", "value": "pending" }]
+						}
+					}
+				},
+				{
+					"name": "Get Approval Request by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/approvals/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "approvals", "1"]
+						}
+					}
+				},
+				{
+					"name": "1-Click Approve Campaign Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decidedBy\": \"merchant\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/approvals/1/approve",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "approvals", "1", "approve"]
+						}
+					}
+				},
+				{
+					"name": "Reject Campaign Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decidedBy\": \"merchant\",\n  \"reason\": \"Discount exceeds seasonal Q3 margin target.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/approvals/1/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "approvals", "1", "reject"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Campaigns & Razorpay Execution",
+			"item": [
+				{
+					"name": "List All Campaigns",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/campaigns",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "campaigns"]
+						}
+					}
+				},
+				{
+					"name": "Get Campaign by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/campaigns/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "campaigns", "1"]
+						}
+					}
+				},
+				{
+					"name": "Execute Approved Campaign (High-Speed Dispatch)",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/campaigns/1/execute",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "campaigns", "1", "execute"]
+						}
+					}
+				},
+				{
+					"name": "Get Campaign Real-Time Results",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/campaigns/1/results",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "campaigns", "1", "results"]
+						}
+					}
+				},
+				{
+					"name": "Get Cryptographic Audit Trail",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/campaigns/1/audit",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "campaigns", "1", "audit"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Customer Intelligence & Notification Prefs",
+			"item": [
+				{
+					"name": "All Due Replenishment Opportunities",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/replenishment/due",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "customers", "replenishment", "due"]
+						}
+					}
+				},
+				{
+					"name": "All Customer Discount Classifications",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/discount-classification",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "customers", "discount-classification"]
+						}
+					}
+				},
+				{
+					"name": "Single Customer Discount Classification",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/1/discount-classification",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "customers", "1", "discount-classification"]
+						}
+					}
+				},
+				{
+					"name": "Get Customer Notification Preferences",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/notification-prefs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "customers", "notification-prefs"]
+						}
+					}
+				},
+				{
+					"name": "Update Customer Notification Preferences",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"prefs\": {\n    \"email\": true,\n    \"whatsapp\": true,\n    \"sms\": false,\n    \"frequency\": \"weekly\",\n    \"quietHoursStart\": 22,\n    \"quietHoursEnd\": 8\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/notification-prefs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "customers", "notification-prefs"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Universal Tracking & 1-Tap Checkout",
+			"item": [
+				{
+					"name": "Email Open Pixel Tracking (1x1 GIF)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/track/open/trk_sample_token_123",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "track", "open", "trk_sample_token_123"]
+						}
+					}
+				},
+				{
+					"name": "Link Click Attribution Redirect",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/track/click/trk_sample_token_123?redirect=http://localhost:5173",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "track", "click", "trk_sample_token_123"],
+							"query": [{ "key": "redirect", "value": "http://localhost:5173" }]
+						}
+					}
+				},
+				{
+					"name": "Create 1-Tap Prefilled Checkout Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campaignId\": 1,\n  \"customerId\": 1,\n  \"discountPercent\": 10,\n  \"items\": [\n    {\"productId\": 1, \"name\": \"Whey Protein 1kg\", \"quantity\": 1, \"unitPrice\": 1499.00}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/track/checkout-order",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "track", "checkout-order"]
+						}
+					}
+				},
+				{
+					"name": "Verify Razorpay Payment Signature",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"razorpay_order_id\": \"order_12345\",\n  \"razorpay_payment_id\": \"pay_12345\",\n  \"razorpay_signature\": \"sample_sig\",\n  \"campaignId\": 1,\n  \"customerId\": 1,\n  \"amount\": 1349.10\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/track/verify-payment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "track", "verify-payment"]
+						}
+					}
+				},
+				{
+					"name": "Preview HTML Marketing Email",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/track/preview-email/trk_sample_token_123",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "track", "preview-email", "trk_sample_token_123"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "11. BYO Integrations & Channels",
+			"item": [
+				{
+					"name": "Get Integration Status & Masked Secrets",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/integrations",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "integrations"]
+						}
+					}
+				},
+				{
+					"name": "Save Encrypted Integration Credentials",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"isSandboxMode\": true,\n  \"defaultTone\": \"conversational_d2c\",\n  \"selectedTemplate\": \"replenishment_v1\",\n  \"smtp\": {\n    \"host\": \"smtp.gmail.com\",\n    \"port\": 587,\n    \"user\": \"merchant@gmail.com\",\n    \"pass\": \"app_password_here\",\n    \"senderEmail\": \"orders@brand.com\",\n    \"senderName\": \"Brand Replenishments\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/integrations",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "integrations"]
+						}
+					}
+				},
+				{
+					"name": "Test SMTP Connection Ping",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"host\": \"smtp.gmail.com\",\n  \"port\": 587,\n  \"user\": \"test@gmail.com\",\n  \"pass\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/integrations/test-smtp",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "integrations", "test-smtp"]
+						}
+					}
+				},
+				{
+					"name": "List WhatsApp Approved Templates",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/integrations/whatsapp-templates",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "integrations", "whatsapp-templates"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "12. Executive Reports & CSV Export",
+			"item": [
+				{
+					"name": "Download 20-Cohort CSV Stream",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/export/csv",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "export", "csv"]
+						}
+					}
+				},
+				{
+					"name": "Get Executive Summary Growth JSON",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/export/summary",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "export", "summary"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
+

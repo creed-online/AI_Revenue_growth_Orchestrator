@@ -71,6 +71,22 @@ router.get("/replenishment/due-for-product/:productId", async (req, res) => {
   }
 });
 
+router.get("/discount-classification", async (req, res) => {
+  try {
+    const merchantId = resolveMerchantId(req, 1);
+    const results = await getAllCustomerDiscountClassifications(merchantId);
+
+    return res.json({
+      merchantId,
+      count: results.length,
+      customers: results,
+    });
+  } catch (error) {
+    console.error("Error classifying all customer discount needs:", error);
+    return res.status(500).json({ error: "Failed to classify merchant customer discount needs" });
+  }
+});
+
 router.get("/:id/discount-classification", async (req, res) => {
   try {
     const merchantId = resolveMerchantId(req, 1);
@@ -85,22 +101,6 @@ router.get("/:id/discount-classification", async (req, res) => {
   } catch (error) {
     console.error("Error classifying customer discount need:", error);
     return res.status(500).json({ error: "Failed to classify discount need" });
-  }
-});
-
-router.get("/discount-classification", async (req, res) => {
-  try {
-    const merchantId = resolveMerchantId(req, 1);
-    const results = await getAllCustomerDiscountClassifications(merchantId);
-
-    return res.json({
-      merchantId,
-      count: results.length,
-      customers: results,
-    });
-  } catch (error) {
-    console.error("Error classifying all customer discount needs:", error);
-    return res.status(500).json({ error: "Failed to classify merchant customer discount needs" });
   }
 });
 

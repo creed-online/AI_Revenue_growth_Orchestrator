@@ -1,0 +1,416 @@
+openapi: 3.0.3
+info:
+  title: ARGOES - Autonomous Revenue Growth Orchestrator API
+  description: Complete Enterprise REST API specification for ARGOES (Autonomous Revenue Growth Orchestrator for E-Commerce & Subscription).
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+  - url: https://argoes.app
+    description: Production Cloud Deployment
+
+paths:
+  # 1. Authentication
+  /api/auth/login:
+    post:
+      summary: Merchant Login
+      tags: [1. Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, example: "demo@rakshfit.com" }
+                password: { type: string, example: "demo1234" }
+      responses:
+        '200': { description: Login successful, returns JWT token and merchant profile }
+
+  /api/auth/register:
+    post:
+      summary: Merchant Registration
+      tags: [1. Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, example: "founder@brand.com" }
+                password: { type: string, example: "securePass123" }
+                businessName: { type: string, example: "Apex Nutrition D2C" }
+                industry: { type: string, example: "Health & Wellness" }
+      responses:
+        '201': { description: Workspace created }
+
+  /api/auth/me:
+    get:
+      summary: Get Authenticated Merchant
+      tags: [1. Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200': { description: Current merchant details }
+
+  /api/auth/switch-merchant:
+    post:
+      summary: Switch Merchant Workspace
+      tags: [1. Authentication]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetMerchantId: { type: integer, example: 1 }
+      responses:
+        '200': { description: Workspace switched, returns new token }
+
+  /api/auth/demo-session:
+    post:
+      summary: Instant Demo Session Token
+      tags: [1. Authentication]
+      responses:
+        '200': { description: Demo token generated }
+
+  # 2. Ingestion & CSV
+  /api/import/detect-schema:
+    post:
+      summary: Detect CSV Headers & Entity
+      tags: [2. Ingestion & Pipeline]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                csvSample: { type: string }
+      responses:
+        '200': { description: Classified entity & suggested mappings }
+
+  /api/import/preview-mapping:
+    post:
+      summary: Preview Semantic Column Mapping
+      tags: [2. Ingestion & Pipeline]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                columns: { type: array, items: { type: string } }
+                sampleRows: { type: array, items: { type: object } }
+      responses:
+        '200': { description: Matched column mappings }
+
+  /api/import/process-job:
+    post:
+      summary: High-Throughput Bulk Ingestion
+      tags: [2. Ingestion & Pipeline]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entityType: { type: string, example: "Order" }
+                mapping: { type: object }
+                rows: { type: array, items: { type: object } }
+      responses:
+        '200': { description: Job initialized and entities committed }
+
+  /api/import/job-status/{jobId}:
+    get:
+      summary: Ingestion Job Progress Status
+      tags: [2. Ingestion & Pipeline]
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Job status, rows, and milestones }
+
+  # 3. Opportunities
+  /api/opportunities:
+    get:
+      summary: List Ranked Replenishment Opportunities
+      tags: [3. Opportunities]
+      parameters:
+        - name: type
+          in: query
+          schema: { type: string, default: "ALL" }
+        - name: priority
+          in: query
+          schema: { type: string, default: "ALL" }
+      responses:
+        '200': { description: List of 20 cohorts with financial summaries }
+
+  /api/opportunities/{productId}:
+    get:
+      summary: Opportunity Inspection by ID
+      tags: [3. Opportunities]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Detailed opportunity object }
+
+  /api/opportunities/{productId}/simulate:
+    post:
+      summary: Simulate Opportunity Discount Tiers
+      tags: [3. Opportunities]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Simulated profit and ROI tiers }
+
+  # 4. AI Orchestration
+  /api/orchestrator:
+    post:
+      summary: Run Autonomous AI Triage Agent
+      tags: [4. AI Orchestration]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                opportunityId: { type: integer, example: 1 }
+                prompt: { type: string }
+      responses:
+        '200': { description: Agent proposal, reasoning, and campaign draft }
+
+  # 5. Approvals & Governance
+  /api/approvals:
+    get:
+      summary: List Campaign Approval Requests
+      tags: [5. Approvals & Governance]
+      security:
+        - BearerAuth: []
+      responses:
+        '200': { description: List of pending approval requests }
+
+  /api/approvals/{id}/approve:
+    post:
+      summary: 1-Click Approve AI Campaign
+      tags: [5. Approvals & Governance]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Campaign approved and ready for execution }
+
+  /api/approvals/{id}/reject:
+    post:
+      summary: Reject Campaign Proposal
+      tags: [5. Approvals & Governance]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        '200': { description: Campaign proposal rejected }
+
+  # 6. Campaigns & Execution
+  /api/campaigns:
+    get:
+      summary: List All Campaigns
+      tags: [6. Campaigns]
+      responses:
+        '200': { description: List of campaigns }
+
+  /api/campaigns/{id}/execute:
+    post:
+      summary: Execute Approved Campaign (High-Speed Dispatch)
+      tags: [6. Campaigns]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Campaign executed, tokens created, emails dispatched }
+
+  /api/campaigns/{id}/results:
+    get:
+      summary: Campaign Real-Time Analytics & Funnel
+      tags: [6. Campaigns]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Real-time open, click, conversion, and revenue metrics }
+
+  /api/campaigns/{id}/audit:
+    get:
+      summary: Cryptographic Policy Audit Trail
+      tags: [6. Campaigns]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Immutable audit log entries }
+
+  # 7. Universal Tracking & 1-Tap Checkout
+  /api/track/open/{token}:
+    get:
+      summary: 1x1 Transparent Pixel Email Open Tracker
+      tags: [7. Universal Tracking]
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Serves 1x1 transparent GIF }
+
+  /api/track/click/{token}:
+    get:
+      summary: Link Click Tracker & Attribution Cookie
+      tags: [7. Universal Tracking]
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema: { type: string }
+        - name: redirect
+          in: query
+          schema: { type: string }
+      responses:
+        '302': { description: Sets attribution cookie and redirects to storefront }
+
+  /api/track/checkout-order:
+    post:
+      summary: Create 1-Tap Prefilled Razorpay Checkout Order
+      tags: [7. Universal Tracking]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaignId: { type: integer }
+                customerId: { type: integer }
+                discountPercent: { type: number }
+                items: { type: array, items: { type: object } }
+      responses:
+        '200': { description: Razorpay order ID and checkout payload }
+
+  /api/track/verify-payment:
+    post:
+      summary: Verify Razorpay Payment Signature
+      tags: [7. Universal Tracking]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                razorpay_order_id: { type: string }
+                razorpay_payment_id: { type: string }
+                razorpay_signature: { type: string }
+                campaignId: { type: integer }
+                customerId: { type: integer }
+                amount: { type: number }
+      responses:
+        '200': { description: Payment verified and attributed }
+
+  # 8. BYO Integrations
+  /api/integrations:
+    get:
+      summary: Get Integration Credentials & Status
+      tags: [8. Integrations]
+      responses:
+        '200': { description: Masked integration secrets and connection health }
+    post:
+      summary: Update Encrypted Channel Credentials
+      tags: [8. Integrations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isSandboxMode: { type: boolean }
+                smtp: { type: object }
+                whatsapp: { type: object }
+                razorpay: { type: object }
+      responses:
+        '200': { description: Integration settings updated }
+
+  /api/integrations/test-smtp:
+    post:
+      summary: Test SMTP Connection Handshake
+      tags: [8. Integrations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                host: { type: string }
+                port: { type: integer }
+                user: { type: string }
+                pass: { type: string }
+      responses:
+        '200': { description: SMTP connection verification result }
+
+  # 9. Exporters
+  /api/export/csv:
+    get:
+      summary: Stream 20-Cohort CSV Export
+      tags: [9. Exporters]
+      responses:
+        '200': { description: Downloadable CSV file }
+
+  /api/export/summary:
+    get:
+      summary: Executive Growth Summary JSON
+      tags: [9. Exporters]
+      responses:
+        '200': { description: Aggregated JSON for executive PDF generation }
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
